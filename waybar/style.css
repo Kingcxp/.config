@@ -34,6 +34,7 @@ tooltip {
 #battery,
 #window,
 #pulseaudio,
+#battery.power,
 #workspaces {
   border-radius: 4px;
   margin-top: 2px;
@@ -64,7 +65,8 @@ tooltip {
 }
 
 #workspaces button:hover {
-  background-color: #5b6078;
+  background-color: #eed49f;
+  color: #1e2030;
 }
 
 #workspaces button.empty {
@@ -132,6 +134,10 @@ tooltip {
 
 #battery.charging {
   color: #a6da95;
+}
+
+#battery.power {
+  color: #fe640b;
 }
 
 #battery.warning:not(.charging) {

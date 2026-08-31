@@ -1,0 +1,165 @@
+/* Catppuccin Macchiato - regreet 0.5.0 GTK4 login screen
+   Selectors match the actual widget tree in regreet 0.5.0
+   (see src/gui/templates.rs: window > Overlay > Frame.background > Grid,
+    ComboBoxText, Entry/PasswordEntry, ToggleButton, Button; clock Frame;
+    InfoBar; EndButtons with destructive-action class). */
+
+* {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+}
+
+/* Root window: dark so the greeter is never bright */
+window {
+  background-color: #181926;
+}
+
+/* Login frame and clock frame (add_css_class = "background") */
+frame.background {
+  background-color: #1e2030;
+  color: #cad3f5;
+  border: 1px solid #363a4f;
+  border-radius: 8px;
+}
+
+/* Field labels ("User:", "Session:", "Password:") */
+label {
+  color: #cad3f5;
+}
+
+/* Text/password entries */
+entry {
+  background-color: #11111b;
+  color: #f4dbd6;
+  border: 2px solid #494d64;
+  border-radius: 8px;
+  padding: 10px 14px;
+  caret-color: #f4dbd6;
+}
+
+entry:focus {
+  border-color: #b7bdf8;
+  box-shadow: 0 0 0 3px rgba(183, 189, 248, 0.25);
+  background-color: #0b0b14;
+}
+
+/* Session / username combo boxes */
+combobox button,
+combobox button.combo {
+  background-color: #363a4f;
+  color: #cad3f5;
+  border: 1px solid #6e738d;
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+
+combobox button:hover {
+  background-color: #494d64;
+}
+
+combobox arrow {
+  color: #b7bdf8;
+}
+
+/* Dropdown popups (GTK4 popover) */
+popover.background,
+popover.background list,
+popover.background listview,
+popover.background listitem,
+popover.background row,
+popover.background scrolledwindow {
+  background-color: #1e2030;
+  color: #cad3f5;
+  border: 1px solid #494d64;
+  border-radius: 8px;
+}
+
+popover.background row:hover,
+popover.background row:selected,
+popover.background row:hover label,
+popover.background row:selected label {
+  background-color: #b7bdf8;
+  color: #1e2030;
+}
+
+/* Manual-entry toggle buttons */
+toggle {
+  background-color: #363a4f;
+  color: #cad3f5;
+  border: 1px solid #6e738d;
+  border-radius: 8px;
+}
+
+toggle:checked {
+  background-color: #b7bdf8;
+  color: #1e2030;
+}
+
+/* Generic buttons (Cancel) */
+button {
+  background-color: #363a4f;
+  color: #cad3f5;
+  border: 1px solid #6e738d;
+  border-radius: 8px;
+}
+
+button:hover {
+  background-color: #494d64;
+}
+
+/* Login button (add_css_class = "suggested-action") */
+button.suggested-action {
+  background-color: #b7bdf8;
+  color: #1e2030;
+  font-weight: bold;
+  border: none;
+  padding: 10px 28px;
+}
+
+button.suggested-action:hover {
+  background-color: #c6a0f6;
+}
+
+button.suggested-action:active {
+  background-color: #91d7e3;
+}
+
+/* Reboot / Power Off buttons (EndButton: destructive-action) */
+button.destructive-action {
+  background-color: #363a4f;
+  color: #ed8796;
+  border: 1px solid #ed8796;
+}
+
+button.destructive-action:hover {
+  background-color: #ed8796;
+  color: #1e2030;
+}
+
+/* Notification InfoBar */
+infobar {
+  background-color: #363a4f;
+  color: #cad3f5;
+  border-radius: 8px;
+}
+
+infobar label {
+  color: #cad3f5;
+}
+
+/* Message label */
+#message_label {
+  color: #ed8796;
+}
+
+/* Popover/clock label colors */
+#clock_frame label {
+  color: #cad3f5;
+  font-size: 18px;
+}
+
+/* Scrollbar */
+scrollbar,
+scrollbar slider {
+  background-color: #363a4f;
+  border-radius: 4px;
+}

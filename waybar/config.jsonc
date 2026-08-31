@@ -23,7 +23,7 @@
     "persistent-workspaces": {
       "*": 10
     },
-    "on-click": "activate",
+    // Clicking a workspace switches to it natively (no on-click needed).
     "on-scroll-up": "hyprctl dispatch workspace e+1",
     "on-scroll-down": "hyprctl dispatch workspace e-1"
   },
@@ -64,7 +64,6 @@
   "cpu": {
     "interval": 5,
     "format": " {usage:2}%",
-    // "format": "\uf2db {usage:2}%",
     "tooltip": true,
     "on-click": "kitty -e btop"
   },
@@ -83,14 +82,14 @@
   },
   "network": {
     "interval": 5,
-    // "format-wifi": "\uf1eb {essid} ({signalStrength}%)",
     "format-wifi": "\uf1eb {signalStrength}%",
     "format-ethernet": "\uf6ff {ifname}",
     "format-linked": "\uf059 No IP ({ifname})",
     "format-disconnected": "\uf071 Disconnected",
     "tooltip-format": "{ifname} {ipaddr}/{cidr} via {gwaddr}",
     "format-alt": "\uf6ff {ipaddr}/{cidr}",
-    "on-click": "nm-connection-editor"
+    "on-click": "nm-connection-editor",
+    "on-click-right": "kitty -e nmtui"
   },
   "pulseaudio": {
     "scroll-step": 5,
@@ -101,6 +100,8 @@
     "format-icons": {
       "default": ["\uf026", "\uf027", "\uf028"]
     },
+    "on-click": "pavucontrol",
+    "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "on-click-right": "pavucontrol",
     "ignored-sinks": ["AudioRelay Virtual Sink", "Recorder Sink"]
   },
@@ -122,11 +123,14 @@
     "format-plugged": " {capacity}%",
     "format-alt": "{time} {icon}",
     "format-icons": ["", "", "", "", ""],
-    "on-click-right": "sh -c ~/.config/waybar/scripts/powertop-toggle.sh toggle",
-    "on-click-middle": "sh -c ~/.config/waybar/scripts/powertop-toggle.sh optimize"
+    "on-click": "~/.config/waybar/scripts/powertop-toggle.sh menu",
+    "on-click-right": "~/.config/waybar/scripts/powertop-toggle.sh toggle",
+    "on-click-middle": "~/.config/waybar/scripts/powertop-toggle.sh optimize"
   },
   "battery#power": {
     "format": "󰢝 {power:0.2f}w",
-    "interval": 5
-  },
+    "interval": 5,
+    "tooltip-format": "{capacity}% · {time}",
+    "on-click": "~/.config/waybar/scripts/powertop-toggle.sh menu"
+  }
 }

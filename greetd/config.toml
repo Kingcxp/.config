@@ -1,0 +1,12 @@
+[terminal]
+vt = 1
+
+[default_session]
+command = "start-hyprland -- -c /etc/greetd/hyprland.lua"
+user = "greeter"
+
+# Direct boot into the user's Hyprland desktop (replaces the regreet login screen).
+# Signed out / session end falls back to the greeter (default_session) above.
+[initial_session]
+command = "start-hyprland"
+user = "kingcq"

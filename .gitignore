@@ -4,8 +4,12 @@
 !.gitignore
 !.gitmodules
 
-!fish/
-!fish/config.fish
+
+!greetd/
+!greetd/**
+
+!scripts/
+!scripts/**
 
 !micro/
 !micro/**

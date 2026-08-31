@@ -3,7 +3,7 @@
 #window {
   background-color: rgba(30, 32, 48, 0.9);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+  border-radius: 8px;
   border: 2px solid #6e738d;
   font-size: 1.2rem;
 }
@@ -40,7 +40,8 @@
 }
 
 #window #outer-box #scroll #inner-box #entry #img {
-  width: 1.2rem;
+  min-width: 1.2rem;
+  min-height: 1.2rem;
   margin-right: 0.5rem;
   color: #8aadf4;
 }

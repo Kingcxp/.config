@@ -1,0 +1,12 @@
+[commands]
+reboot = [ "systemctl", "reboot" ]
+poweroff = [ "systemctl", "poweroff" ]
+
+[terminal]
+vt = 1
+
+[GTK]
+application_prefer_dark_theme = true
+theme_name = "Adwaita-dark"
+font_name = "JetBrainsMono Nerd Font 12"
+cursor_theme_name = "catppuccin-macchiato-lavender-cursors"

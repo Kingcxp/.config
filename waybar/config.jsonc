@@ -109,8 +109,9 @@
     "tooltip": false,
     "format": " {}%",
     "interval": 5,
-    "on-scroll-up": "brightnessctl set 5%+",
-    "on-scroll-down": "brightnessctl set 5%-"
+    "scroll-step": 1.0,
+    "smooth-scrolling-threshold": 1.0,
+    "min-brightness": 5
   },
   "battery": {
     "states": {

@@ -2,10 +2,15 @@
 
 !README.md
 !.gitignore
-!.gitmodules
+!fish/
+!fish/config.fish
+!fish/oh-my-posh/
+!fish/oh-my-posh/**
 
 
 !greetd/
+
+
 !greetd/**
 
 !scripts/

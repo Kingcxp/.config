@@ -56,3 +56,6 @@
 
 !vscode/
 !vscode/**
+
+!fcitx5/
+!fcitx5/**

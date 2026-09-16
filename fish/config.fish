@@ -4,9 +4,9 @@
 export MICRO_TRUECOLOR=1
 export EDITOR=nvim
 
-# oh-my-posh 提示符（Catppuccin Macchiato 定制主题）
+# oh-my-posh 提示符（clean-detailed 主题）
 if type -q oh-my-posh
-    oh-my-posh init fish --config ~/.config/fish/oh-my-posh/catppuccin-macchiato.omp.json | source
+    oh-my-posh init fish --config ~/.config/fish/oh-my-posh/clean-detailed.omp.json | source
 end
 
 # zoxide 智能目录跳转（z）

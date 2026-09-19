@@ -9,6 +9,10 @@ if type -q oh-my-posh
     oh-my-posh init fish --config ~/.config/fish/oh-my-posh/clean-detailed.omp.json | source
 end
 
+# bun：全局安装的包落在 ~/.bun/bin
+set --export BUN_INSTALL "$HOME/.bun"
+fish_add_path -p ~/.bun/bin
+
 # zoxide 智能目录跳转（z）
 if type -q zoxide
     zoxide init fish | source

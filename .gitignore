@@ -59,3 +59,6 @@
 
 !fcitx5/
 !fcitx5/**
+
+!debian/
+!debian/**

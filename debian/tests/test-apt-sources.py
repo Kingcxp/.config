@@ -57,6 +57,57 @@ class SourceTests(unittest.TestCase):
         result = sources.supplemental(self.root)
         self.assertIn("Components: main\nArchitectures: i386", result)
 
+    def test_switch_disables_old_sources_and_cdrom_but_keeps_vendor(self):
+        self.write("sources.list", "deb cdrom:[Debian GNU/Linux 13] trixie main\n"
+                   "deb https://old.example/debian stable main\n"
+                   "deb https://pkgs.tailscale.com/stable/debian trixie main\n")
+        changes = sources.switch_plan(self.root, "nju")
+        self.assertIn("# Disabled by myconfig: deb cdrom:", changes["sources.list"])
+        self.assertIn("# Disabled by myconfig: deb https://old.example/debian", changes["sources.list"])
+        self.assertIn("\ndeb https://pkgs.tailscale.com/stable/debian", changes["sources.list"])
+        managed = changes["sources.list.d/myconfig-debian.sources"]
+        self.assertIn("https://mirror.nju.edu.cn/debian-security", managed)
+        self.assertIn("Suites: trixie-backports", managed)
+        self.assertNotIn("Suites: stable", managed)
+
+    def test_deb822_mixed_file_keeps_vendor_stanza(self):
+        self.write("sources.list.d/base.sources", "Types: deb deb-src\nURIs: https://deb.debian.org/debian\n"
+                   "Suites: trixie trixie-updates\nComponents: main\n\n"
+                   "Types: deb\nURIs: https://packages.microsoft.com/repos/code\nSuites: stable\nComponents: main\n")
+        changed = sources.switch_plan(self.root, "nju")["sources.list.d/base.sources"]
+        self.assertEqual(changed.count("Enabled: no"), 1)
+        self.assertTrue(changed.endswith("Suites: stable\nComponents: main\n"))
+
+    def test_switch_restore_and_repeat_are_exact(self):
+        original = "# Original\ndeb https://deb.debian.org/debian trixie main\n"
+        self.write("sources.list", original)
+        backup = sources.apply_switch(self.root, "nju", self.root / "backups")
+        self.assertEqual(sources.switch_plan(self.root, "nju"), {})
+        self.assertEqual({uri for uri, _, _ in sources.entries(self.root, True)},
+                         {"https://mirror.nju.edu.cn/debian", "https://mirror.nju.edu.cn/debian-security"})
+        sources.apply_switch(self.root, "official", self.root / "backups")
+        self.assertNotIn("mirror.nju.edu.cn", (self.root / "sources.list.d/myconfig-debian.sources").read_text())
+        sources.restore(self.root, backup)
+        self.assertEqual((self.root / "sources.list").read_text(), original)
+        self.assertFalse((self.root / "sources.list.d/myconfig-debian.sources").exists())
+
+    def test_foreign_debian_suite_rejected_before_any_write(self):
+        original = "deb https://deb.debian.org/debian sid main\n"
+        self.write("sources.list", original)
+        with self.assertRaises(ValueError):
+            sources.apply_switch(self.root, "nju", self.root / "backups")
+        self.assertEqual((self.root / "sources.list").read_text(), original)
+        self.assertFalse((self.root / "backups").exists())
+
+    def test_mixed_uri_stanza_and_unmanaged_target_rejected(self):
+        self.write("sources.list.d/base.sources", "Types: deb\nURIs: https://deb.debian.org/debian https://vendor.example/repo\nSuites: trixie\nComponents: main\n")
+        with self.assertRaises(ValueError):
+            sources.switch_plan(self.root, "nju")
+        (self.root / "sources.list.d/base.sources").unlink()
+        self.write("sources.list.d/myconfig-debian.sources", "# User owned\n")
+        with self.assertRaises(ValueError):
+            sources.switch_plan(self.root, "official")
+
 
 if __name__ == "__main__":
     unittest.main()

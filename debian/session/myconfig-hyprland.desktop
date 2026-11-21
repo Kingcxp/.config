@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Hyprland (myconfig)
+Comment=Hyprland with the myconfig desktop configuration
+Exec=/usr/local/bin/myconfig-hyprland
+TryExec=/usr/local/bin/myconfig-hyprland
+Type=Application
+DesktopNames=Hyprland

@@ -7,6 +7,11 @@ FAILURES=()
 FINISHED=false
 MANUAL_SHOWN=false
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/myconfig-debian"
+# Linted separately; no actions are executed on import.
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/desktop-migration.sh"
+MIRROR=official
+DESKTOP_MIGRATION=false
 
 say() { printf '\n==> %s\n' "$*"; }
 die() { printf 'Error: %s\n' "$*" >&2; exit 2; }
@@ -30,7 +35,7 @@ manual() { cat "$SCRIPT_DIR/MANUAL.md"; MANUAL_SHOWN=true; }
 
 plan() {
     printf 'Debian 13 Trixie / amd64; current user: %s\n' "${USER:-unknown}"
-    printf 'APT: official Debian + Backports + Tailscale + Microsoft (Code/Edge).\n'
+    printf 'APT: Debian mirror=%s + Backports + official Tailscale/Microsoft repositories.\n' "$MIRROR"
     printf 'Steam/Wine: enable i386, contrib, non-free, non-free-firmware.\n'
     local list
     for list in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt; do
@@ -151,20 +156,28 @@ ensure_chinese_locale() {
 }
 
 main() {
-    case "${1:-}" in
-        --dry-run) [[ "$#" == 1 ]] || die 'Use one option at a time'; plan; return ;;
-        --manual) [[ "$#" == 1 ]] || die 'Use one option at a time'; manual; return ;;
-        --help|-h) printf 'Usage: bash install-software.sh [--dry-run | --manual | --help]\nInstalls software only; use install.sh to also deploy the Debian desktop configuration.\n'; return ;;
-        '') [[ "$#" == 0 ]] || die 'Unexpected empty argument' ;;
-        *) die "Unknown option: $1" ;;
-    esac
+    local dry_run=false
+    if [[ -r "$STATE_DIR/mirror" ]]; then IFS= read -r MIRROR <"$STATE_DIR/mirror"; fi
+    while (( $# )); do
+        case "$1" in
+            --mirror) (( $# >= 2 )) || die '--mirror requires official or nju'; MIRROR="$2"; shift 2 ;;
+            --desktop-migration) DESKTOP_MIGRATION=true; shift ;;
+            --dry-run) dry_run=true; shift ;;
+            --manual) manual; return ;;
+            --help|-h) printf 'Usage: bash install-software.sh [--mirror official|nju] [--dry-run | --manual]\nInstalls software only. install.sh also deploys the desktop and removes KDE.\n'; return ;;
+            *) die "Unknown option: $1" ;;
+        esac
+    done
+    [[ "$MIRROR" == official || "$MIRROR" == nju ]] || die 'Mirror must be official or nju'
+    if [[ "$dry_run" == true ]]; then plan; return; fi
     [[ "$EUID" -ne 0 ]] || die 'Run as your normal user, without sudo.'
     local manifest
-    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh MANUAL.md lib/apt-sources.py; do
+    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh switch-mirror.sh MANUAL.md lib/apt-sources.py lib/desktop-migration.sh; do
         [[ -s "$SCRIPT_DIR/$manifest" ]] || die "Missing installer file: $manifest"
     done
     command -v apt-get >/dev/null || die 'This script requires Debian 13 apt-get.'
     command -v sudo >/dev/null || die 'Install sudo and grant your user sudo access first.'
+    command -v python3 >/dev/null || die 'Install python3 first (Debian KDE normally includes it).'
     # shellcheck disable=SC1091
     source /etc/os-release
     [[ "${ID:-}" == debian && "${VERSION_CODENAME:-}" == trixie ]] || die "Requires Debian 13 Trixie, detected ${PRETTY_NAME:-unknown}."
@@ -174,12 +187,11 @@ main() {
     mkdir -p "$STATE_DIR"
     : >"$STATE_DIR/failed-packages.txt"
     exec > >(tee -a "$STATE_DIR/install.log") 2>&1
-    # Bootstrap before curl/gpg/python are first used, including on minimal Debian.
+    # Select a working mirror before the first update, including broken old/CD-ROM sources.
+    sudo dpkg --add-architecture i386
+    bash "$SCRIPT_DIR/switch-mirror.sh" "$MIRROR" || return 2
     sudo apt-get update -o APT::Update::Error-Mode=any
     sudo apt-get install --no-remove -y ca-certificates curl gnupg python3 git build-essential procps file
-    sudo dpkg --add-architecture i386
-    python3 "$SCRIPT_DIR/lib/apt-sources.py" >"$WORK_DIR/debian.sources"
-    write_source /etc/apt/sources.list.d/myconfig-debian.sources "$WORK_DIR/debian.sources"
     ensure_vendor tailscale https://pkgs.tailscale.com/stable/debian \
         https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg /usr/share/keyrings/tailscale-archive-keyring.gpg no
     ensure_vendor vscode https://packages.microsoft.com/repos/code \
@@ -199,6 +211,9 @@ main() {
     fi
     sudo apt-get update -o APT::Update::Error-Mode=any
     install_apt_set packages.txt
+    if [[ "$DESKTOP_MIGRATION" == true ]]; then
+        if ! desktop_power_transition; then FAILURES+=("TLP power-manager transition; retain KDE"); fi
+    fi
     install_apt_set packages-backports.txt trixie-backports
     install_apt_set packages-vendor.txt
     ensure_chinese_locale

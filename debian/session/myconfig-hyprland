@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+export XDG_CURRENT_DESKTOP=Hyprland XDG_SESSION_DESKTOP=Hyprland XDG_SESSION_TYPE=wayland
+config="$HOME/.config/hypr/hyprland.lua"
+if [ ! -r "$config" ]; then printf 'Missing desktop configuration: %s\n' "$config" >&2; exit 1; fi
+if command -v start-hyprland >/dev/null 2>&1; then
+    exec start-hyprland -- --config "$config"
+fi
+exec Hyprland --config "$config"

@@ -2,6 +2,8 @@
 # Hyprland is in packages-backports.txt; vendor packages have a separate list.
 
 # Session, portals, display, and controls
+sddm
+sddm-theme-debian-maui
 dbus-user-session
 waybar
 wofi

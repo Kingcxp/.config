@@ -48,7 +48,7 @@ APT 会解析该包的依赖；这与软件已经进入 Debian 官方仓库不�
 - **Steam：** 32 位架构、Mesa/Wine 与 Steam 已自动安装。首次启动 Steam 会下载客户端更新；在 Steam → 设置 → 兼容性中启用其他游戏的 Steam Play，Proton 的具体版本由 Steam 下载。
 - **Mental Omega 3.3.6：** 游戏本体与合法 RA2/Yuri 数据仍需自己准备；https://mentalomega.com/ 获取官方安装说明和 **3.3.6** 对应语言包。简体中文包：https://mentalomega.com/game/lang/MentalOmega336ChineseSimplified.rar 。单独使用 `WINEPREFIX="$HOME/.local/share/mental-omega/wineprefix" WINEARCH=win32 wineboot` 初始化，不要污染默认 Wine 前缀。后续 .NET/渲染器按游戏官方要求设置，cnc-ddraw：https://github.com/FunkyFr3sh/cnc-ddraw 。原 NixOS 的 `mental-omega` 定制启动器没有直接安装到 Debian；仅安装 Wine 不能视为游戏和中文补丁已经验证可用。
 - **摄像头：** `v4l2-ctl --list-devices` 列出内置及 USB 设备；在 guvcview 中选择相应 `/dev/video*`。OBS 虚拟摄像头使用已安装的 v4l2loopback；如无法启动，检查 `dkms status`、当前内核头文件及 Secure Boot 模块签名，按需执行 `sudo modprobe v4l2loopback exclusive_caps=1`。
-- **电源：** Backports 的 TLP / tlp-pd 会尝试安装；若它们与已装的 power-profiles-daemon 冲突，脚本会保留原包并报告失败。先决定使用哪套电源管理，再处理失败项，不应同时运行两个策略管理器。
+- **电源：** 完整桌面迁移会先模拟将 power-profiles-daemon 换成 Backports 的 TLP / tlp-pd，只允许移除这一个冲突服务；异常计划会停止。仅运行软件安装或 `--keep-kde` 时不强制替换，冲突会记录为失败。不应同时运行两个策略管理器。
 - **中文和字体：** 完整安装后重新登录，使用 Fcitx5 拼音；`fcitx5-configtool` 调整候选框。`fc-match 'Noto Sans CJK SC'`、`fc-match 'JetBrainsMono Nerd Font'` 核验字体。WPS 若缺少授权专有字体，应使用官方包自带字体或自行提供合法字体。
 - **LaTeX：** `latexmk -xelatex main.tex` 适用于中文 XeLaTeX 文档；`latexmk -pdf main.tex` 使用 PDFLaTeX；BibLaTeX 项目通常使用 Biber。`pandoc input.md -o output.docx` 转换文稿。
 - **Python/AI：** 使用 `uv init`、`uv add`、`uv run` 管理项目。CUDA/PyTorch 等按项目与 GPU 选择安装；这台 ThinkBook 的 Iris Xe 不提供 NVIDIA CUDA。
@@ -59,6 +59,7 @@ APT 会解析该包的依赖；这与软件已经进入 Debian 官方仓库不�
 
 Nix、Home Manager、nixos-rebuild、nixd、nix-alien、Nix 缓存/更新脚本及 store 包装不迁移；
 Niri/swaybg/swayidle/swaylock/xwayland-satellite 改由 Hyprland/Hyprpaper/Hypridle/Hyprlock/XWayland 提供；
-greetd/tuigreet 不会取代现有 Debian 登录管理器。若没有登录管理器，在 TTY 登录后运行 `Hyprland`。
+登录保留 Debian 的 SDDM，完整迁移切换到独立的 Debian Maui 主题，并预选 Hyprland (myconfig)。
+TTY 可运行 `myconfig-hyprland`；不另外安装 greetd/tuigreet。
 内核、Mesa、glibc、PAM、systemd、文件系统和启动工具由 Debian 安装器及 APT 管理，
 不照搬 NixOS 的系统 derivation。原定制诊断/面板脚本由 Debian 配置中的对应助手或系统命令替代。

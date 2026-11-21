@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+check_main() {
+    local preflight=false command unit failed=0 output
+    case "${1:-}" in
+        --preflight) preflight=true ;;
+        --help|-h) printf 'Usage: bash check-desktop.sh [--preflight]\nPreflight checks dependencies/config without starting a desktop. Default also checks the running Hyprland session.\n'; return ;;
+        '') ;;
+        *) printf 'Unknown check option\n' >&2; return 2 ;;
+    esac
+    (( $# <= 1 )) || return 2
+    for command in Hyprland hyprctl waybar kitty wofi wlogout dunst hyprpaper hypridle hyprlock \
+        fcitx5 fcitx5-configtool nm-applet blueman-applet wpctl brightnessctl grim slurp \
+        dbus-update-activation-environment gnome-keyring-daemon; do
+        if ! command -v "$command" >/dev/null; then printf 'MISSING: %s\n' "$command" >&2; failed=1; fi
+    done
+    for output in "$HOME/.config/hypr/hyprland.lua" "$HOME/.config/waybar/config.jsonc" \
+        /usr/libexec/polkit-mate-authentication-agent-1 /etc/pam.d/hyprlock \
+        /usr/bin/sddm /usr/share/sddm/themes/debian-maui/Main.qml /usr/local/bin/myconfig-hyprland \
+        /usr/share/wayland-sessions/myconfig-hyprland.desktop; do
+        if [[ ! -r "$output" ]]; then printf 'MISSING: %s\n' "$output" >&2; failed=1; fi
+    done
+    (( failed == 0 )) || return 1
+    if ! timeout 30s Hyprland --verify-config --config "$HOME/.config/hypr/hyprland.lua"; then
+        printf 'Hyprland configuration verification failed; KDE must be retained.\n' >&2
+        return 1
+    fi
+    printf 'PASS: desktop dependencies and Hyprland configuration\n'
+    [[ "$preflight" == false ]] || return 0
+    [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]] || { printf 'Run this check from the new Hyprland desktop.\n' >&2; return 1; }
+    output="$(hyprctl configerrors)"
+    if [[ -n "$output" && "$output" != ok ]]; then printf '%s\n' "$output" >&2; failed=1; fi
+    hyprctl monitors
+    for unit in pipewire.service wireplumber.service xdg-desktop-portal.service xdg-desktop-portal-hyprland.service; do
+        systemctl --user is-active "$unit" || failed=1
+    done
+    pgrep -u "$(id -u)" -x fcitx5 >/dev/null || failed=1
+    wpctl status
+    nmcli general status
+    return "$failed"
+}
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then check_main "$@"; fi

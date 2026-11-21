@@ -6,7 +6,7 @@
 
 | 用途 | 自动安装的软件与命令 | 日常使用 |
 | --- | --- | --- |
-| 桌面会话 | Hyprland、Hyprpaper、Hypridle、Hyprlock、Hyprland/GTK portals、XWayland | 登录选择 Hyprland；`hyprctl configerrors` 查配置错误 |
+| 桌面会话 | Hyprland、Hyprpaper、Hypridle、Hyprlock、Hyprland/GTK portals、XWayland、SDDM / Debian Maui | 完整安装先检查新桌面再移除 KDE；登录选择 Hyprland (myconfig)，`bash check-desktop.sh` 检查 |
 | 桌面操作 | Waybar、Wofi、wlogout、Dunst、Grim、Slurp、wl-clipboard、brightnessctl、playerctl | 启动器、通知、区域截图、剪贴板、亮度和媒体键 |
 | 网络与蓝牙 | NetworkManager、nm-applet、nmtui、BlueZ、Blueman | 顶栏托盘或 `nmtui` 配置网络，Blueman 管理蓝牙 |
 | 声音 | PipeWire、WirePlumber、ALSA 工具、pavucontrol | `wpctl status`；面板调整设备、应用音量 |

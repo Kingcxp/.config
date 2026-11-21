@@ -5,6 +5,9 @@ SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROFILE_DIR="$SCRIPT_DIR/config"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/myconfig-debian"
 BACKUP_ROOT=""
+# Linted separately; no actions are executed on import.
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/desktop-migration.sh"
 
 say() { printf '\n==> %s\n' "$*"; }
 die() { printf 'Error: %s\n' "$*" >&2; exit 2; }
@@ -81,29 +84,53 @@ install_session_path() {
     backup_and_link "$file" "$HOME/.config/environment.d/20-myconfig-path.conf"
 }
 
+finish_desktop_install() {
+    local configs_only="$1" replace_kde="$2" software_status="$3"
+    [[ "$configs_only" == false ]] || return 0
+    desktop_install_login || return 2
+    if [[ "$replace_kde" == true && "$software_status" == 0 ]]; then
+        desktop_remove_kde || return 2
+    elif [[ "$replace_kde" == true ]]; then
+        printf 'Software installation has failures; KDE is retained. Fix the failures and rerun.\n' >&2
+    fi
+}
+
 main() {
-    local configs_only=false status=0 app
-    case "${1:-}" in
-        --dry-run)
-            [[ "$#" == 1 ]] || die 'Use one option at a time'
-            bash "$SCRIPT_DIR/install-software.sh" --dry-run
-            printf '\nConfig links: %s -> %s (with dated backups)\n' "$PROFILE_DIR" "$HOME"
-            return ;;
-        --manual) bash "$SCRIPT_DIR/install-software.sh" "$@"; return ;;
-        --configs-only) [[ "$#" == 1 ]] || die 'Use one option at a time'; configs_only=true ;;
-        --help|-h)
-            printf 'Usage: bash install.sh [--dry-run | --manual | --configs-only | --help]\nDefault: install the complete APT/Homebrew software list, then deploy desktop configuration.\n--configs-only: deploy config and tmux plugins without APT/Homebrew operations.\n'
-            return ;;
-        '') [[ "$#" == 0 ]] || die 'Unexpected empty argument' ;;
-        *) die "Unknown option: $1" ;;
-    esac
+    local configs_only=false status=0 app dry_run=false replace_kde=true
+    local software_args=()
+    while (( $# )); do
+        case "$1" in
+            --mirror)
+                (( $# >= 2 )) && [[ "$2" == official || "$2" == nju ]] || die '--mirror requires official or nju'
+                software_args+=(--mirror "$2"); shift 2 ;;
+            --keep-kde) replace_kde=false; shift ;;
+            --configs-only) configs_only=true; replace_kde=false; shift ;;
+            --dry-run) dry_run=true; shift ;;
+            --manual) bash "$SCRIPT_DIR/install-software.sh" --manual; return ;;
+            --help|-h)
+                printf 'Usage: bash install.sh [--mirror official|nju] [--keep-kde] [--dry-run | --configs-only]\nDefault: install software, deploy/config-check Hyprland, configure SDDM, then remove KDE.\nLog out of KDE first and run from a TTY (Ctrl+Alt+F3). --keep-kde skips removal.\n--configs-only deploys user config/tmux plugins, with no APT or system/login changes.\n'
+                return ;;
+            *) die "Unknown option: $1" ;;
+        esac
+    done
+    [[ "$replace_kde" == false ]] || software_args+=(--desktop-migration)
+    if [[ "$dry_run" == true ]]; then
+        if [[ "$configs_only" == false ]]; then bash "$SCRIPT_DIR/install-software.sh" "${software_args[@]}" --dry-run; fi
+        printf '\nConfig links: %s -> %s (with dated backups)\n' "$PROFILE_DIR" "$HOME"
+        if [[ "$replace_kde" == true ]]; then
+            printf 'Desktop: require KDE logged out; check dependencies/config, keep SDDM/Dolphin/Ark, simulate explicit KDE removal, then purge; no autoremove.\n'
+        fi
+        return
+    fi
     [[ "$EUID" -ne 0 ]] || die 'Run as your normal user, without sudo.'
     [[ "$(uname -s)" == Linux ]] || die 'Run this installer on Debian, not Windows or macOS.'
     [[ -d "$PROFILE_DIR/.config" ]] || die "Missing profile: $PROFILE_DIR"
     # Standard XDG paths are deliberately used by the original profile and helpers.
     [[ "${XDG_CONFIG_HOME:-$HOME/.config}" == "$HOME/.config" ]] || die "This profile requires XDG_CONFIG_HOME=$HOME/.config."
+    if [[ "$replace_kde" == true ]]; then desktop_check_session; fi
+    if [[ "$configs_only" == false ]]; then desktop_check_manager; fi
     if [[ "$configs_only" == false ]]; then
-        bash "$SCRIPT_DIR/install-software.sh" || status=$?
+        bash "$SCRIPT_DIR/install-software.sh" "${software_args[@]}" || status=$?
         (( status < 2 )) || return "$status"
     fi
     say 'Backing up and linking Debian application configuration'
@@ -122,8 +149,13 @@ main() {
     if command -v im-config >/dev/null; then im-config -n fcitx5; fi
     if command -v xdg-user-dirs-update >/dev/null; then xdg-user-dirs-update; fi
     if command -v fc-cache >/dev/null; then fc-cache -f; fi
-    printf '\nConfiguration deployed. Log out and choose Hyprland, or start Hyprland from a TTY.\n'
-    printf 'After login: hyprctl configerrors; hyprctl monitors; fcitx5-diagnose\n'
+    finish_desktop_install "$configs_only" "$replace_kde" "$status"
+    if [[ "$configs_only" == true ]]; then
+        printf '\nUser configuration deployed; system packages and login setup were not changed.\n'
+    else
+        printf '\nConfiguration deployed. Reboot when ready; choose Hyprland (myconfig) in SDDM.\n'
+    fi
+    printf 'After login: bash %q/check-desktop.sh; fcitx5-diagnose\n' "$SCRIPT_DIR"
     if [[ -n "$BACKUP_ROOT" ]]; then printf 'Config backups: %s\n' "$BACKUP_ROOT"; fi
     if (( status )); then printf 'Some software installations failed; check %s/failed-packages.txt.\n' "$STATE_DIR" >&2; fi
     return "$status"

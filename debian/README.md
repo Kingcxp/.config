@@ -44,29 +44,12 @@ bash ~/myconfig/debian/install-software.sh --manual
 | [packages-vendor.txt](packages-vendor.txt) | 官方签名 APT 源中的 Tailscale、VS Code、Microsoft Edge |
 | [brew-formulae.txt](brew-formulae.txt) | Debian 中缺少或需要较新版本的 CLI：Yazi、Oh My Posh、Neovim、uv、Ruff、Typst/LSP、Node 22、Bun、Deno、pnpm、Gradle、.NET 等 |
 | [brew-casks.txt](brew-casks.txt) | 已核验 Linux 支持的 Codex、Copilot、draw.io、RustDesk、LocalSend、Blockbench、Zoom、Zed，以及 Nerd Font |
-| [VS Code 扩展分组](vscode/README.md) | 对照本机 101 个扩展整理；默认 7 项通用 + 12 项科研扩展，其他语言、容器、AI 与写作工具按 Profile 安装 |
+| [VS Code 扩展安装](install-vscode.sh) | 默认 7 项通用 + 12 项科研扩展；`--list` 查看其他语言、容器、AI 与写作扩展组，`--help` 查看 Profile 安装用法 |
 
 WPS、微信、QQ、腾讯会议、Zotero + Connector + Better BibTeX、IDEA、Godot .NET、Conda、
 oh-my-pi、Mental Omega 等不会被误报为“已安装”。脚本在终端输出它们的官方入口及安装步骤。
 已经存在的 Homebrew 包会保留；需要更新时使用 `brew update`、`brew upgrade`。
 APT 软件随 Debian 版本，Homebrew 软件随当前上游配方；不保证与原 Nix 锁文件的版本号完全相同。
-
-VS Code 默认保留 Python/Pylance/Jupyter/Ruff、LaTeX/Typst、CSV 和 Remote SSH；
-扩展依赖可能使实际数量超过 19。已有扩展不会自动删除，建议在新的科研 Profile 中开始：
-
-```bash
-code --profile Research --new-window --wait
-# 窗口打开后关闭，等待上条命令返回，再安装扩展
-bash ~/myconfig/debian/install-vscode.sh --bundle research --profile Research
-code --profile CPP --new-window --wait
-bash ~/myconfig/debian/install-vscode.sh --bundle cpp --profile CPP
-bash ~/myconfig/debian/install-vscode.sh --list
-code --profile Research --new-window ~/your-project
-```
-
-每组都包含通用扩展；扩展安装 CLI 要求命名 Profile 已存在，先用上面的打开窗口命令创建。
-新 Profile 的设置/快捷键需另行选择复制。
-本机扩展逐项建议、启动卡顿日志与优化步骤见 [VS Code 专页](vscode/README.md)。
 
 ## 源、失败处理与备份
 

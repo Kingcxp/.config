@@ -17,7 +17,7 @@
 | 文件与压缩 | Dolphin、Ark、Yazi、GNOME 归档管理器、GVfs、udisks2/udiskie、7zip、unrar、unar、zip/unzip、zstd | 图形/终端文件管理，外接盘挂载，常用压缩格式 |
 | 浏览器 | Firefox ESR、Microsoft Edge | 主浏览器与备用浏览器；文献抓取扩展见手动清单 |
 | 编辑器 | VS Code、Zed、Neovim/AstroNvim、Neovide、Micro、Vim、Nano | `code .`、`zed .`、`nvim`；Neovim 插件首次联网获取 |
-| VS Code 扩展 | 默认 19 项显式请求：7 通用 + 12 科研；其他按组安装，详见 [扩展与性能说明](vscode/README.md) | 保留 Python/Pylance/Jupyter/Ruff、LaTeX/Typst、CSV、SSH；Rust/Go/Java/C++/Vue/.NET/容器等使用独立 Profile。依赖或子包可额外安装，旧扩展不自动移除 |
+| VS Code 扩展 | 默认 19 项显式请求：7 通用 + 12 科研；`bash install-vscode.sh --list` 查看其他扩展组 | 保留 Python/Pylance/Jupyter/Ruff、LaTeX/Typst、CSV、SSH；其他语言和工具可按 Profile 安装。依赖或子包可额外安装，旧扩展不自动移除 |
 | Git | Git、Git LFS、GitHub CLI (`gh`)、pre-commit | `gh auth login`；`pre-commit install`，个人签名密钥另行恢复 |
 | Python | Python 3、pip、venv、virtualenv、pipx、uv、Ruff、Pyright | 优先使用项目环境，不向 Debian 的系统 Python 运行 `sudo pip` |
 | C/C++ | GCC/Make、CMake、Ninja、pkg-config、binutils、GDB、ccache、Clang/clangd/clang-tools、LLVM/LLD、Xmake | `cmake -S . -B build -G Ninja`；`cmake --build build` |

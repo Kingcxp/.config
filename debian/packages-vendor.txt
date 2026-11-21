@@ -1,0 +1,4 @@
+# Official, signed vendor APT repositories configured by install-software.sh.
+tailscale
+code
+microsoft-edge-stable

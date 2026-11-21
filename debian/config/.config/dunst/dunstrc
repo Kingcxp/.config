@@ -47,7 +47,8 @@
     icon_position = left
     min_icon_size = 32
     max_icon_size = 64
-    icon_path = /usr/share/icons/hicolor/scalable/apps/:/usr/share/icons/breach/security-scalable/
+    icon_theme = Papirus-Dark, hicolor
+    icon_path = /usr/share/icons/Papirus-Dark/48x48/apps/:/usr/share/icons/hicolor/scalable/apps/
 
     # History
     sticky_history = true

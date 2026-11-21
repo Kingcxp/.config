@@ -3,6 +3,8 @@
 # 基础环境变量
 export MICRO_TRUECOLOR=1
 export EDITOR=nvim
+set --export LANG zh_CN.UTF-8
+set --export LANGUAGE zh_CN:en_US
 
 set --export BUN_INSTALL "$HOME/.bun"
 fish_add_path -p ~/.bun/bin
@@ -16,6 +18,10 @@ end
 # zoxide 智能目录跳转（z）
 if type -q zoxide
     zoxide init fish | source
+end
+
+if type -q direnv
+    direnv hook fish | source
 end
 
 # Debian names these executables batcat and fdfind.

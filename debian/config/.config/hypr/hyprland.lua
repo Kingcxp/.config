@@ -24,10 +24,28 @@ hl.monitor({
 hl.env("XCURSOR_SIZE", "24")
 hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("GDK_SCALE", "1")
+hl.env("LANG", "zh_CN.UTF-8")
+hl.env("LANGUAGE", "zh_CN:en_US")
 hl.env("XMODIFIERS", "@im=fcitx")
 hl.env("GTK_IM_MODULE", "fcitx")
 hl.env("QT_IM_MODULE", "fcitx")
 hl.env("SDL_IM_MODULE", "fcitx")
+hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
+hl.env("XDG_SESSION_DESKTOP", "Hyprland")
+hl.env("XDG_SESSION_TYPE", "wayland")
+hl.env("QT_QPA_PLATFORMTHEME", "gtk3")
+
+-- A display manager does not necessarily source the user's shell configuration.
+local home = os.getenv("HOME")
+local state = os.getenv("XDG_STATE_HOME") or (home .. "/.local/state")
+local brewPrefix = "/home/linuxbrew/.linuxbrew"
+local prefixFile = io.open(state .. "/myconfig-debian/brew-prefix", "r")
+if prefixFile then
+    brewPrefix = prefixFile:read("*l") or brewPrefix
+    prefixFile:close()
+end
+hl.env("PATH", brewPrefix .. "/opt/node@22/bin:" .. brewPrefix .. "/bin:" .. brewPrefix .. "/sbin:" .. home .. "/.local/bin:" .. (os.getenv("PATH") or "/usr/local/bin:/usr/bin:/bin"))
+hl.env("XDG_DATA_DIRS", brewPrefix .. "/share:" .. (os.getenv("XDG_DATA_DIRS") or "/usr/local/share:/usr/share"))
 
 hl.config({
     general = {
@@ -97,22 +115,14 @@ hl.animation({ leaf = "zoomFactor", enabled = true, speed = 7, bezier = "quick" 
 hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 hl.on("hyprland.start", function()
-    hl.exec_cmd("waybar")
-    hl.exec_cmd("dunst")
-    hl.exec_cmd("hyprpaper")
-    hl.exec_cmd("hypridle")
-    hl.exec_cmd("fcitx5 --replace -d")
-    hl.exec_cmd("nm-applet --indicator")
-    hl.exec_cmd("blueman-applet")
-    hl.exec_cmd("/usr/libexec/polkit-mate-authentication-agent-1")
-    hl.exec_cmd(terminal)
+    hl.exec_cmd("bash ~/.local/bin/desktop-session-start.sh")
 end)
 
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + P", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("bash ~/.local/bin/screenshot-region.sh"))
 hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("dunstctl history-pop"))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("wlogout"))
 hl.bind(mainMod .. " + C", hl.dsp.window.close())

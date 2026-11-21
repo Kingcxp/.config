@@ -1,0 +1,2 @@
+# Keep executable/configuration text usable when the repo is edited on Windows.
+* text=auto eol=lf

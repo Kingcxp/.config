@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Zoom
+Comment=Video conferencing
+Exec=zoom %U
+TryExec=zoom
+Icon=video-display
+Terminal=false
+Categories=Network;VideoConference;
+MimeType=x-scheme-handler/zoommtg;x-scheme-handler/zoomus;

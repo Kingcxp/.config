@@ -1,0 +1,9 @@
+# Only this explicit set is selected from trixie-backports.
+hyprland
+hyprpaper
+hypridle
+hyprlock
+xdg-desktop-portal-hyprland
+# Match the original TLP policy provider; conflicts are reported, not forced.
+tlp
+tlp-pd

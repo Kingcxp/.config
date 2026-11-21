@@ -1,0 +1,7 @@
+# Java language / debugger / tests / project / Maven / Gradle
+redhat.java
+vscjava.vscode-java-debug
+vscjava.vscode-java-test
+vscjava.vscode-java-dependency
+vscjava.vscode-maven
+vscjava.vscode-gradle

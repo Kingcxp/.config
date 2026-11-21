@@ -1,0 +1,4 @@
+# SSH / Dev Containers / current Container Tools; no WSL bundle on Debian
+ms-vscode-remote.remote-ssh
+ms-vscode-remote.remote-containers
+ms-azuretools.vscode-containers

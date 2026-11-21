@@ -1,0 +1,4 @@
+# C#; excludes the optional .NET Upgrade Agent
+ms-dotnettools.csharp
+ms-dotnettools.csdevkit
+ms-dotnettools.vscode-dotnet-runtime

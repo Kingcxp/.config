@@ -1,0 +1,3 @@
+# Rust; CodeLLDB was present in the previous NixOS extension list
+rust-lang.rust-analyzer
+vadimcn.vscode-lldb

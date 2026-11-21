@@ -1,0 +1,2 @@
+# Optional activity tracking; declares eager activation
+wakatime.vscode-wakatime

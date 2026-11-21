@@ -33,11 +33,13 @@ plan() {
     printf 'APT: official Debian + Backports + Tailscale + Microsoft (Code/Edge).\n'
     printf 'Steam/Wine: enable i386, contrib, non-free, non-free-firmware.\n'
     local list
-    for list in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt; do
+    for list in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt; do
         printf '\n[%s]\n' "$list"
         read_list "$list" | tr '\n' ' '
         printf '\n'
     done
+    printf '\n[VS Code: common + research; optional bundles: install-vscode.sh --list]\n'
+    bash "$SCRIPT_DIR/install-vscode.sh" --dry-run
     printf '\nOther software and post-install steps:\n'
     manual
 }
@@ -132,11 +134,9 @@ install_brew() {
 }
 
 install_extensions() {
-    local extension
-    if ! command -v code >/dev/null; then FAILURES+=("VS Code extensions (code unavailable)"); return; fi
-    while IFS= read -r extension; do
-        if ! code --install-extension "$extension"; then FAILURES+=("CODE $extension"); fi
-    done < <(read_list vscode-extensions.txt)
+    if ! bash "$SCRIPT_DIR/install-vscode.sh"; then
+        FAILURES+=("VS Code extensions (see output and failed-vscode-extensions.txt if present)")
+    fi
 }
 
 ensure_chinese_locale() {
@@ -160,7 +160,7 @@ main() {
     esac
     [[ "$EUID" -ne 0 ]] || die 'Run as your normal user, without sudo.'
     local manifest
-    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt MANUAL.md lib/apt-sources.py; do
+    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh MANUAL.md lib/apt-sources.py; do
         [[ -s "$SCRIPT_DIR/$manifest" ]] || die "Missing installer file: $manifest"
     done
     command -v apt-get >/dev/null || die 'This script requires Debian 13 apt-get.'

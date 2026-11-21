@@ -1,0 +1,8 @@
+# Optional viewers / navigation / workflow tools
+alefragnani.project-manager
+mhutchie.git-graph
+github.vscode-github-actions
+ms-vscode.hexeditor
+qwtel.sqlite-viewer
+adpyke.codesnap
+tomoki1207.pdf

@@ -1,0 +1,2 @@
+# Advanced Markdown preview; use when the built-in preview is insufficient
+shd101wyy.markdown-preview-enhanced

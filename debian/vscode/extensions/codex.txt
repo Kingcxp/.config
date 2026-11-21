@@ -1,0 +1,2 @@
+# Codex IDE integration; optional alongside the separately installed Codex CLI
+openai.chatgpt

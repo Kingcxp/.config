@@ -17,10 +17,20 @@ check_main() {
     done
     for output in "$HOME/.config/hypr/hyprland.lua" "$HOME/.config/waybar/config.jsonc" \
         "$HOME/.config/fcitx5/profile" "$HOME/.config/fcitx5/conf/classicui.conf" \
+        "$HOME/.config/Kvantum/kvantum.kvconfig" "$HOME/.config/qt5ct/qt5ct.conf" "$HOME/.config/qt6ct/qt6ct.conf" \
         "$HOME/.config/systemd/user/xdg-desktop-portal-gtk.service.d/10-fcitx.conf" \
         /usr/libexec/polkit-mate-authentication-agent-1 /etc/pam.d/hyprlock \
         /usr/bin/sddm /usr/share/sddm/themes/debian-maui/Main.qml /usr/local/bin/myconfig-hyprland \
-        /usr/share/wayland-sessions/myconfig-hyprland.desktop; do
+        /usr/share/wayland-sessions/myconfig-hyprland.desktop \
+        /usr/local/share/themes/catppuccin-macchiato-lavender-standard/gtk-3.0/gtk.css \
+        /usr/local/share/themes/catppuccin-macchiato-lavender-standard/gtk-4.0/gtk.css \
+        /usr/local/share/icons/catppuccin-macchiato-lavender-cursors/index.theme \
+        /usr/local/share/Kvantum/catppuccin-macchiato-lavender/catppuccin-macchiato-lavender.kvconfig \
+        /usr/local/share/fcitx5/themes/catppuccin-macchiato-lavender/theme.conf \
+        /usr/local/share/grub/themes/catppuccin-macchiato-grub-theme/theme.txt \
+        /usr/local/share/grub/themes/catppuccin-macchiato-grub-theme/font.pf2 \
+        /usr/local/share/grub/themes/catppuccin-macchiato-grub-theme/background.png \
+        /etc/default/grub.d/50-myconfig-catppuccin.cfg; do
         if [[ ! -r "$output" ]]; then printf 'MISSING: %s\n' "$output" >&2; failed=1; fi
     done
     (( failed == 0 )) || return 1

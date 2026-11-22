@@ -6,14 +6,14 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 
 | 用途 | 自动安装的软件与命令 | 日常使用 |
 | --- | --- | --- |
-| 引导与固件 | UEFI GRUB、`efibootmgr` | Debian 安装器负责 ESP 和启动项；安装脚本检查 UEFI/ESP、确保 GRUB 工具并运行 `update-grub`，不分区或格式化磁盘 |
+| 引导与固件 | UEFI GRUB、`efibootmgr`、Catppuccin Macchiato GRUB 主题 | Debian 安装器负责 ESP 和启动项；安装脚本检查 UEFI/ESP、安装校验过的 Catppuccin GRUB 主题并运行 `update-grub`，不分区或格式化磁盘 |
 | 桌面会话 | Hyprland、Hyprpaper、Hypridle、Hyprlock、Hyprland/GTK portals、XWayland、SDDM / Debian Maui | 完整安装先检查新桌面再移除 KDE；登录选择 Hyprland (myconfig)，`bash check-desktop.sh` 检查 |
 | 桌面操作 | Waybar、Wofi、wlogout、Dunst、Grim、Slurp、wl-clipboard、brightnessctl、playerctl | 启动器、通知、区域截图、剪贴板、亮度和媒体键 |
 | 网络与蓝牙 | NetworkManager、wpa_supplicant、ModemManager、nm-applet、nmtui、BlueZ（Experimental=true）、Blueman | Wi-Fi 与移动宽带服务随 NetworkManager 使用；托盘或 `nmtui` 配置网络，Blueman 管理蓝牙 |
 | 声音 | PipeWire、WirePlumber、RTKit、ALSA 工具、freedesktop 音效主题、pavucontrol | `wpctl status`；面板调整设备、应用音量 |
 | 输入法 | Fcitx5、中文附加组件、GTK3/GTK4/Qt5/Qt6 前端、Debian `fcitx5-modules` 内置的 Wayland 前端、配置工具、im-config | `Ctrl+Space` 拼音切换；Wayland 原生输入使用文本输入协议，GTK portal 单独启用 Fcitx 前端 |
 | 中文与字体 | Noto CJK/Emoji、JetBrains Mono/Nerd Font、Font Awesome、DejaVu、FreeFont、TeX Gyre、Unifont、Liberation、Carlito、Caladea、URW | 中英文、图标、办公字体替代；`fc-match` 检查实际匹配 |
-| 认证与主题基础 | PolicyKit/MATE agent、GNOME Keyring、Speech Dispatcher、Adwaita/Papirus 图标、Bibata、Qt5ct/Qt6ct/Kvantum、GTK 平台主题 | 图形授权、密码存储、屏幕阅读器语音接口、应用图标与主题配置；不用免密 sudo |
+| 认证与主题基础 | PolicyKit/MATE agent、GNOME Keyring、Speech Dispatcher、Catppuccin Macchiato/Lavender GTK/光标/Kvantum/Fcitx5/GRUB、Papirus 图标、Qt5ct/Qt6ct | 图形授权、密码存储、屏幕阅读器语音接口、与 NixOS 同名的桌面/输入/引导主题；不用免密 sudo |
 | 终端与 shell | Kitty、Fish、Oh My Posh、tmux、Zoxide、direnv | 原提示符和 tmux 主题；`z` 跳目录，可信项目执行 `direnv allow` |
 | 文件与压缩 | Dolphin、Ark、Yazi、GNOME 归档管理器、GVfs、udisks2/udiskie、7zip、unrar、unar、zip/unzip、zstd | 图形/终端文件管理，外接盘挂载，常用压缩格式 |
 | 浏览器 | Firefox ESR、Microsoft Edge | 主浏览器与备用浏览器；文献抓取扩展见手动清单 |
@@ -103,7 +103,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | --- | --- |
 | 桌面与显示 | Debian SDDM 保留；启用 Hyprland Lua 配置、Hyprpaper/Hypridle/Hyprlock、XWayland 和 portal。ThinkBook 内屏按 2560×1600、约 166.7% 缩放；Waybar 12px/24px，托盘在左侧；dwindle 布局和原快捷键由配置提供 |
 | 中文与输入 | 生成并设置 `zh_CN.UTF-8` 及各 LC 类别，时区为 `Asia/Shanghai`；Fcitx5 默认拼音，`Ctrl+Space` 切换。安装 GTK3/4、Qt5/6 输入前端；Debian 的 `fcitx5-modules` 内含 Wayland 前端。GTK portal 单独使用 `GTK_IM_MODULE=fcitx`，不把 GTK/Qt 模块变量全局注入原生 Wayland 应用 |
-| 字体与主题 | Noto CJK/Emoji、Font Awesome、JetBrains Mono 和 Nerd Font、DejaVu/FreeFont/TeX Gyre 等；Fcitx5 使用仓库内的 Catppuccin Macchiato 主题；GTK 用 Adwaita-dark 加 Macchiato 色表，Qt 使用 GTK 平台主题，图标为 Papirus、光标为 Bibata |
+| 字体与主题 | Noto CJK/Emoji、Font Awesome、JetBrains Mono 和 Nerd Font、DejaVu/FreeFont/TeX Gyre 等；从固定上游版本安装 Catppuccin Macchiato/Lavender GTK、光标、Kvantum、Fcitx5 和 GRUB 主题；图标为 Papirus |
 | 音量与亮度 | Waybar 滚轮反向并按 1% 微调，音量上限 100%、亮度下限 5%；Fn 媒体键保留常规方向并使用 5% 步进 |
 | 网络与蓝牙 | 启用 `wpa_supplicant`、NetworkManager、BlueZ、Blueman、thermald；BlueZ 设置 `Experimental=true`，通常在下一次蓝牙服务启动时生效。ModemManager、RTKit、UPower 由包提供并按需经 D-Bus 激活 |
 | 远程连接 | 启用 Tailscale、OpenSSH、UFW。SSH 禁止密码和 root 登录，只允许当前用户的公钥认证；TCP 22 仅开放于 `tailscale0`。首次仍需运行 `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 并写入个人 `authorized_keys` |

@@ -1,4 +1,4 @@
-/* Macchiato palette layered over Debian's installed Adwaita-dark theme. */
+/* Keep the GTK overlays aligned with Catppuccin Macchiato. */
 @define-color theme_bg_color #24273a;
 @define-color theme_fg_color #cad3f5;
 @define-color theme_base_color #1e2030;

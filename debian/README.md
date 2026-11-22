@@ -20,9 +20,9 @@ git clone https://github.com/Kingcxp/.config.git ~/myconfig
 bash ~/myconfig/debian/install.sh --mirror official
 ```
 
-默认完成全部软件安装、确认 UEFI 启动和 EFI 系统分区挂载、确保 GRUB 工具并刷新菜单、备份和部署用户配置、检查 Hyprland 配置、设置 SDDM 登录入口与主题，最后按明确包名移除 KDE 桌面。**不是先卸载 KDE 再尝试安装新桌面**。
+默认完成全部软件安装、确认 UEFI 启动和 EFI 系统分区挂载、安装并校验 Catppuccin Macchiato/Lavender 主题、刷新 GRUB 菜单、备份和部署用户配置、检查 Hyprland 配置、设置 SDDM 登录入口与主题，最后按明确包名移除 KDE 桌面。**不是先卸载 KDE 再尝试安装新桌面**。
 软件安装存在失败、Hyprland 检查失败或 APT 计划包含意外移除包时，不会继续移除 KDE。
-安装结束后手动 `sudo reboot`，在 SDDM 选择 **Hyprland (myconfig)**；已预选新会话，不自动重启。
+安装结束后手动 `sudo reboot`，在 SDDM 选择 **Hyprland (myconfig)**；已预选新会话，不自动重启。首次运行会从官方 Catppuccin 仓库下载固定版本的主题资源，逐项 SHA-256 校验后安装到 `/usr/local/share`；重复运行会跳过相同版本，替换已有资源前会备份。
 脚本不会分区、格式化 ESP 或猜测 GRUB 写入目标；这些由 Debian 安装器按实际磁盘处理。
 
 首次若想先保留 KDE 验收新桌面，使用 `--keep-kde`；确认后退出图形会话，重新运行默认命令完成移除。
@@ -57,6 +57,7 @@ bash ~/myconfig/debian/install-software.sh --manual
 | 清单 | 内容 |
 | --- | --- |
 | [packages.txt](packages.txt) | Debian 官方仓库的软件：UEFI GRUB/efibootmgr、桌面、中文输入/字体、开发工具链、LaTeX、影音绘图、摄像头、Docker/KVM、磁盘工具、Steam/Wine 等 |
+| [lib/install-appearance.sh](lib/install-appearance.sh) | 固定版本并校验 SHA-256 的 Catppuccin GTK、光标、Kvantum、Fcitx5 和 GRUB 主题安装器 |
 | [packages-backports.txt](packages-backports.txt) | 配套的 Hyprland、Hyprpaper、Hypridle、Hyprlock、portal、Gamescope，以及 TLP/tlp-pd |
 | [packages-vendor.txt](packages-vendor.txt) | 官方签名 APT 源中的 Tailscale、VS Code、Microsoft Edge |
 | [brew-formulae.txt](brew-formulae.txt) | Debian 中缺少或需要较新版本的 CLI：Yazi、Oh My Posh、Neovim、uv、Ruff、Typst/LSP、Node 22、Bun、Deno、pnpm、Gradle、.NET 等 |
@@ -64,7 +65,7 @@ bash ~/myconfig/debian/install-software.sh --manual
 | [VS Code 扩展安装](install-vscode.sh) | 默认 7 项通用 + 12 项科研扩展；`--list` 查看其他语言、容器、AI 与写作扩展组，`--help` 查看 Profile 安装用法 |
 
 安装器还会使用官方 npm 包安装 GitHub Copilot CLI、使用 pipx 安装 Protontricks、从 Flathub 安装 cameractrls；
-同时设置中文 locale、Fcitx5 的 GTK/Qt/Wayland 前端、BlueZ 实验选项、Wi-Fi/移动宽带与 RTKit 服务、rootless Docker、Tailscale/OpenSSH、UFW、摄像头虚拟设备及相关服务。
+同时设置中文 locale、Fcitx5 的 GTK/Qt/Wayland 前端、Catppuccin GTK/光标/Kvantum/Fcitx5/GRUB 主题、BlueZ 实验选项、Wi-Fi/移动宽带与 RTKit 服务、rootless Docker、Tailscale/OpenSSH、UFW、摄像头虚拟设备及相关服务。
 WPS、微信、QQ、腾讯会议、Zotero + Connector + Better BibTeX、IDEA、Godot .NET、Conda、
 Proton-GE、WoeUSB、USBImager、UNetbootin 和 Mental Omega 游戏数据等仍会列在手动清单中，不会误报为“已安装”。
 已经存在的 Homebrew 包会保留；需要更新时使用 `brew update`、`brew upgrade`。
@@ -123,12 +124,12 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 ## 桌面与日常使用
 
 安装完成后重启，在保留的 **SDDM** 中选择 **Hyprland (myconfig)**；TTY 可运行 `myconfig-hyprland`。
-脚本为 SDDM 选择独立的 Debian Maui 主题，避免主题依赖把已移除的 Plasma 拉回来。
+脚本为 SDDM 选择独立的 Debian Maui 主题，避免主题依赖把已移除的 Plasma 拉回来；NixOS 使用 greetd/regreet，登录管理器不同，所以 SDDM 外观保留为明确差异。
 已有自动登录若启用则改指向新会话，不会新开启自动登录；默认 shell 设为 Fish，不设置免密码 sudo。
 
 - **桌面：** ThinkBook 内屏规则为 2560×1600、约 166.7% 缩放；Waybar 12px/24px、托盘在左侧，限制长标题与网络内容。窗口采用 dwindle，保留原快捷键与动画。
 - **快捷键：** `Super+Q` 终端、`Super+E` Dolphin、`Super+F` Firefox、`Super+R` 启动器、`Super+G` 编辑器、`Super+P` 区域截图。取消截图不改剪贴板；`Super+M` 退出菜单只退出当前桌面会话。
-- **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`。Fcitx5 配置 GTK3/GTK4/Qt5/Qt6 和 Wayland 前端，拼音使用 `Ctrl+Space`，门户使用单独的 GTK 输入模块环境。候选框与菜单采用 Macchiato；GTK 使用 Debian Adwaita-dark 配合 Macchiato 色表、中文字体和 Papirus 图标，Qt 使用 GTK 平台主题。
+- **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`。Fcitx5 配置 GTK3/GTK4/Qt5/Qt6 和 Wayland 前端，拼音使用 `Ctrl+Space`，门户使用单独的 GTK 输入模块环境。GTK、光标、Qt/Kvantum、Fcitx5 和 GRUB 使用固定版本并校验过的 Catppuccin Macchiato/Lavender，图标使用 Papirus。Debian 登录管理器仍使用 Maui；原 NixOS 使用 greetd/regreet，因此登录界面是有意保留的系统差异。
 - **音量/亮度：** Waybar 滚轮每次 1%，方向反转，音量上限 100%、亮度下限 5%；Fn 键保持常规方向。背光、充电阈值和电源策略以机器实际暴露的 sysfs 能力为准。
 - **tmux：** Mocha 状态栏、CPU/电池插件。若已有 tmux 服务，执行 `tmux source-file ~/.tmux.conf`，或新建会话；已有服务不会被安装器杀掉。
 - **开发：** `uv init` / `uv add` / `uv run`；`direnv allow` 启用可信项目环境。Neovim 使用 Homebrew 版匹配 AstroNvim；首次打开会联网获取插件，LSP 已启用 APT/Homebrew 安装的服务，不再由 Mason 重复下载工具链。Node 22 的 PATH 同时提供给 Fish、桌面会话和用户服务。
@@ -177,9 +178,10 @@ bash ~/myconfig/debian/tests/test-vscode.sh
 bash ~/myconfig/debian/tests/test-mirror.sh
 bash ~/myconfig/debian/tests/test-desktop-migration.sh
 bash ~/myconfig/debian/tests/test-bootloader.sh
+bash ~/myconfig/debian/tests/test-appearance.sh
 ```
 
-这些测试覆盖切源/失败回滚、配置备份、SDDM 会话、KDE 移除保护、重复运行、安装失败记录、取消截图和 UEFI/GRUB 前置检查；
+这些测试覆盖切源/失败回滚、配置备份、SDDM 会话、KDE 移除保护、重复运行、安装失败记录、取消截图、UEFI/GRUB 前置检查及主题校验/备份；
 它们不代替实际 APT 依赖求解或图形会话测试。
 
 Hyprland Lua 接口对照[官方示例](https://github.com/hyprwm/Hyprland/blob/v0.55.2/example/hyprland.lua)，

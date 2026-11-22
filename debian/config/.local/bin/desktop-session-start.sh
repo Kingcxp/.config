@@ -5,7 +5,8 @@ set -Eeuo pipefail
 dbus-update-activation-environment --systemd \
     WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE \
     HYPRLAND_INSTANCE_SIGNATURE PATH XMODIFIERS SDL_IM_MODULE GLFW_IM_MODULE \
-    QT_AUTO_SCREEN_SCALE_FACTOR LIBVA_DRIVER_NAME LANG LANGUAGE
+    XCURSOR_SIZE XCURSOR_THEME QT_QPA_PLATFORMTHEME QT_AUTO_SCREEN_SCALE_FACTOR \
+    LIBVA_DRIVER_NAME LANG LANGUAGE
 systemctl --user daemon-reload || true
 systemctl --user try-restart xdg-desktop-portal.service xdg-desktop-portal-hyprland.service || true
 

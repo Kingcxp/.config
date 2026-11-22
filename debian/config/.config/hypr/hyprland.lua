@@ -21,8 +21,8 @@ hl.monitor({
     scale = "auto",
 })
 
-hl.env("XCURSOR_SIZE", "24")
-hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
+hl.env("XCURSOR_SIZE", "32")
+hl.env("XCURSOR_THEME", "catppuccin-macchiato-lavender-cursors")
 hl.env("GDK_SCALE", "1")
 hl.env("LANG", "zh_CN.UTF-8")
 hl.env("LANGUAGE", "zh_CN:en_US")
@@ -34,7 +34,7 @@ hl.env("LIBVA_DRIVER_NAME", "iHD")
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
-hl.env("QT_QPA_PLATFORMTHEME", "gtk3")
+hl.env("QT_QPA_PLATFORMTHEME", "qtct")
 
 -- A display manager does not necessarily source the user's shell configuration.
 local home = os.getenv("HOME")

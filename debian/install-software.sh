@@ -12,6 +12,8 @@ STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/myconfig-debian"
 source "$SCRIPT_DIR/lib/desktop-migration.sh"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/configure-system.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/install-appearance.sh"
 MIRROR=official
 DESKTOP_MIGRATION=false
 DOCKER_PREEXISTING=false
@@ -38,7 +40,8 @@ manual() { cat "$SCRIPT_DIR/MANUAL.md"; MANUAL_SHOWN=true; }
 
 plan() {
     printf 'Debian 13 Trixie / amd64; current user: %s\n' "${USER:-unknown}"
-    printf 'Bootloader: UEFI GRUB; verify the EFI System Partition, install GRUB tools, and refresh grub.cfg. Disk partitioning remains in Debian Installer.\n'
+    printf 'Bootloader: UEFI GRUB with Catppuccin Macchiato/Lavender; verify the EFI System Partition, install GRUB tools, and refresh grub.cfg. Disk partitioning remains in Debian Installer.\n'
+    printf 'Appearance: pinned Catppuccin GTK, cursors, Kvantum, Fcitx5, and GRUB assets with SHA-256 verification.\n'
     printf 'APT: Debian mirror=%s + Backports + official Tailscale/Microsoft repositories.\n' "$MIRROR"
     printf 'Steam/Wine: enable i386, contrib, non-free, non-free-firmware.\n'
     local list
@@ -213,7 +216,7 @@ main() {
     if [[ "$dry_run" == true ]]; then plan; return; fi
     [[ "$EUID" -ne 0 ]] || die 'Run as your normal user, without sudo.'
     local manifest
-    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh switch-mirror.sh MANUAL.md lib/apt-sources.py lib/desktop-migration.sh lib/configure-system.sh lib/configure-bluez.py system/environment.d/60-docker-rootless.conf system/modprobe.d/myconfig-v4l2loopback.conf system/modules-load.d/myconfig-v4l2loopback.conf system/ssh/00-myconfig.conf config/.config/docker/daemon.json; do
+    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh switch-mirror.sh MANUAL.md lib/apt-sources.py lib/desktop-migration.sh lib/configure-system.sh lib/configure-bluez.py lib/install-appearance.sh system/default/grub.d/50-myconfig-catppuccin.cfg system/environment.d/60-docker-rootless.conf system/modprobe.d/myconfig-v4l2loopback.conf system/modules-load.d/myconfig-v4l2loopback.conf system/ssh/00-myconfig.conf config/.config/docker/daemon.json; do
         [[ -s "$SCRIPT_DIR/$manifest" ]] || die "Missing installer file: $manifest"
     done
     command -v apt-get >/dev/null || die 'This script requires Debian 13 apt-get.'
@@ -245,6 +248,7 @@ main() {
         https://packages.microsoft.com/keys/microsoft.asc /usr/share/keyrings/microsoft.gpg yes
     sudo apt-get update -o APT::Update::Error-Mode=any
     install_apt_set packages.txt
+    configure_catppuccin_appearance "$WORK_DIR" "$SCRIPT_DIR"
     refresh_grub_menu
     if [[ "$DESKTOP_MIGRATION" == true ]]; then
         if ! desktop_power_transition; then FAILURES+=("TLP power-manager transition; retain KDE"); fi

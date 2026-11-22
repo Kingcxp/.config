@@ -27,6 +27,15 @@ printf 'PASS: removal guard accepts explicit desktop packages and rejects networ
 )
 
 (
+    SSH_CONNECTION='192.0.2.10 40000 192.0.2.20 22'
+    export SSH_CONNECTION
+    status=0
+    desktop_check_session >/dev/null 2>&1 || status="$?"
+    [[ "$status" == 2 ]]
+    printf 'PASS: a remote SSH session blocks the desktop migration\n'
+)
+
+(
     desktop_installed() { return 0; }
     sudo() {
         printf '%s\n' "$*" >>"$TEST_WORK/power-calls"

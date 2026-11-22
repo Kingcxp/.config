@@ -58,14 +58,16 @@ bash ~/myconfig/debian/install-software.sh --manual
 | 清单 | 内容 |
 | --- | --- |
 | [packages.txt](packages.txt) | Debian 官方仓库的软件：桌面、中文输入/字体、开发工具链、LaTeX、影音绘图、摄像头、Docker/KVM、磁盘工具、Steam/Wine 等 |
-| [packages-backports.txt](packages-backports.txt) | 配套的 Hyprland、Hyprpaper、Hypridle、Hyprlock、portal，以及 TLP/tlp-pd |
+| [packages-backports.txt](packages-backports.txt) | 配套的 Hyprland、Hyprpaper、Hypridle、Hyprlock、portal、Gamescope，以及 TLP/tlp-pd |
 | [packages-vendor.txt](packages-vendor.txt) | 官方签名 APT 源中的 Tailscale、VS Code、Microsoft Edge |
 | [brew-formulae.txt](brew-formulae.txt) | Debian 中缺少或需要较新版本的 CLI：Yazi、Oh My Posh、Neovim、uv、Ruff、Typst/LSP、Node 22、Bun、Deno、pnpm、Gradle、.NET 等 |
-| [brew-casks.txt](brew-casks.txt) | 已核验 Linux 支持的 Codex、Copilot、draw.io、RustDesk、LocalSend、Blockbench、Zoom、Zed，以及 Nerd Font |
+| [brew-casks.txt](brew-casks.txt) | 已核验 Linux 支持的 Codex、draw.io、RustDesk、LocalSend、Blockbench、Zoom、Zed，以及 Nerd Font |
 | [VS Code 扩展安装](install-vscode.sh) | 默认 7 项通用 + 12 项科研扩展；`--list` 查看其他语言、容器、AI 与写作扩展组，`--help` 查看 Profile 安装用法 |
 
+安装器还会使用官方 npm 包安装 GitHub Copilot CLI、使用 pipx 安装 Protontricks、从 Flathub 安装 cameractrls；
+同时设置中文 locale、Fcitx5 的 GTK/Qt/Wayland 前端、BlueZ 实验选项、Wi-Fi/移动宽带与 RTKit 服务、rootless Docker、Tailscale/OpenSSH、UFW、摄像头虚拟设备及相关服务。
 WPS、微信、QQ、腾讯会议、Zotero + Connector + Better BibTeX、IDEA、Godot .NET、Conda、
-oh-my-pi、Mental Omega 等不会被误报为“已安装”。脚本在终端输出它们的官方入口及安装步骤。
+oh-my-pi、Proton-GE、WoeUSB、USBImager、UNetbootin 和 Mental Omega 游戏数据等仍会列在手动清单中，不会误报为“已安装”。
 已经存在的 Homebrew 包会保留；需要更新时使用 `brew update`、`brew upgrade`。
 APT 软件随 Debian 版本，Homebrew 软件随当前上游配方；不保证与原 Nix 锁文件的版本号完全相同。
 
@@ -110,9 +112,9 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 ```
 
 修复网络、源或冲突后可重复运行。`install-software.sh` 单独运行时只安装软件，不主动替换电源管理器或移除 KDE；
-完整桌面迁移才执行这些操作。已有 Docker/SSH 设置会保留；新装 OpenSSH 会预置公钥认证及禁止 root 登录。
-软件包自身可能启用服务，软件安装不等于原 NixOS 防火墙、rootless Docker、远程键鼠或休眠策略已经迁移。
-这些差异在 [MANUAL.md](MANUAL.md) 中逐项说明。
+完整桌面迁移才替换电源管理器并移除 KDE。安装器会保留已有 Docker 容器/SSH 密钥与自定义 Docker 配置，
+将 SSH 收紧为当前用户的公钥认证，并配置 UFW 只允许从 Tailscale 接口访问 SSH；首次加入 Tailnet 仍需登录。
+它还会设置 rootless Docker 和必要服务。RustDesk 的无人值守键鼠、休眠恢复及游戏数据仍需按 [MANUAL.md](MANUAL.md) 验收。
 
 已有配置在冲突时移动到 `~/.local/state/myconfig-debian/backups/日期-进程号/`，再创建链接。
 正确指向当前配置的链接不会反复备份。遇到目录符号链接时先备份该链接，避免改到旧 dotfiles 仓库；
@@ -123,17 +125,18 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 
 安装完成后重启，在保留的 **SDDM** 中选择 **Hyprland (myconfig)**；TTY 可运行 `myconfig-hyprland`。
 脚本为 SDDM 选择独立的 Debian Maui 主题，避免主题依赖把已移除的 Plasma 拉回来。
-已有自动登录若启用则改指向新会话，不会新开启自动登录；不改变默认 shell、不设置免密码 sudo。
+已有自动登录若启用则改指向新会话，不会新开启自动登录；默认 shell 设为 Fish，不设置免密码 sudo。
 
 - **桌面：** ThinkBook 内屏规则为 2560×1600、约 166.7% 缩放；Waybar 12px/24px、托盘在左侧，限制长标题与网络内容。窗口采用 dwindle，保留原快捷键与动画。
 - **快捷键：** `Super+Q` 终端、`Super+E` Dolphin、`Super+F` Firefox、`Super+R` 启动器、`Super+G` 编辑器、`Super+P` 区域截图。取消截图不改剪贴板；`Super+M` 退出菜单只退出当前桌面会话。
-- **输入与主题：** 生成 `zh_CN.UTF-8` locale，用户会话/Fish 使用中文。Fcitx5 拼音使用 `Ctrl+Space`，候选框与菜单采用 Macchiato。Waybar/通知/终端保留原主题，GTK 使用 Debian Adwaita-dark 配合 Macchiato 色表、中文字体和 Papirus 图标，Qt 使用 GTK 平台主题。应用自带 UI 和 libadwaita 的部分控件仍由应用自身控制，不能保证所有专有程序完全同色。
+- **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`。Fcitx5 配置 GTK3/GTK4/Qt5/Qt6 和 Wayland 前端，拼音使用 `Ctrl+Space`，门户使用单独的 GTK 输入模块环境。候选框与菜单采用 Macchiato；GTK 使用 Debian Adwaita-dark 配合 Macchiato 色表、中文字体和 Papirus 图标，Qt 使用 GTK 平台主题。
 - **音量/亮度：** Waybar 滚轮每次 1%，方向反转，音量上限 100%、亮度下限 5%；Fn 键保持常规方向。背光、充电阈值和电源策略以机器实际暴露的 sysfs 能力为准。
 - **tmux：** Mocha 状态栏、CPU/电池插件。若已有 tmux 服务，执行 `tmux source-file ~/.tmux.conf`，或新建会话；已有服务不会被安装器杀掉。
 - **开发：** `uv init` / `uv add` / `uv run`；`direnv allow` 启用可信项目环境。Neovim 使用 Homebrew 版匹配 AstroNvim；首次打开会联网获取插件，LSP 已启用 APT/Homebrew 安装的服务，不再由 Mason 重复下载工具链。Node 22 的 PATH 同时提供给 Fish、桌面会话和用户服务。
 - **排版：** `latexmk -xelatex main.tex` 或 `latexmk -pdf main.tex`；`pandoc input.md -o output.docx`。`typst compile main.typ` 编译 Typst。绘图可用 draw.io、Inkscape、Krita、Blender。
-- **远程：** `sudo tailscale up` 加入网络，`codex` / `copilot` 登录后在项目内工作；RustDesk 画面捕获和远端输入需分别验收，AppImage 不附带原 root 服务。
-- **摄像头：** `v4l2-ctl --list-devices` 后用 guvcview 选择内置/USB 摄像头；OBS 录制与虚拟摄像头按手动说明检查驱动。
+- **远程：** `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 加入网络，`codex` / `copilot` 登录后在项目内工作；SSH 仅允许 Tailnet 公钥访问。RustDesk 画面捕获和远端输入需分别验收，Homebrew 客户端不附带原 root 服务。
+- **容器与虚拟机：** 安装器启用 rootless Docker、Compose/Buildx、libvirt/KVM 服务和用户组；重新登录后使用 `docker info`、`docker compose version` 与 virt-manager 验证。
+- **摄像头：** `v4l2-ctl --list-devices` 后用 guvcview 选择内置/USB 摄像头，cameractrls 调节设备参数；安装器配置并尝试加载 OBS 的 v4l2loopback 虚拟设备。
 
 ## 登录后的检查
 
@@ -150,11 +153,13 @@ node --version
 xelatex --version
 pdflatex --version
 docker compose version
+docker info
+tailscale status
 v4l2-ctl --list-devices
 ```
 
 再实际验证：中文输入、网络/蓝牙托盘、音量/亮度、屏幕共享、锁屏恢复、退出桌面、
-摄像头切换、Steam 和 RustDesk 远程键鼠。硬件显示器描述可能因面板批次不同，需要按 `hyprctl monitors` 调整。
+摄像头切换、OBS 虚拟摄像头、Steam 和 RustDesk 远程键鼠。硬件显示器描述可能因面板批次不同，需要按 `hyprctl monitors` 调整。
 
 已在隔离 Debian 13 环境中安装 Backports 桌面运行时，使用实际 Hyprland 的 `--verify-config` 解析通过。
 也使用签名的官方索引和真实 APT，按 Debian KDE task 的包状态模拟稳定软件→电源切换→Backports→KDE 移除。

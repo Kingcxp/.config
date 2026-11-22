@@ -1,7 +1,6 @@
 # These casks explicitly support Linux, or use platform-independent fonts.
 # Do not add a cask just because a macOS package with the same name exists.
 codex
-copilot-cli
 drawio
 rustdesk
 localsend

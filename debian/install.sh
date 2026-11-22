@@ -134,9 +134,12 @@ main() {
         (( status < 2 )) || return "$status"
     fi
     say 'Backing up and linking Debian application configuration'
-    for app in btop dunst fcitx5 fish hypr kitty micro nvim waybar wlogout wofi yazi fontconfig xdg-desktop-portal gtk-3.0 gtk-4.0; do
+    for app in btop dunst fcitx5 fish hypr kitty micro nvim waybar wlogout wofi yazi fontconfig xdg-desktop-portal gtk-3.0 gtk-4.0 systemd; do
         link_tree "$PROFILE_DIR/.config/$app" "$HOME/.config/$app"
     done
+    if command -v docker >/dev/null 2>&1 && [[ -f "$HOME/.config/systemd/user/docker.service" ]]; then
+        link_tree "$PROFILE_DIR/.config/environment.d" "$HOME/.config/environment.d"
+    fi
     link_tree "$PROFILE_DIR/.local/bin" "$HOME/.local/bin"
     link_tree "$PROFILE_DIR/.local/share" "$HOME/.local/share"
     backup_and_link "$PROFILE_DIR/.config/Code/User/settings.json" "$HOME/.config/Code/User/settings.json"

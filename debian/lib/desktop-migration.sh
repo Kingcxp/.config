@@ -7,6 +7,10 @@ DESKTOP_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 desktop_installed() { dpkg-query -W -f='${db:Status-Status}' "$1" 2>/dev/null | grep -qx installed; }
 
 desktop_check_session() {
+    if [[ -n "${SSH_CONNECTION:-}" ]]; then
+        printf 'This desktop migration must run from a local TTY, not over SSH.\n' >&2
+        return 2
+    fi
     if [[ "${XDG_CURRENT_DESKTOP:-}" == *KDE* ]] || pgrep -u "$(id -u)" -x 'plasmashell|kwin_wayland|kwin_x11' >/dev/null; then
         printf 'Save your work, log out of KDE, then use Ctrl+Alt+F3 and run the installer there.\nUse --keep-kde to install without removing the running desktop.\n' >&2
         return 2

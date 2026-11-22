@@ -5,6 +5,9 @@ export MICRO_TRUECOLOR=1
 export EDITOR=nvim
 set --export LANG zh_CN.UTF-8
 set --export LANGUAGE zh_CN:en_US
+if set -q XDG_RUNTIME_DIR; and test -f "$HOME/.config/systemd/user/docker.service"
+    set --export DOCKER_HOST "unix://$XDG_RUNTIME_DIR/docker.sock"
+end
 
 set --export BUN_INSTALL "$HOME/.bun"
 fish_add_path -p ~/.bun/bin

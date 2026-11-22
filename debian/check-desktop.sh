@@ -11,11 +11,13 @@ check_main() {
     esac
     (( $# <= 1 )) || return 2
     for command in Hyprland hyprctl waybar kitty wofi wlogout dunst hyprpaper hypridle hyprlock \
-        fcitx5 fcitx5-configtool nm-applet blueman-applet wpctl brightnessctl grim slurp \
+        fcitx5 fcitx5-configtool fcitx5-remote nm-applet blueman-applet wpctl brightnessctl grim slurp \
         dbus-update-activation-environment gnome-keyring-daemon; do
         if ! command -v "$command" >/dev/null; then printf 'MISSING: %s\n' "$command" >&2; failed=1; fi
     done
     for output in "$HOME/.config/hypr/hyprland.lua" "$HOME/.config/waybar/config.jsonc" \
+        "$HOME/.config/fcitx5/profile" "$HOME/.config/fcitx5/conf/classicui.conf" \
+        "$HOME/.config/systemd/user/xdg-desktop-portal-gtk.service.d/10-fcitx.conf" \
         /usr/libexec/polkit-mate-authentication-agent-1 /etc/pam.d/hyprlock \
         /usr/bin/sddm /usr/share/sddm/themes/debian-maui/Main.qml /usr/local/bin/myconfig-hyprland \
         /usr/share/wayland-sessions/myconfig-hyprland.desktop; do
@@ -36,6 +38,8 @@ check_main() {
         systemctl --user is-active "$unit" || failed=1
     done
     pgrep -u "$(id -u)" -x fcitx5 >/dev/null || failed=1
+    [[ -n "$(fcitx5-remote -n 2>/dev/null)" ]] || failed=1
+    [[ "${XMODIFIERS:-}" == '@im=fcitx' ]] || failed=1
     wpctl status
     nmcli general status
     return "$failed"

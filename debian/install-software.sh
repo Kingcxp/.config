@@ -10,8 +10,11 @@ STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/myconfig-debian"
 # Linted separately; no actions are executed on import.
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/desktop-migration.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/configure-system.sh"
 MIRROR=official
 DESKTOP_MIGRATION=false
+DOCKER_PREEXISTING=false
 
 say() { printf '\n==> %s\n' "$*"; }
 die() { printf 'Error: %s\n' "$*" >&2; exit 2; }
@@ -153,6 +156,13 @@ ensure_chinese_locale() {
         printf '\nzh_CN.UTF-8 UTF-8\n' | sudo tee -a /etc/locale.gen >/dev/null
     fi
     if ! sudo /usr/sbin/locale-gen; then FAILURES+=("Chinese locale generation"); fi
+    if ! sudo update-locale LANG=zh_CN.UTF-8 LANGUAGE=zh_CN:en_US \
+        LC_ADDRESS=zh_CN.UTF-8 LC_IDENTIFICATION=zh_CN.UTF-8 LC_MEASUREMENT=zh_CN.UTF-8 \
+        LC_MONETARY=zh_CN.UTF-8 LC_NAME=zh_CN.UTF-8 LC_NUMERIC=zh_CN.UTF-8 \
+        LC_PAPER=zh_CN.UTF-8 LC_TELEPHONE=zh_CN.UTF-8 LC_TIME=zh_CN.UTF-8; then
+        FAILURES+=("Set the system-wide Chinese locale")
+    fi
+    if ! sudo timedatectl set-timezone Asia/Shanghai; then FAILURES+=("Set the system time zone to Asia/Shanghai"); fi
 }
 
 main() {
@@ -172,7 +182,7 @@ main() {
     if [[ "$dry_run" == true ]]; then plan; return; fi
     [[ "$EUID" -ne 0 ]] || die 'Run as your normal user, without sudo.'
     local manifest
-    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh switch-mirror.sh MANUAL.md lib/apt-sources.py lib/desktop-migration.sh; do
+    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh switch-mirror.sh MANUAL.md lib/apt-sources.py lib/desktop-migration.sh lib/configure-system.sh lib/configure-bluez.py system/environment.d/60-docker-rootless.conf system/modprobe.d/myconfig-v4l2loopback.conf system/modules-load.d/myconfig-v4l2loopback.conf system/ssh/00-myconfig.conf config/.config/docker/daemon.json; do
         [[ -s "$SCRIPT_DIR/$manifest" ]] || die "Missing installer file: $manifest"
     done
     command -v apt-get >/dev/null || die 'This script requires Debian 13 apt-get.'
@@ -187,6 +197,9 @@ main() {
     mkdir -p "$STATE_DIR"
     : >"$STATE_DIR/failed-packages.txt"
     exec > >(tee -a "$STATE_DIR/install.log") 2>&1
+    if dpkg-query -W -f='${Status}' docker.io 2>/dev/null | grep -qx 'install ok installed'; then
+        DOCKER_PREEXISTING=true
+    fi
     # Select a working mirror before the first update, including broken old/CD-ROM sources.
     sudo dpkg --add-architecture i386
     bash "$SCRIPT_DIR/switch-mirror.sh" "$MIRROR" || return 2
@@ -198,17 +211,6 @@ main() {
         https://packages.microsoft.com/keys/microsoft.asc /usr/share/keyrings/microsoft.gpg yes
     ensure_vendor edge https://packages.microsoft.com/repos/edge \
         https://packages.microsoft.com/keys/microsoft.asc /usr/share/keyrings/microsoft.gpg yes
-    if ! dpkg-query -W -f='${Status}' openssh-server 2>/dev/null | grep -qx 'install ok installed'; then
-        # Debian may start sshd from its package post-installation script.
-        # Give a new installation key-only defaults before installing the server.
-        sudo install -d -m 0755 /etc/ssh/sshd_config.d
-        printf '%s\n' '# Managed by myconfig (new OpenSSH installations only).' \
-            'PasswordAuthentication no' 'KbdInteractiveAuthentication no' 'PermitRootLogin no' \
-            'AuthenticationMethods publickey' >"$WORK_DIR/ssh.conf"
-        if [[ ! -e /etc/ssh/sshd_config.d/60-myconfig.conf ]]; then
-            sudo install -m 0644 "$WORK_DIR/ssh.conf" /etc/ssh/sshd_config.d/60-myconfig.conf
-        fi
-    fi
     sudo apt-get update -o APT::Update::Error-Mode=any
     install_apt_set packages.txt
     if [[ "$DESKTOP_MIGRATION" == true ]]; then
@@ -217,6 +219,7 @@ main() {
     install_apt_set packages-backports.txt trixie-backports
     install_apt_set packages-vendor.txt
     ensure_chinese_locale
+    configure_system_profile "$DOCKER_PREEXISTING"
     install_brew
     install_extensions
     manual

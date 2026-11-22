@@ -4,6 +4,7 @@ hyprpaper
 hypridle
 hyprlock
 xdg-desktop-portal-hyprland
+gamescope
 # Match the original TLP policy provider; conflicts are reported, not forced.
 tlp
 tlp-pd

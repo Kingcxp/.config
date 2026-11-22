@@ -1,6 +1,10 @@
 # Debian 13 amd64 packages. One package per line; comments are ignored.
 # Hyprland is in packages-backports.txt; vendor packages have a separate list.
 
+# ThinkBook UEFI bootloader and NVRAM utility
+grub-efi-amd64
+efibootmgr
+
 # Session, portals, display, and controls
 sddm
 sddm-theme-debian-maui

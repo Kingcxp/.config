@@ -6,8 +6,7 @@
 
 ## 一键安装
 
-先安装 **Debian 13 amd64**，安装器中可以选择 KDE Plasma。确保普通账户可以使用 `sudo`，
-在 KDE 联网并克隆仓库：
+先从 UEFI 启动 **Debian 13 amd64** 安装介质，安装器中可以选择 KDE Plasma。ThinkBook 原 NixOS 配置使用 UEFI + GRUB；Debian 安装器会在分区并挂载 ESP 后安装 Debian GRUB。若保留其他系统，EFI 分区不要格式化。确保普通账户可以使用 `sudo`，在 KDE 联网并克隆仓库：
 
 ```bash
 sudo apt update
@@ -21,10 +20,10 @@ git clone https://github.com/Kingcxp/.config.git ~/myconfig
 bash ~/myconfig/debian/install.sh --mirror official
 ```
 
-默认完成全部软件安装、用户配置备份/部署、Hyprland 配置解析检查、SDDM 登录入口与主题，
-最后按明确包名移除 KDE 桌面。**不是先卸载 KDE 再尝试安装新桌面**。
+默认完成全部软件安装、确认 UEFI 启动和 EFI 系统分区挂载、确保 GRUB 工具并刷新菜单、备份和部署用户配置、检查 Hyprland 配置、设置 SDDM 登录入口与主题，最后按明确包名移除 KDE 桌面。**不是先卸载 KDE 再尝试安装新桌面**。
 软件安装存在失败、Hyprland 检查失败或 APT 计划包含意外移除包时，不会继续移除 KDE。
 安装结束后手动 `sudo reboot`，在 SDDM 选择 **Hyprland (myconfig)**；已预选新会话，不自动重启。
+脚本不会分区、格式化 ESP 或猜测 GRUB 写入目标；这些由 Debian 安装器按实际磁盘处理。
 
 首次若想先保留 KDE 验收新桌面，使用 `--keep-kde`；确认后退出图形会话，重新运行默认命令完成移除。
 已克隆过时先 `git -C ~/myconfig pull --ff-only`。
@@ -57,7 +56,7 @@ bash ~/myconfig/debian/install-software.sh --manual
 
 | 清单 | 内容 |
 | --- | --- |
-| [packages.txt](packages.txt) | Debian 官方仓库的软件：桌面、中文输入/字体、开发工具链、LaTeX、影音绘图、摄像头、Docker/KVM、磁盘工具、Steam/Wine 等 |
+| [packages.txt](packages.txt) | Debian 官方仓库的软件：UEFI GRUB/efibootmgr、桌面、中文输入/字体、开发工具链、LaTeX、影音绘图、摄像头、Docker/KVM、磁盘工具、Steam/Wine 等 |
 | [packages-backports.txt](packages-backports.txt) | 配套的 Hyprland、Hyprpaper、Hypridle、Hyprlock、portal、Gamescope，以及 TLP/tlp-pd |
 | [packages-vendor.txt](packages-vendor.txt) | 官方签名 APT 源中的 Tailscale、VS Code、Microsoft Edge |
 | [brew-formulae.txt](brew-formulae.txt) | Debian 中缺少或需要较新版本的 CLI：Yazi、Oh My Posh、Neovim、uv、Ruff、Typst/LSP、Node 22、Bun、Deno、pnpm、Gradle、.NET 等 |
@@ -156,6 +155,7 @@ docker compose version
 docker info
 tailscale status
 v4l2-ctl --list-devices
+sudo efibootmgr -v
 ```
 
 再实际验证：中文输入、网络/蓝牙托盘、音量/亮度、屏幕共享、锁屏恢复、退出桌面、
@@ -176,9 +176,10 @@ bash ~/myconfig/debian/tests/test-installer.sh
 bash ~/myconfig/debian/tests/test-vscode.sh
 bash ~/myconfig/debian/tests/test-mirror.sh
 bash ~/myconfig/debian/tests/test-desktop-migration.sh
+bash ~/myconfig/debian/tests/test-bootloader.sh
 ```
 
-这些测试覆盖切源/失败回滚、配置备份、SDDM 会话、KDE 移除保护、重复运行、安装失败记录及取消截图；
+这些测试覆盖切源/失败回滚、配置备份、SDDM 会话、KDE 移除保护、重复运行、安装失败记录、取消截图和 UEFI/GRUB 前置检查；
 它们不代替实际 APT 依赖求解或图形会话测试。
 
 Hyprland Lua 接口对照[官方示例](https://github.com/hyprwm/Hyprland/blob/v0.55.2/example/hyprland.lua)，

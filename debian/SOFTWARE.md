@@ -6,6 +6,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 
 | 用途 | 自动安装的软件与命令 | 日常使用 |
 | --- | --- | --- |
+| 引导与固件 | UEFI GRUB、`efibootmgr` | Debian 安装器负责 ESP 和启动项；安装脚本检查 UEFI/ESP、确保 GRUB 工具并运行 `update-grub`，不分区或格式化磁盘 |
 | 桌面会话 | Hyprland、Hyprpaper、Hypridle、Hyprlock、Hyprland/GTK portals、XWayland、SDDM / Debian Maui | 完整安装先检查新桌面再移除 KDE；登录选择 Hyprland (myconfig)，`bash check-desktop.sh` 检查 |
 | 桌面操作 | Waybar、Wofi、wlogout、Dunst、Grim、Slurp、wl-clipboard、brightnessctl、playerctl | 启动器、通知、区域截图、剪贴板、亮度和媒体键 |
 | 网络与蓝牙 | NetworkManager、wpa_supplicant、ModemManager、nm-applet、nmtui、BlueZ（Experimental=true）、Blueman | Wi-Fi 与移动宽带服务随 NetworkManager 使用；托盘或 `nmtui` 配置网络，Blueman 管理蓝牙 |
@@ -48,10 +49,11 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 
 ## 精确安装清单
 
-以下为安装脚本默认请求的显式包名，不含 APT 自动解析的依赖包、Homebrew 的间接依赖或 VS Code 扩展的依赖扩展。Debian 清单共 259 项；Homebrew 与扩展安装失败会记录在 `~/.local/state/myconfig-debian/failed-packages.txt` 或扩展失败清单中。
+以下为安装脚本默认请求的显式包名，不含 APT 自动解析的依赖包、Homebrew 的间接依赖或 VS Code 扩展的依赖扩展。Debian 清单共 261 项；Homebrew 与扩展安装失败会记录在 `~/.local/state/myconfig-debian/failed-packages.txt` 或扩展失败清单中。
 
 | Debian Trixie 分组 | 显式包名 |
 | --- | --- |
+| UEFI 引导与固件变量（2） | `grub-efi-amd64`, `efibootmgr` |
 | 桌面、门户与控制（23） | `sddm`, `sddm-theme-debian-maui`, `dbus-user-session`, `waybar`, `wofi`, `wlogout`, `dunst`, `xdg-desktop-portal`, `xdg-desktop-portal-gtk`, `xwayland`, `grim`, `slurp`, `wl-clipboard`, `brightnessctl`, `playerctl`, `libnotify-bin`, `mate-polkit`, `pkexec`, `polkitd`, `rtkit`, `speech-dispatcher`, `sound-theme-freedesktop`, `hicolor-icon-theme` |
 | 音频、网络、蓝牙与输入法（28） | `pipewire-audio`, `pipewire-pulse`, `pipewire-alsa`, `alsa-ucm-conf`, `libspa-0.2-bluetooth`, `libpipewire-0.3-0t64:i386`, `libspa-0.2-modules:i386`, `pipewire-alsa:i386`, `wireplumber`, `pavucontrol`, `network-manager`, `network-manager-gnome`, `wpasupplicant`, `modemmanager`, `bluez`, `blueman`, `firmware-iwlwifi`, `firmware-intel-graphics`, `firmware-misc-nonfree`, `firmware-sof-signed`, `intel-microcode`, `intel-media-va-driver`, `fcitx5`, `fcitx5-chinese-addons`, `fcitx5-frontend-gtk3`, `fcitx5-frontend-gtk4`, `fcitx5-frontend-qt5`, `fcitx5-frontend-qt6` |
 | 常用应用（9） | `kitty`, `dolphin`, `firefox-esr`, `micro`, `fish`, `tmux`, `btop`, `powertop`, `zenity` |

@@ -38,6 +38,7 @@ manual() { cat "$SCRIPT_DIR/MANUAL.md"; MANUAL_SHOWN=true; }
 
 plan() {
     printf 'Debian 13 Trixie / amd64; current user: %s\n' "${USER:-unknown}"
+    printf 'Bootloader: UEFI GRUB; verify the EFI System Partition, install GRUB tools, and refresh grub.cfg. Disk partitioning remains in Debian Installer.\n'
     printf 'APT: Debian mirror=%s + Backports + official Tailscale/Microsoft repositories.\n' "$MIRROR"
     printf 'Steam/Wine: enable i386, contrib, non-free, non-free-firmware.\n'
     local list
@@ -99,6 +100,36 @@ install_apt_set() {
             FAILURES+=("APT $package")
         fi
     done
+}
+
+uefi_mode_active() { [[ -d /sys/firmware/efi ]]; }
+
+efi_system_partition() {
+    local mountpoint fstype
+    for mountpoint in /boot/efi /boot /efi; do
+        fstype="$(findmnt --noheadings --raw --mountpoint "$mountpoint" --output FSTYPE 2>/dev/null || true)"
+        case "$fstype" in
+            vfat|fat|msdos) printf '%s\n' "$mountpoint"; return 0 ;;
+        esac
+    done
+    return 1
+}
+
+require_uefi_layout() {
+    local esp
+    uefi_mode_active || die 'This ThinkBook profile requires Debian to be booted in UEFI mode, not Legacy/CSM.'
+    esp="$(efi_system_partition)" || die 'No mounted FAT EFI System Partition found at /boot/efi, /boot, or /efi. Recheck Debian partition mounts; this installer will not format or guess a disk.'
+    printf 'UEFI mode detected; EFI System Partition mounted at %s.\n' "$esp"
+}
+
+grub_update_command_available() { command -v update-grub >/dev/null 2>&1; }
+
+refresh_grub_menu() {
+    if ! grub_update_command_available; then
+        setup_failure 'GRUB tools are missing after APT installation'
+    elif ! sudo update-grub; then
+        setup_failure 'Refresh the GRUB menu with update-grub'
+    fi
 }
 
 install_brew() {
@@ -192,6 +223,7 @@ main() {
     source /etc/os-release
     [[ "${ID:-}" == debian && "${VERSION_CODENAME:-}" == trixie ]] || die "Requires Debian 13 Trixie, detected ${PRETTY_NAME:-unknown}."
     [[ "$(dpkg --print-architecture)" == amd64 ]] || die 'This ThinkBook profile requires amd64.'
+    require_uefi_layout
     sudo -v
     WORK_DIR="$(mktemp -d)"
     mkdir -p "$STATE_DIR"
@@ -213,6 +245,7 @@ main() {
         https://packages.microsoft.com/keys/microsoft.asc /usr/share/keyrings/microsoft.gpg yes
     sudo apt-get update -o APT::Update::Error-Mode=any
     install_apt_set packages.txt
+    refresh_grub_menu
     if [[ "$DESKTOP_MIGRATION" == true ]]; then
         if ! desktop_power_transition; then FAILURES+=("TLP power-manager transition; retain KDE"); fi
     fi

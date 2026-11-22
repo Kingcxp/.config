@@ -61,13 +61,13 @@ bash ~/myconfig/debian/install-software.sh --manual
 | [packages-backports.txt](packages-backports.txt) | 配套的 Hyprland、Hyprpaper、Hypridle、Hyprlock、portal、Gamescope，以及 TLP/tlp-pd |
 | [packages-vendor.txt](packages-vendor.txt) | 官方签名 APT 源中的 Tailscale、VS Code、Microsoft Edge |
 | [brew-formulae.txt](brew-formulae.txt) | Debian 中缺少或需要较新版本的 CLI：Yazi、Oh My Posh、Neovim、uv、Ruff、Typst/LSP、Node 22、Bun、Deno、pnpm、Gradle、.NET 等 |
-| [brew-casks.txt](brew-casks.txt) | 已核验 Linux 支持的 Codex、draw.io、RustDesk、LocalSend、Blockbench、Zoom、Zed，以及 Nerd Font |
+| [brew-casks.txt](brew-casks.txt) | 已核验 Linux 支持的 Codex CLI、draw.io、RustDesk、LocalSend、Blockbench、Zoom、Zed，以及 Nerd Font；另部署 Codex Web 桌面入口 |
 | [VS Code 扩展安装](install-vscode.sh) | 默认 7 项通用 + 12 项科研扩展；`--list` 查看其他语言、容器、AI 与写作扩展组，`--help` 查看 Profile 安装用法 |
 
 安装器还会使用官方 npm 包安装 GitHub Copilot CLI、使用 pipx 安装 Protontricks、从 Flathub 安装 cameractrls；
 同时设置中文 locale、Fcitx5 的 GTK/Qt/Wayland 前端、BlueZ 实验选项、Wi-Fi/移动宽带与 RTKit 服务、rootless Docker、Tailscale/OpenSSH、UFW、摄像头虚拟设备及相关服务。
 WPS、微信、QQ、腾讯会议、Zotero + Connector + Better BibTeX、IDEA、Godot .NET、Conda、
-oh-my-pi、Proton-GE、WoeUSB、USBImager、UNetbootin 和 Mental Omega 游戏数据等仍会列在手动清单中，不会误报为“已安装”。
+Proton-GE、WoeUSB、USBImager、UNetbootin 和 Mental Omega 游戏数据等仍会列在手动清单中，不会误报为“已安装”。
 已经存在的 Homebrew 包会保留；需要更新时使用 `brew update`、`brew upgrade`。
 APT 软件随 Debian 版本，Homebrew 软件随当前上游配方；不保证与原 Nix 锁文件的版本号完全相同。
 
@@ -134,7 +134,7 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 - **tmux：** Mocha 状态栏、CPU/电池插件。若已有 tmux 服务，执行 `tmux source-file ~/.tmux.conf`，或新建会话；已有服务不会被安装器杀掉。
 - **开发：** `uv init` / `uv add` / `uv run`；`direnv allow` 启用可信项目环境。Neovim 使用 Homebrew 版匹配 AstroNvim；首次打开会联网获取插件，LSP 已启用 APT/Homebrew 安装的服务，不再由 Mason 重复下载工具链。Node 22 的 PATH 同时提供给 Fish、桌面会话和用户服务。
 - **排版：** `latexmk -xelatex main.tex` 或 `latexmk -pdf main.tex`；`pandoc input.md -o output.docx`。`typst compile main.typ` 编译 Typst。绘图可用 draw.io、Inkscape、Krita、Blender。
-- **远程：** `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 加入网络，`codex` / `copilot` 登录后在项目内工作；SSH 仅允许 Tailnet 公钥访问。RustDesk 画面捕获和远端输入需分别验收，Homebrew 客户端不附带原 root 服务。
+- **远程与 Agent：** `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 加入网络；运行 `codex` 登录 Codex CLI，应用菜单的 **Codex App (Web)** 在 Edge app 模式打开 Codex 网页，`copilot` 单独登录。Linux cask 提供 CLI，不是原生桌面 App。SSH 仅允许 Tailnet 公钥访问。RustDesk 画面捕获和远端输入需分别验收，Homebrew 客户端不附带原 root 服务。
 - **容器与虚拟机：** 安装器启用 rootless Docker、Compose/Buildx、libvirt/KVM 服务和用户组；重新登录后使用 `docker info`、`docker compose version` 与 virt-manager 验证。
 - **摄像头：** `v4l2-ctl --list-devices` 后用 guvcview 选择内置/USB 摄像头，cameractrls 调节设备参数；安装器配置并尝试加载 OBS 的 v4l2loopback 虚拟设备。
 

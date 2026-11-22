@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Codex App (Web)
+Comment=OpenAI Codex in Microsoft Edge app mode
+Exec=microsoft-edge-stable --app=https://chatgpt.com/codex
+TryExec=microsoft-edge-stable
+Icon=web-browser
+Terminal=false
+Categories=Development;IDE;

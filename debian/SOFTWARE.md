@@ -30,7 +30,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | 任务与终端助手 | Just、ripgrep、fd-find、fzf、bat、eza、tlrc/tldr、tree、wget | `just` 运行项目任务；Debian 的 `batcat` / `fdfind` 已配置 Fish 别名 |
 | 容器 | Debian Docker Engine、Compose、Buildx、rootlesskit、slirp4netns、uidmap、fuse-overlayfs | rootless 用户服务自动配置；重新登录后 `docker run`，无需 `sudo` |
 | 虚拟化 | QEMU/KVM、libvirt、virt-manager、OVMF | 自动启用服务并加入 `libvirt`/`kvm` 组；重新登录后创建 UEFI 虚拟机 |
-| 远程与 Agent | Tailscale、OpenSSH、RustDesk、Codex、GitHub Copilot CLI | tailscaled 自动启用；`tailscale up --netfilter-mode=nodivert --ssh=false` 登录。UFW 仅允许 Tailnet SSH，需添加个人公钥；RustDesk 输入服务见 `MANUAL.md` |
+| 远程与 Agent | Tailscale、OpenSSH、RustDesk、Codex CLI、Codex App (Web) 桌面入口、GitHub Copilot CLI | tailscaled 自动启用；`tailscale up --netfilter-mode=nodivert --ssh=false` 登录。Codex CLI 用 `codex` 启动，Web 入口复用 Edge 登录态；UFW 仅允许 Tailnet SSH，RustDesk 输入服务见 `MANUAL.md` |
 | LaTeX | TeX Live 的 XeTeX、LaTeX Extra、中文、BibTeX Extra、科学排版及推荐字体、latexmk、Biber | 含 `xelatex`、`pdflatex`、BibTeX、Biber；`latexmk -xelatex main.tex` |
 | 新式排版 | Typst、Tinymist、Texlab、Pandoc | `typst compile main.typ`，`pandoc input.md -o output.docx` |
 | 图形与创作 | draw.io、Inkscape、Krita、Blender、Blockbench | 架构图、SVG、绘画、3D 与低多边形模型；通过应用菜单启动 |
@@ -76,7 +76,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | Homebrew 类型 | 显式安装项 |
 | --- | --- |
 | Linux formula（29） | `yazi`, `oh-my-posh`, `neovim`, `neovide`, `uv`, `ruff`, `xmake`, `typst`, `tinymist`, `texlab`, `node@22`, `bun`, `deno`, `pnpm`, `typescript`, `typescript-language-server`, `gradle`, `dotnet`, `lazysql`, `harlequin`, `bash-language-server`, `lua-language-server`, `pyright`, `stylua`, `tree-sitter`, `vscode-langservers-extracted`, `yaml-language-server`, `alejandra`, `tlrc` |
-| Linux cask（8） | `codex`, `drawio`, `rustdesk`, `localsend`, `blockbench`, `zoom`, `zed`, `font-jetbrains-mono-nerd-font` |
+| Linux cask（8） | `codex`（Codex CLI）, `drawio`, `rustdesk`, `localsend`, `blockbench`, `zoom`, `zed`, `font-jetbrains-mono-nerd-font` |
 
 | VS Code 扩展组 | 默认显式安装项 |
 | --- | --- |
@@ -93,7 +93,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | 命令行工具 | 通过官方 npm 包安装 GitHub Copilot CLI（`@github/copilot`）；通过 `pipx` 安装 Protontricks |
 | 摄像头控制 | 添加 Flathub 系统 remote，并安装 `hu.irl.cameractrls` |
 | 字体缓存 | Homebrew 软件安装后刷新 `fc-cache` |
-| 桌面配置 | 备份冲突的用户文件，再链接 `config/` 中的 Hyprland、Waybar、Fcitx5、GTK/Qt、终端、Shell、tmux 等配置 |
+| 桌面配置 | 备份冲突的用户文件，再链接 `config/` 中的 Hyprland、Waybar、Fcitx5、GTK/Qt、终端、Shell、tmux 和 Codex Web 桌面入口等配置 |
 
 ## 自动配置的系统
 
@@ -119,7 +119,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | 类型 | 软件或步骤 |
 | --- | --- |
 | 官方或专有桌面程序 | WPS、微信、QQ、腾讯会议、Zotero、Zotero Connector、Better BibTeX、IntelliJ IDEA、Godot .NET、Aseprite、Clash Verge Rev、网易云 GTK、HMCL |
-| 个人工具 | Conda/Miniforge、oh-my-pi、termpdf.py、pwvucontrol |
+| 个人工具 | Conda/Miniforge、termpdf.py、pwvucontrol |
 | 游戏与启动器 | Proton-GE；Mental Omega 3.3.6 安装文件、合法 RA2/Yuri 原版数据及中文补丁；原 NixOS 的 `mental-omega` 启动器未移植到 Debian |
 | USB 写盘程序 | WoeUSB-ng、USBImager、UNetbootin；这些程序未进入核验的 Debian 13 官方仓库或 Linux Homebrew 清单，所需部分系统依赖已预装 |
 | 远程与账户 | Tailscale 设备登录、Codex/Copilot 登录或 API 凭据、SSH 公钥；RustDesk 的 root 输入服务/无人值守功能需按上游说明另行安装并测试 |

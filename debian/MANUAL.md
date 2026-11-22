@@ -24,7 +24,6 @@ APT/Homebrew 的失败项另见 `~/.local/state/myconfig-debian/failed-packages.
 | 网易云 GTK 客户端 | https://github.com/gmg137/netease-cloud-music-gtk ，按上游 Linux 安装说明安装。此处保留的是 NixOS 中的 GTK 复刻版，而非 macOS 网易云 cask。 |
 | HMCL | https://hmcl.huangyuhui.net/ ，下载官方启动器，若使用 `.jar` 则运行 `java -jar 实际文件名.jar`。游戏、账户和 Java 版本按实例分别设置。 |
 | Conda | https://github.com/conda-forge/miniforge ，使用官方 Linux x86_64 安装器安装 Miniforge；按需运行 `~/miniforge3/bin/conda init fish`，重新打开终端。Python 项目也可直接使用已安装的 `uv`。 |
-| oh-my-pi (`omp`) | https://github.com/can1357/oh-my-pi ，按上游 Linux 安装文档安装；它与 Oh My Posh (`oh-my-posh`) 是不同的软件。 |
 | termpdf.py | https://github.com/dsanson/termpdf.py ，按上游 README 安装；PDF 日常也可用 Firefox 打开。 |
 | Proton-GE | https://github.com/GloriousEggroll/proton-ge-custom/releases ，按官方 README 解压到 `~/.steam/root/compatibilitytools.d/`，重新启动 Steam，在兼容性菜单选择它。 |
 | pwvucontrol | https://github.com/saivert/pwvucontrol ，按上游 Linux 安装说明安装；音量面板已自动提供 `pavucontrol`。 |
@@ -37,7 +36,7 @@ APT 会解析该包的依赖；这与软件已经进入 Debian 官方仓库不�
 
 ## 首次启用与验证
 
-- **Tailscale / Codex / Copilot：** 安装器启用 `tailscaled` 并配置 UFW；运行 `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 登录。随后在项目目录运行 `codex` 或 `copilot` 完成认证。账户、API Key 和付费订阅不会复制进配置仓库。
+- **Tailscale / Codex / Copilot：** 安装器启用 `tailscaled` 并配置 UFW；运行 `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 登录。Homebrew 的 Linux `codex` cask 安装 Codex CLI，首次运行 `codex` 后选择 ChatGPT 登录；`copilot` 也需单独登录。应用菜单中的 **Codex App (Web)** 在 Edge app 模式打开 `https://chatgpt.com/codex`，复用 Edge 的登录态。它是网页版入口；Codex 原生桌面 App 没有 Linux 发行包。可选 VS Code 扩展用 `bash ~/myconfig/debian/install-vscode.sh --bundle codex` 安装。账户、API Key 和付费订阅不会复制进配置仓库。
 - **SSH：** 安装器配置仅公钥登录、禁止 root 登录，并只允许当前 Debian 用户；防火墙只在 `tailscale0` 上开放 TCP 22。把你的公钥放入 `~/.ssh/authorized_keys`，设置 `chmod 700 ~/.ssh`、`chmod 600 ~/.ssh/authorized_keys`，然后用 `tailscale ip -4` 的地址连接。没有公钥时先在本机添加，再从其他设备连接。
 - **RustDesk：** Homebrew 安装的是 Linux AppImage 客户端，应用菜单可打开。它不等于 NixOS 中的 root 输入服务；需要无人值守或 Wayland 远端键鼠输入时，使用 https://rustdesk.com/docs/en/client/linux/ 的官方 `.deb` 和服务说明，并分别测试画面捕获与键鼠输入。更换 `.deb` 前运行 `brew uninstall --cask rustdesk`，避免保留两套入口。不要用 `--no-sandbox` 解决启动问题。
 - **Docker：** 安装器配置 Debian 的 rootless Docker 用户服务、Compose/Buildx、用户 lingering 与日志轮转；新装的系统级 rootful daemon 会停用，已有 Docker 服务和配置保留。重新登录后运行 `docker info`；可用 `docker run --rm hello-world` 验证，无需 `sudo`。既有自定义 `daemon.json` 会保留。

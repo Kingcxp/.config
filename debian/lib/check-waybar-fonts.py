@@ -1,11 +1,90 @@
 #!/usr/bin/env python3
-"""Check the actual regular/medium fonts, including every configured Waybar icon."""
+"""Check Waybar's real fonts, icon coverage and Pango's rendered ASCII digits."""
 
 import argparse
+import ctypes as ct
+from ctypes.util import find_library
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
+
+
+def check_pango_digits(quiet):
+    # Use Pango itself, as Waybar does, rather than inferring the face from CSS.
+    def library(name):
+        path = find_library(name)
+        if not path:
+            raise ValueError(f"Required Waybar rendering library is missing: {name}")
+        return ct.CDLL(path)
+
+    pango = library("pango-1.0")
+    cairo = library("pangocairo-1.0")
+    gobject = library("gobject-2.0")
+    signatures = {
+        "pango_font_map_create_context": (ct.c_void_p, [ct.c_void_p]),
+        "pango_font_description_new": (ct.c_void_p, []),
+        "pango_font_description_set_family": (None, [ct.c_void_p, ct.c_char_p]),
+        "pango_font_description_set_weight": (None, [ct.c_void_p, ct.c_int]),
+        "pango_font_description_set_absolute_size": (None, [ct.c_void_p, ct.c_double]),
+        "pango_font_description_get_family": (ct.c_char_p, [ct.c_void_p]),
+        "pango_font_description_free": (None, [ct.c_void_p]),
+        "pango_language_from_string": (ct.c_void_p, [ct.c_char_p]),
+        "pango_context_set_language": (None, [ct.c_void_p, ct.c_void_p]),
+        "pango_context_load_fontset": (ct.c_void_p, [ct.c_void_p, ct.c_void_p, ct.c_void_p]),
+        "pango_fontset_get_font": (ct.c_void_p, [ct.c_void_p, ct.c_uint]),
+        "pango_font_describe": (ct.c_void_p, [ct.c_void_p]),
+        "pango_layout_new": (ct.c_void_p, [ct.c_void_p]),
+        "pango_layout_set_font_description": (None, [ct.c_void_p, ct.c_void_p]),
+        "pango_layout_set_text": (None, [ct.c_void_p, ct.c_char_p, ct.c_int]),
+        "pango_layout_get_size": (None, [ct.c_void_p, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)]),
+    }
+    for name, (restype, argtypes) in signatures.items():
+        function = getattr(pango, name)
+        function.restype, function.argtypes = restype, argtypes
+    cairo.pango_cairo_font_map_get_default.restype = ct.c_void_p
+    gobject.g_object_unref.restype = None
+    gobject.g_object_unref.argtypes = [ct.c_void_p]
+    context = pango.pango_font_map_create_context(cairo.pango_cairo_font_map_get_default())
+    description = pango.pango_font_description_new()
+    pango.pango_font_description_set_family(description, b"JetBrainsMono Nerd Font")
+    pango.pango_font_description_set_absolute_size(description, 12 * 1024)
+    language = pango.pango_language_from_string(b"zh-cn")
+    pango.pango_context_set_language(context, language)
+    try:
+        for weight in (400, 500):
+            pango.pango_font_description_set_weight(description, weight)
+            fontset = pango.pango_context_load_fontset(context, description, language)
+            try:
+                for char in "0123456789.%:ABCxyz":
+                    font = pango.pango_fontset_get_font(fontset, ord(char))
+                    selected = pango.pango_font_describe(font)
+                    family = pango.pango_font_description_get_family(selected).decode()
+                    pango.pango_font_description_free(selected)
+                    gobject.g_object_unref(font)
+                    if family != "JetBrainsMono Nerd Font":
+                        raise ValueError(f"Pango zh-CN selected {family} for {char!r}")
+            finally:
+                gobject.g_object_unref(fontset)
+            layout = pango.pango_layout_new(context)
+            try:
+                pango.pango_layout_set_font_description(layout, description)
+                widths = []
+                for text in (b"0123456789", b"ABCDEFGHIJ"):
+                    pango.pango_layout_set_text(layout, text, len(text))
+                    width, height = ct.c_int(), ct.c_int()
+                    pango.pango_layout_get_size(layout, ct.byref(width), ct.byref(height))
+                    widths.append(width.value / 1024)
+                if abs(widths[0] - widths[1]) > 1 or not 0 < widths[0] < 10 * 12 * 0.8:
+                    raise ValueError(f"Unexpected full-width/proportional ASCII layout: {widths}")
+                if not quiet:
+                    print(f"PASS Pango zh-CN weight {weight}: ASCII digits use JetBrainsMono Nerd Font; 10 digits = {widths[0]:g}px at 12px")
+            finally:
+                gobject.g_object_unref(layout)
+    finally:
+        pango.pango_font_description_free(description)
+        gobject.g_object_unref(context)
 
 
 def strings(value):
@@ -20,6 +99,10 @@ def strings(value):
 
 
 def check(config, quiet=False):
+    # The launcher uses the same scoped configuration, without changing other apps.
+    scoped = Path(config).parent / "fontconfig.conf"
+    if scoped.is_file():
+        os.environ["FONTCONFIG_FILE"] = str(scoped.resolve())
     data = json.loads(Path(config).read_text(encoding="utf-8"))
     icons = {
         ord(char)
@@ -43,14 +126,16 @@ def check(config, quiet=False):
         for token in charset.split():
             first, _, last = token.partition("-")
             ranges.append((int(first, 16), int(last or first, 16)))
-        missing = sorted(code for code in icons if not any(a <= code <= b for a, b in ranges))
+        required = icons | set(range(0x20, 0x7F))
+        missing = sorted(code for code in required if not any(a <= code <= b for a, b in ranges))
         if missing:
             raise ValueError(
-                f"{match[1]} is missing Waybar icons: "
+                f"{match[1]} is missing Waybar ASCII/icon characters: "
                 + ", ".join(f"U+{code:04X}" for code in missing)
             )
         if not quiet:
             print(f"PASS Waybar {weight}: {match[1]} ({len(icons)} icon codepoints)")
+    check_pango_digits(quiet)
 
 
 def main():

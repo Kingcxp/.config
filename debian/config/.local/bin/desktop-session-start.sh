@@ -16,7 +16,7 @@ systemctl --user daemon-reload || true
 systemctl --user try-restart xdg-desktop-portal.service xdg-desktop-portal-hyprland.service || true
 
 gnome-keyring-daemon --start --components=secrets
-waybar &
+bash "$HOME/.local/bin/waybar-start.sh" &
 dunst &
 hyprpaper &
 hypridle &

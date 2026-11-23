@@ -101,7 +101,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 
 | 部分 | 配置内容 |
 | --- | --- |
-| 桌面与显示 | 保留 SDDM/Maui 并关闭虚拟键盘；启用 Hyprland Lua、Hyprpaper/Hypridle/Hyprlock、XWayland 和 portal。内屏 `eDP-1` 首选模式、约 166.7% 缩放；Waybar 12px/24px，左标题/硬件、中工作区、右托盘/控制/电池与功耗；保留 dwindle 和原快捷键 |
+| 桌面与显示 | 保留 SDDM/Maui 并关闭虚拟键盘；启用 Hyprland Lua、Hyprpaper/Hypridle/Hyprlock、XWayland 和 portal。内屏 `eDP-1` 首选模式、约 166.7% 缩放；Waybar 12px/24px，显式加载样式并固定 JetBrainsMono Nerd Font 的数字/英文/图标，中文按缺字回退；左标题/硬件、中工作区、右托盘/控制/电池与功耗；保留 dwindle 和原快捷键 |
 | 中文与输入 | `zh_CN.UTF-8`、`Asia/Shanghai`；Fcitx5 拼音用 `Ctrl+Space`。Hyprland 清除继承的全局 GTK 模块变量；GTK3/4 Wayland 走 text-input-v3，X11 由配置文件选择 Fcitx；GTK portal 保留独立覆盖。Qt5 使用 Fcitx 模块，Qt6 优先 `wayland;fcitx;ibus` 回退顺序。其他桌面保留 im-config 的 Fcitx5 设置 |
 | 字体与主题 | Noto CJK/Emoji、Font Awesome、JetBrains Mono 和 Nerd Font、DejaVu/FreeFont/TeX Gyre 等；Nerd Font 缺失时安装固定版本并校验。GTK/Qt/dconf 同步 JetBrainsMono Nerd Font 12；安装 Catppuccin Macchiato/Lavender GTK、光标、Kvantum、Fcitx5、GRUB，图标为 Papirus。检查生成的 GRUB 配置含主题、图形输出及可见菜单 |
 | 音量与亮度 | Waybar 滚轮反向并按 1% 微调，音量上限 100%、亮度下限 5%；Fn 媒体键保留常规方向并使用 5% 步进 |

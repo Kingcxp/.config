@@ -214,7 +214,8 @@ main() {
         lib/install-appearance.sh lib/user-appearance.sh lib/configure-grub.sh lib/check-waybar-fonts.py \
         system/default/grub.d/zz-myconfig-catppuccin.cfg system/environment.d/60-docker-rootless.conf \
         system/modprobe.d/myconfig-v4l2loopback.conf system/modules-load.d/myconfig-v4l2loopback.conf \
-        system/ssh/00-myconfig.conf config/.config/docker/daemon.json; do
+        system/ssh/00-myconfig.conf config/.config/docker/daemon.json \
+        config/.config/waybar/fontconfig.conf config/.local/bin/waybar-start.sh; do
         [[ -s "$SCRIPT_DIR/$manifest" ]] || die "Missing installer file: $manifest"
     done
     command -v apt-get >/dev/null || die 'This script requires Debian 13 apt-get.'

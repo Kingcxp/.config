@@ -34,6 +34,7 @@ config = json.load(open(sys.argv[1], encoding="utf-8"))
 style = open(sys.argv[2], encoding="utf-8").read()
 assert config["height"] == 28, config["height"]
 assert config["spacing"] == 6, config["spacing"]
+assert config["hyprland/workspaces"]["move-to-monitor"] is True
 battery = config["battery"]
 power = config["battery#power"]
 assert battery["interval"] == 5, battery["interval"]
@@ -54,7 +55,7 @@ assert tray and re.search(r"color:\s*#cad3f5\s*;", tray[1]), "tray foreground mu
 assert tray_icons and re.search(r"color:\s*#cad3f5\s*;", tray_icons[1]), "symbolic tray icons must use the light foreground"
 assert re.search(r"#battery\.plugged\s*\{[^}]*color:\s*#cad3f5", style, re.S)
 assert re.search(r"#battery\.full\s*\{[^}]*color:\s*#a6da95", style, re.S)
-print("PASS: battery state icons, 5-second refresh, 15px font, unchanged 28px bar, and clear tray/workspace contrast")
+print("PASS: click-to-focus workspace routing, battery state icons, 5-second refresh, 15px font, unchanged 28px bar, and clear tray/workspace contrast")
 PY
 printf 'PASS: scoped Waybar font rules defeat old CJK overrides; real Pango uses narrow JetBrainsMono digits\n'
 

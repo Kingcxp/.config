@@ -1,5 +1,6 @@
 # Only this explicit set is selected from trixie-backports.
 hyprland
+hyprland-guiutils
 hyprpaper
 hypridle
 hyprlock

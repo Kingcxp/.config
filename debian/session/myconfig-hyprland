@@ -1,6 +1,10 @@
 #!/bin/sh
 set -eu
 export XDG_CURRENT_DESKTOP=Hyprland XDG_SESSION_DESKTOP=Hyprland XDG_SESSION_TYPE=wayland
+# SDDM/profile.d may already have sourced Debian's im-config before this wrapper.
+unset GTK_IM_MODULE
+# Qt 5 needs the Fcitx module; Qt >=6.7 prefers the supported native Wayland path.
+export XMODIFIERS=@im=fcitx QT_IM_MODULE=fcitx QT_IM_MODULES='wayland;fcitx;ibus'
 config="$HOME/.config/hypr/hyprland.lua"
 if [ ! -r "$config" ]; then printf 'Missing desktop configuration: %s\n' "$config" >&2; exit 1; fi
 if command -v start-hyprland >/dev/null 2>&1; then

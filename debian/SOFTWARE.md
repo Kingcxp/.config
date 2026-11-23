@@ -7,14 +7,14 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | 用途 | 自动安装的软件与命令 | 日常使用 |
 | --- | --- | --- |
 | 引导与固件 | UEFI GRUB、`efibootmgr`、Catppuccin Macchiato GRUB 主题 | Debian 安装器负责 ESP 和启动项；安装脚本检查 UEFI/ESP、安装校验过的 Catppuccin GRUB 主题并运行 `update-grub`，不分区或格式化磁盘 |
-| 桌面会话 | Hyprland、Hyprpaper、Hypridle、Hyprlock、Hyprland/GTK portals、XWayland、SDDM / Debian Maui | 完整安装先检查新桌面再移除 KDE；登录选择 Hyprland (myconfig)，`bash check-desktop.sh` 检查 |
+| 桌面会话 | Hyprland、Hyprland GUI utilities、Hyprpaper、Hypridle、Hyprlock、Hyprland/GTK portals、XWayland、SDDM / Debian Maui | 完整安装先检查新桌面再移除 KDE；登录选择 Hyprland (myconfig)，`bash check-desktop.sh` 检查 |
 | 桌面操作 | Waybar、Wofi、wlogout、Dunst、Grim、Slurp、wl-clipboard、brightnessctl、playerctl | 启动器、通知、区域截图、剪贴板、亮度和媒体键 |
 | 网络与蓝牙 | NetworkManager、wpa_supplicant、ModemManager、nm-applet、nmtui、BlueZ（Experimental=true）、Blueman | Wi-Fi 与移动宽带服务随 NetworkManager 使用；托盘或 `nmtui` 配置网络，Blueman 管理蓝牙 |
 | 声音 | PipeWire、WirePlumber、RTKit、ALSA 工具、freedesktop 音效主题、pavucontrol | `wpctl status`；面板调整设备、应用音量 |
 | 输入法 | Fcitx5、中文附加组件、GTK3/GTK4/Qt5/Qt6 前端、Debian `fcitx5-modules` 内置的 Wayland 前端、配置工具、im-config | `Ctrl+Space` 拼音切换；Wayland 原生输入使用文本输入协议，GTK portal 单独启用 Fcitx 前端 |
 | 中文与字体 | Noto CJK/Emoji、JetBrains Mono/Nerd Font、Font Awesome、DejaVu、FreeFont、TeX Gyre、Unifont、Liberation、Carlito、Caladea、URW | 中英文、图标、办公字体替代；`fc-match` 检查实际匹配 |
 | 认证与主题基础 | PolicyKit/MATE agent、GNOME Keyring、Speech Dispatcher、Catppuccin Macchiato/Lavender GTK/光标/Kvantum/Fcitx5/GRUB、Papirus 图标、Qt5ct/Qt6ct | 图形授权、密码存储、屏幕阅读器语音接口、与 NixOS 同名的桌面/输入/引导主题；不用免密 sudo |
-| 终端与 shell | Kitty、Fish、Oh My Posh、tmux、Zoxide、direnv | 原提示符和 tmux 主题；`z` 跳目录，可信项目执行 `direnv allow` |
+| 终端与 shell | Kitty、Fish、Oh My Posh、tmux、Zoxide、direnv | Fish 语法高亮和原布局提示符统一为 Macchiato；tmux 为 Mocha；`z` 跳目录，可信项目执行 `direnv allow` |
 | 文件与压缩 | Dolphin、Ark、Yazi、GNOME 归档管理器、GVfs、udisks2/udiskie、7zip、unrar、unar、zip/unzip、zstd | 图形/终端文件管理，外接盘挂载，常用压缩格式 |
 | 浏览器 | Firefox ESR、Microsoft Edge | 主浏览器与备用浏览器；文献抓取扩展见手动清单 |
 | 编辑器 | VS Code、Zed、Neovim/AstroNvim、Neovide、Micro、Vim、Nano | `code .`、`zed .`、`nvim`；Neovim 插件首次联网获取 |
@@ -49,7 +49,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 
 ## 精确安装清单
 
-以下为安装脚本默认请求的显式包名，不含 APT 自动解析的依赖包、Homebrew 的间接依赖或 VS Code 扩展的依赖扩展。Debian 清单共 262 项；Homebrew 与扩展安装失败会记录在 `~/.local/state/myconfig-debian/failed-packages.txt` 或扩展失败清单中。
+以下为安装脚本默认请求的显式包名，不含 APT 自动解析的依赖包、Homebrew 的间接依赖或 VS Code 扩展的依赖扩展。稳定仓库清单 262 项、Backports 9 项、第三方 APT 仓库 3 项，共 274 项；Homebrew 与扩展安装失败会记录在 `~/.local/state/myconfig-debian/failed-packages.txt` 或扩展失败清单中。
 
 | Debian Trixie 分组 | 显式包名 |
 | --- | --- |
@@ -72,7 +72,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 
 | 额外仓库 | 显式安装项 |
 | --- | --- |
-| Debian Trixie Backports（8） | `hyprland`, `hyprpaper`, `hypridle`, `hyprlock`, `xdg-desktop-portal-hyprland`, `gamescope`, `tlp`, `tlp-pd` |
+| Debian Trixie Backports（9） | `hyprland`, `hyprland-guiutils`, `hyprpaper`, `hypridle`, `hyprlock`, `xdg-desktop-portal-hyprland`, `gamescope`, `tlp`, `tlp-pd` |
 | 官方厂商 APT 仓库（3） | Tailscale：`tailscale`；Microsoft VS Code：`code`；Microsoft Edge：`microsoft-edge-stable` |
 
 | Homebrew 类型 | 显式安装项 |
@@ -102,7 +102,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | 部分 | 配置内容 |
 | --- | --- |
 | 桌面与显示 | 保留 SDDM/Maui 并关闭虚拟键盘；启用 Hyprland Lua、Hyprpaper/Hypridle/Hyprlock、XWayland 和 portal。内屏 `eDP-1` 首选模式、约 166.7% 缩放；Waybar 12px/24px，左标题/硬件、中工作区、右托盘/控制/电池与功耗；保留 dwindle 和原快捷键 |
-| 中文与输入 | 生成并设置 `zh_CN.UTF-8` 及各 LC 类别，时区为 `Asia/Shanghai`；Fcitx5 默认拼音，`Ctrl+Space` 切换。安装 GTK3/4、Qt5/6 输入前端；Debian 的 `fcitx5-modules` 内含 Wayland 前端。GTK portal 单独使用 `GTK_IM_MODULE=fcitx`，不把 GTK/Qt 模块变量全局注入原生 Wayland 应用 |
+| 中文与输入 | `zh_CN.UTF-8`、`Asia/Shanghai`；Fcitx5 拼音用 `Ctrl+Space`。Hyprland 清除继承的全局 GTK 模块变量；GTK3/4 Wayland 走 text-input-v3，X11 由配置文件选择 Fcitx；GTK portal 保留独立覆盖。Qt5 使用 Fcitx 模块，Qt6 优先 `wayland;fcitx;ibus` 回退顺序。其他桌面保留 im-config 的 Fcitx5 设置 |
 | 字体与主题 | Noto CJK/Emoji、Font Awesome、JetBrains Mono 和 Nerd Font、DejaVu/FreeFont/TeX Gyre 等；Nerd Font 缺失时安装固定版本并校验。GTK/Qt/dconf 同步 JetBrainsMono Nerd Font 12；安装 Catppuccin Macchiato/Lavender GTK、光标、Kvantum、Fcitx5、GRUB，图标为 Papirus。检查生成的 GRUB 配置含主题、图形输出及可见菜单 |
 | 音量与亮度 | Waybar 滚轮反向并按 1% 微调，音量上限 100%、亮度下限 5%；Fn 媒体键保留常规方向并使用 5% 步进 |
 | 网络与蓝牙 | 启用 `wpa_supplicant`、NetworkManager、BlueZ、Blueman、thermald；BlueZ 设置 `Experimental=true`，通常在下一次蓝牙服务启动时生效。ModemManager、RTKit、UPower 由包提供并按需经 D-Bus 激活 |
@@ -112,7 +112,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | 虚拟化与用户组 | 启用 libvirt；按机器上存在的组将用户加入 NetworkManager/netdev、video/render、libvirt/kvm、gamemode 组，重新登录后生效 |
 | 摄像头 | 安装 OBS/v4l2loopback，配置虚拟设备 `/dev/video10`（名称 `OBS Cam`）并尝试 DKMS 编译/加载；guvcview 选择内置或 USB 摄像头，cameractrls 调节硬件支持的参数 |
 | 电源与维护 | 安装 TLP/tlp-pd、fwupd、thermald、upower；在没有 `power-profiles-daemon` 时启用 TLP 服务；启用 fwupd 刷新和 fstrim timer。安装器不配置休眠分区或 resume |
-| Fish 与开发会话 | 将默认 shell 设为 Fish；Neovim 使用系统/Homebrew 提供的语言服务而禁用 Mason 自动下载；用户和 systemd 会话获得 Node 22/Homebrew PATH |
+| Fish 与开发会话 | 默认 shell 为 Fish；随配置安装并加载 Macchiato 语法/补全主题，oh-my-posh 同步调色板。Neovim 使用系统/Homebrew 的语言服务而禁用 Mason 自动下载；用户和 systemd 会话获得 Node 22/Homebrew PATH |
 
 ## 仍需手动完成
 

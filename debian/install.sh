@@ -99,6 +99,8 @@ deploy_user_configuration() {
     backup_and_link "$PROFILE_DIR/.config/Code/argv.json" "$HOME/.config/Code/argv.json"
     backup_and_link "$PROFILE_DIR/.tmux.conf" "$HOME/.tmux.conf"
     backup_and_link "$PROFILE_DIR/.tmux.conf" "$HOME/.config/tmux/tmux.conf"
+    backup_and_link "$PROFILE_DIR/.xinputrc" "$HOME/.xinputrc"
+    backup_and_link "$PROFILE_DIR/.gtkrc-2.0" "$HOME/.gtkrc-2.0"
     install_session_path
 }
 
@@ -157,7 +159,6 @@ main() {
         status=1
     fi
     install_tmux_plugins
-    if command -v im-config >/dev/null; then im-config -n fcitx5; fi
     if command -v xdg-user-dirs-update >/dev/null; then xdg-user-dirs-update; fi
     if command -v fc-cache >/dev/null; then fc-cache -f; fi
     finish_desktop_install "$configs_only" "$replace_kde" "$status"

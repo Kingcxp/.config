@@ -18,7 +18,7 @@ trap 'if [[ -n "$WORK_DIR" ]]; then rm -rf -- "$WORK_DIR"; fi' EXIT
 repair_main() {
     case "${1:-}" in
         --dry-run)
-            printf 'Repair SDDM InputMethod, verify/install desktop fonts and pinned themes, redeploy configuration, back up/apply dconf fonts, and regenerate/verify GRUB.\n'
+            printf 'Repair SDDM InputMethod, Fish/Waybar fonts and themes, inherited GTK input variables, missing Hyprland GUI utilities, dconf appearance, and GRUB.\n'
             printf 'Restore original top-bar arrangement: title/hardware left; workspaces center; tray/audio/brightness/network/clock/battery/power right.\n'
             printf 'Install missing desktop prerequisites only; no Homebrew update, full software installation, KDE removal, display-manager restart, or automatic reboot.\n'
             return ;;
@@ -37,16 +37,22 @@ repair_main() {
     WORK_DIR="$(mktemp -d)"
     mkdir -p "$STATE_DIR"
     exec > >(tee -a "$STATE_DIR/repair-desktop.log") 2>&1
-    local package
+    local package need_guiutils=false
     local -a missing=()
-    for package in curl ca-certificates unzip xz-utils fontconfig fonts-noto-cjk fonts-font-awesome \
+    for package in curl ca-certificates unzip xz-utils python3 fish fontconfig fonts-noto-cjk fonts-font-awesome \
         dconf-cli gsettings-desktop-schemas libglib2.0-bin dbus-user-session qt5ct qt6ct \
         qt5-style-kvantum qt6-style-kvantum grub-common grub2-common; do
         if ! desktop_installed "$package"; then missing+=("$package"); fi
     done
-    if (( ${#missing[@]} )); then
+    if ! desktop_installed hyprland-guiutils; then need_guiutils=true; fi
+    if (( ${#missing[@]} )) || [[ "$need_guiutils" == true ]]; then
         sudo apt-get update -o APT::Update::Error-Mode=any
+    fi
+    if (( ${#missing[@]} )); then
         sudo apt-get install --no-remove -y "${missing[@]}"
+    fi
+    if [[ "$need_guiutils" == true ]]; then
+        sudo apt-get install --no-remove -y -t trixie-backports hyprland-guiutils
     fi
     configure_catppuccin_appearance "$WORK_DIR" "$SCRIPT_DIR"
     refresh_grub_menu
@@ -55,11 +61,15 @@ repair_main() {
         sudo efibootmgr -v || true
     fi
     desktop_configure_greeter || setup_failure 'Disable the SDDM virtual keyboard'
+    desktop_system_file "$SCRIPT_DIR/session/myconfig-hyprland" /usr/local/bin/myconfig-hyprland 0755 \
+        || setup_failure 'Update the Hyprland session wrapper to clear inherited GTK_IM_MODULE'
     deploy_user_configuration
     bash "$SCRIPT_DIR/lib/user-appearance.sh" "$STATE_DIR" || setup_failure 'Apply the desktop font/theme settings'
     fc-cache -f || setup_failure 'Refresh the user font cache'
     fc-match 'JetBrainsMono Nerd Font'
     fc-match 'Noto Sans CJK SC'
+    python3 "$SCRIPT_DIR/lib/check-waybar-fonts.py" "$HOME/.config/waybar/config.jsonc" \
+        || setup_failure 'Verify the actual Waybar fonts contain every configured icon'
     if command -v Hyprland >/dev/null; then
         timeout 30s Hyprland --verify-config --config "$HOME/.config/hypr/hyprland.lua" \
             || setup_failure 'Validate the repaired Hyprland configuration'

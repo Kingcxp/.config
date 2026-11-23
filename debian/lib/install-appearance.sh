@@ -143,10 +143,10 @@ install_catppuccin_tar_theme() {
 }
 
 ensure_desktop_nerd_font() {
-    local work="$1" archive extract
+    local work="$1" source="$2" archive extract
     if [[ "${THEME_INSTALL_ROOT:-/}" == / ]] && \
-        fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -q 'JetBrainsMono Nerd Font'; then
-        printf 'JetBrainsMono Nerd Font is available to fontconfig.\n'
+        python3 "$source/lib/check-waybar-fonts.py" "$source/config/.config/waybar/config.jsonc" --quiet; then
+        printf 'JetBrainsMono Nerd Font is available, including all configured Waybar icons.\n'
         return 0
     fi
     archive="$work/JetBrainsMono.tar.xz"
@@ -161,7 +161,7 @@ ensure_desktop_nerd_font() {
         "$DESKTOP_NERD_FONT_VERSION" jetbrains-mono-nerd || return 1
     if [[ "${THEME_INSTALL_ROOT:-/}" == / ]]; then
         fc-cache -f || return 1
-        fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -q 'JetBrainsMono Nerd Font' || return 1
+        python3 "$source/lib/check-waybar-fonts.py" "$source/config/.config/waybar/config.jsonc" || return 1
     fi
 }
 
@@ -169,7 +169,7 @@ configure_catppuccin_appearance() {
     local work="$1" source="$2" grub_version="nix-catppuccin-$CATPPUCCIN_GRUB_REV" required
     local THEME_INSTALL_ROOT="${3:-/}"
     mkdir -p "$work" || return 1
-    if ! ensure_desktop_nerd_font "$work"; then
+    if ! ensure_desktop_nerd_font "$work" "$source"; then
         setup_failure 'Install/verify JetBrainsMono Nerd Font; do not silently substitute a different UI font'
     fi
 

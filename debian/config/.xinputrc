@@ -1,0 +1,6 @@
+# Managed by myconfig. Hyprland starts Fcitx5 itself and configures each toolkit.
+# Keep im-config's Fcitx5 setup available for other desktops and X11 sessions.
+case "${XDG_CURRENT_DESKTOP:-}:${XDG_SESSION_DESKTOP:-}" in
+    *Hyprland*) run_im none ;;
+    *) run_im fcitx5 ;;
+esac

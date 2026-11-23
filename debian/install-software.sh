@@ -211,7 +211,7 @@ main() {
     for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt \
         vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh switch-mirror.sh MANUAL.md \
         lib/apt-sources.py lib/desktop-migration.sh lib/configure-system.sh lib/configure-bluez.py \
-        lib/install-appearance.sh lib/user-appearance.sh lib/configure-grub.sh \
+        lib/install-appearance.sh lib/user-appearance.sh lib/configure-grub.sh lib/check-waybar-fonts.py \
         system/default/grub.d/zz-myconfig-catppuccin.cfg system/environment.d/60-docker-rootless.conf \
         system/modprobe.d/myconfig-v4l2loopback.conf system/modules-load.d/myconfig-v4l2loopback.conf \
         system/ssh/00-myconfig.conf config/.config/docker/daemon.json; do

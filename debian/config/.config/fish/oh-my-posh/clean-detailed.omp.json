@@ -6,8 +6,8 @@
       "newline": true,
       "segments": [
         {
-          "background": "#FEF5ED",
-          "foreground": "#011627",
+          "background": "#cad3f5",
+          "foreground": "#24273a",
           "leading_diamond": "\ue0b2",
           "properties": {
             "macos": "\uf179 ",
@@ -16,43 +16,43 @@
           },
           "style": "diamond",
           "template": " {{ if .WSL }}WSL at {{ end }}{{.Icon}} ",
-          "trailing_diamond": "<transparent,#FEF5ED>\ue0b2</>",
+          "trailing_diamond": "<transparent,#cad3f5>\ue0b2</>",
           "type": "os"
         },
         {
-          "background": "#FEF5ED",
-          "foreground": "#011627",
+          "background": "#cad3f5",
+          "foreground": "#24273a",
           "leading_diamond": "\ue0b2",
           "style": "diamond",
           "template": " \uf489 {{ .Name }} ",
-          "trailing_diamond": "<transparent,#FEF5ED>\ue0b2</>",
+          "trailing_diamond": "<transparent,#cad3f5>\ue0b2</>",
           "type": "shell"
         },
         {
-          "background": "#EF541C",
-          "foreground": "#D6DEEB",
+          "background": "#ed8796",
+          "foreground": "#24273a",
           "leading_diamond": "\ue0b2",
           "style": "diamond",
           "template": " \uf09c admin ",
-          "trailing_diamond": "<transparent,#EF541C>\ue0b2</>",
+          "trailing_diamond": "<transparent,#ed8796>\ue0b2</>",
           "type": "root"
         },
         {
-          "background": "#516BEB",
-          "foreground": "#ffffff",
+          "background": "#8aadf4",
+          "foreground": "#24273a",
           "leading_diamond": "\ue0b2",
           "style": "diamond",
           "template": " \ue266 MEM: {{ round .PhysicalPercentUsed .Precision }}% | RAM: {{ (div ((sub .PhysicalTotalMemory .PhysicalFreeMemory)|float64) 1000000000.0) }}/{{ (div .PhysicalTotalMemory 1000000000.0) }}GB \ue266 ",
-          "trailing_diamond": "<transparent,#516BEB>\ue0b2</>",
+          "trailing_diamond": "<transparent,#8aadf4>\ue0b2</>",
           "type": "sysinfo"
         },
         {
           "type": "cmake",
           "style": "diamond",
           "leading_diamond": "\ue0b2",
-          "foreground": "#E8EAEE",
-          "background": "#1E9748",
-          "trailing_diamond": "<transparent,#1E9748>\ue0b2</>",
+          "foreground": "#24273a",
+          "background": "#a6da95",
+          "trailing_diamond": "<transparent,#a6da95>\ue0b2</>",
           "template": " \ue61e \ue61d cmake {{ .Full }} "
         },
         {
@@ -62,32 +62,32 @@
           "properties": {
             "display_mode": "context"
           },
-          "foreground": "#011627",
-          "background": "#FFDE57",
-          "trailing_diamond": "<transparent,#FFDE57>\ue0b2</>",
+          "foreground": "#24273a",
+          "background": "#eed49f",
+          "trailing_diamond": "<transparent,#eed49f>\ue0b2</>",
           "template": " \ue73c {{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }} "
         },
         {
           "type": "go",
           "style": "diamond",
           "leading_diamond": "\ue0b2",
-          "foreground": "#ffffff",
-          "background": "#7FD5EA",
-          "trailing_diamond": "<transparent,#7FD5EA>\ue0b2</>",
+          "foreground": "#24273a",
+          "background": "#7dc4e4",
+          "trailing_diamond": "<transparent,#7dc4e4>\ue0b2</>",
           "template": " \u202d\ue626 {{ .Full }} "
         },
         {
           "type": "rust",
           "style": "diamond",
           "leading_diamond": "\ue0b2",
-          "foreground": "#193549",
-          "background": "#99908A",
-          "trailing_diamond": "<transparent,#99908A>\ue0b2</>",
+          "foreground": "#24273a",
+          "background": "#f5a97f",
+          "trailing_diamond": "<transparent,#f5a97f>\ue0b2</>",
           "template": " \ue7a8 {{ .Full }} "
         },
         {
-          "background": "#575656",
-          "foreground": "#d6deeb",
+          "background": "#494d64",
+          "foreground": "#cad3f5",
           "leading_diamond": "\ue0b2",
           "properties": {
             "style": "roundrock",
@@ -105,8 +105,8 @@
       "alignment": "right",
       "segments": [
         {
-          "background": "#17D7A0",
-          "foreground": "#011627",
+          "background": "#a6da95",
+          "foreground": "#24273a",
           "leading_diamond": "\ue0b2",
           "properties": {
             "branch_icon": "\ue725 ",
@@ -134,10 +134,10 @@
         },
         {
           "properties": {
-            "time_format": "<#D6DEEB>\ue641 15:04:05</> <#79DFE1>|</> \uf073 2 Jan, Monday"
+            "time_format": "<#cad3f5>\ue641 15:04:05</> <#8bd5ca>|</> \uf073 2 Jan, Monday"
           },
           "style": "plain",
-          "template": " {{ .CurrentDate | date .Format }} <#79DFE1>|</>",
+          "template": " {{ .CurrentDate | date .Format }} <#8bd5ca>|</>",
           "type": "time"
         },
         {
@@ -183,7 +183,7 @@
             "always_enabled": true
           },
           "style": "plain",
-          "template": "{{ if .Error }}<#FF0000, transparent>[{{ reason .Code }}]</>{{ else }}<#00ff00, transparent>[SUCCESS]</>{{ end }} ",
+          "template": "{{ if .Error }}<#ed8796, transparent>[{{ reason .Code }}]</>{{ else }}<#a6da95, transparent>[SUCCESS]</>{{ end }} ",
           "type": "status"
         }
       ],
@@ -193,7 +193,7 @@
   "console_title_template": "{{ if .Root }}root @ {{ end }}{{ .Shell }} in {{ .HostName }}",
   "transient_prompt": {
     "background": "transparent",
-    "foreground": "#FEF5ED",
+    "foreground": "#cad3f5",
     "template": "\ue285 "
   },
   "version": 2

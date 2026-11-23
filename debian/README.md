@@ -37,7 +37,7 @@ git -C ~/myconfig pull --ff-only
 bash ~/myconfig/debian/repair-desktop.sh
 ```
 
-修复器只补缺少的桌面依赖、部署配置和主题、备份并同步 dconf、禁用 SDDM 虚拟键盘、重新生成并检查 GRUB；不重跑全部软件安装，不移除桌面，不重启会话。完成后保存工作并注销重登，重启时检查 GRUB。检查失败会返回非零并写入 `~/.local/state/myconfig-debian/repair-desktop.log`。
+修复器只补缺少的桌面依赖（包括 Backports 的 `hyprland-guiutils`）、部署配置和主题、检查 Waybar 实际字体的全部图标、备份并同步 dconf、禁用 SDDM 虚拟键盘、重新生成并检查 GRUB；不重跑全部软件安装，不移除桌面，不重启会话。完成后保存工作并注销重登，新终端加载 Fish 主题；重启时检查 GRUB。检查失败会返回非零并写入 `~/.local/state/myconfig-debian/repair-desktop.log`。
 
 ```bash
 # 只看完整清单、安装步骤和手动项，不修改系统
@@ -138,9 +138,10 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 
 - **桌面：** 内屏 `eDP-1` 使用首选模式和约 166.7% 缩放，不再要求面板的 BOE 描述完全相同。Waybar 恢复原配置的左侧标题/硬件、中间工作区、右侧托盘/音量/亮度/网络/时钟/电池/功耗；字体 12px、高度 24px，保留标题和网络长度限制。窗口采用 dwindle，保留原快捷键与动画。
 - **快捷键：** `Super+Q` 终端、`Super+E` Dolphin、`Super+F` Firefox、`Super+R` 启动器、`Super+G` 编辑器、`Super+P` 区域截图。取消截图不改剪贴板；`Super+M` 退出菜单只退出当前桌面会话。
-- **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`。Fcitx5 配置 GTK3/GTK4/Qt5/Qt6 和 Wayland 前端，拼音使用 `Ctrl+Space`，门户使用单独的 GTK 输入模块环境。GTK、光标、Qt/Kvantum、Fcitx5 和 GRUB 使用 Catppuccin Macchiato/Lavender，图标使用 Papirus。字体匹配失败时自动安装经过校验的 JetBrainsMono Nerd Font；GTK/Qt 和 dconf 同步为该字体 12 号，避免旧 KDE 设置覆盖文件。Debian Qt5ct/Qt6ct 均使用已验证的 `qt5ct` 插件入口，不全局强制 `QT_STYLE_OVERRIDE`。SDDM 保留 Maui 并显式设置 `InputMethod=` 关闭屏幕键盘。
+- **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`，`Ctrl+Space` 切换拼音。Hyprland 会话清除继承的 `GTK_IM_MODULE`，GTK3/4 原生 Wayland 使用 text-input-v3，GTK 的 X11 模块由各自配置文件启用；GTK portal 保留专用环境。Qt5 使用 `QT_IM_MODULE=fcitx`，Qt6 以 `QT_IM_MODULES=wayland;fcitx;ibus` 优先选择原生协议并保留回退，依据 [Fcitx 官方说明](https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland) 与 Qt 的实现。托盘、GTK、光标、Qt/Kvantum、Fcitx5 和 GRUB 使用 Catppuccin Macchiato/Lavender，图标为 Papirus。Waybar 图标已迁移到 Nerd Fonts 3 码点，检查实际字体中的全部图标，缺失时安装经过校验的字体。GTK/Qt 和 dconf 同步为 JetBrainsMono Nerd Font 12，避免旧 KDE 设置覆盖。Qt5ct/Qt6ct 均使用 `qt5ct` 插件入口；SDDM/Maui 关闭屏幕键盘。
 - **音量/亮度：** Waybar 滚轮每次 1%，方向反转，音量上限 100%、亮度下限 5%；Fn 键保持常规方向。背光、充电阈值和电源策略以机器实际暴露的 sysfs 能力为准。
 - **tmux：** Mocha 状态栏、CPU/电池插件。若已有 tmux 服务，执行 `tmux source-file ~/.tmux.conf`，或新建会话；已有服务不会被安装器杀掉。
+- **Fish：** 使用随仓库提供的 [Catppuccin Macchiato 静态主题](https://github.com/catppuccin/fish)，兼容 Debian 13 的 Fish 4.0；每个交互会话应用主题，覆盖旧 universal 颜色但不改写它们。oh-my-posh 保留原 clean-detailed 布局并同步 Macchiato 调色板；重新打开终端生效，不需要联网安装主题。
 - **开发：** `uv init` / `uv add` / `uv run`；`direnv allow` 启用可信项目环境。Neovim 使用 Homebrew 版匹配 AstroNvim；首次打开会联网获取插件，LSP 已启用 APT/Homebrew 安装的服务，不再由 Mason 重复下载工具链。Node 22 的 PATH 同时提供给 Fish、桌面会话和用户服务。
 - **排版：** `latexmk -xelatex main.tex` 或 `latexmk -pdf main.tex`；`pandoc input.md -o output.docx`。`typst compile main.typ` 编译 Typst。绘图可用 draw.io、Inkscape、Krita、Blender。
 - **远程与 Agent：** `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 加入网络；运行 `codex` 登录 Codex CLI，应用菜单的 **Codex App (Web)** 在 Edge app 模式打开 Codex 网页，`copilot` 单独登录。Linux cask 提供 CLI，不是原生桌面 App。SSH 仅允许 Tailnet 公钥访问。RustDesk 画面捕获和远端输入需分别验收，Homebrew 客户端不附带原 root 服务。
@@ -189,6 +190,8 @@ bash ~/myconfig/debian/tests/test-desktop-migration.sh
 bash ~/myconfig/debian/tests/test-bootloader.sh
 bash ~/myconfig/debian/tests/test-appearance.sh
 bash ~/myconfig/debian/tests/test-user-appearance.sh
+bash ~/myconfig/debian/tests/test-shell-input.sh
+python3 -B ~/myconfig/debian/lib/check-waybar-fonts.py ~/myconfig/debian/config/.config/waybar/config.jsonc
 ```
 
 这些测试覆盖切源/失败回滚、配置备份、SDDM 会话、KDE 移除保护、重复运行、安装失败记录、取消截图、UEFI/GRUB 前置检查及主题校验/备份；

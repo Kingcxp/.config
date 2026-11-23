@@ -13,7 +13,18 @@ set --export BUN_INSTALL "$HOME/.bun"
 fish_add_path -p ~/.bun/bin
 fish_add_path -p ~/.local/bin
 
-# oh-my-posh 提示符（clean-detailed 主题）
+# im-config or old exported universal variables must not force GTK's Fcitx
+# module on native Wayland clients. A non-exported global shadows old universals.
+if test "$XDG_SESSION_TYPE" = wayland; and string match -q '*Hyprland*' -- "$XDG_CURRENT_DESKTOP"
+    set --global --unexport GTK_IM_MODULE
+end
+
+if status is-interactive
+    # Session-local colors override older universal colors without rewriting them.
+    fish_config theme choose catppuccin-macchiato
+end
+
+# oh-my-posh 提示符（保留 clean-detailed 布局，使用 Macchiato 配色）
 if type -q oh-my-posh
     oh-my-posh init fish --config ~/.config/fish/oh-my-posh/clean-detailed.omp.json | source
 end

@@ -1,0 +1,2 @@
+# Managed by myconfig. GTK2 uses the module; GTK3/4 Wayland use text-input-v3.
+gtk-im-module="fcitx"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 check_main() {
     local preflight=false command unit failed=0 output
@@ -10,7 +11,7 @@ check_main() {
         *) printf 'Unknown check option\n' >&2; return 2 ;;
     esac
     (( $# <= 1 )) || return 2
-    for command in Hyprland hyprctl waybar kitty wofi wlogout dunst hyprpaper hypridle hyprlock \
+    for command in Hyprland hyprctl hyprland-dialog waybar kitty wofi wlogout dunst hyprpaper hypridle hyprlock \
         fcitx5 fcitx5-configtool fcitx5-remote nm-applet blueman-applet wpctl brightnessctl grim slurp \
         dbus-update-activation-environment gnome-keyring-daemon; do
         if ! command -v "$command" >/dev/null; then printf 'MISSING: %s\n' "$command" >&2; failed=1; fi
@@ -33,10 +34,7 @@ check_main() {
         /etc/default/grub.d/zz-myconfig-catppuccin.cfg; do
         if [[ ! -r "$output" ]]; then printf 'MISSING: %s\n' "$output" >&2; failed=1; fi
     done
-    if ! fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -q 'JetBrainsMono Nerd Font'; then
-        printf 'MISSING: real JetBrainsMono Nerd Font (fontconfig is substituting another font).\n' >&2
-        failed=1
-    fi
+    python3 "$SCRIPT_DIR/lib/check-waybar-fonts.py" "$HOME/.config/waybar/config.jsonc" || failed=1
     (( failed == 0 )) || return 1
     if ! timeout 30s Hyprland --verify-config --config "$HOME/.config/hypr/hyprland.lua"; then
         printf 'Hyprland configuration verification failed; KDE must be retained.\n' >&2
@@ -54,6 +52,10 @@ check_main() {
     pgrep -u "$(id -u)" -x fcitx5 >/dev/null || failed=1
     [[ -n "$(fcitx5-remote -n 2>/dev/null)" ]] || failed=1
     [[ "${XMODIFIERS:-}" == '@im=fcitx' ]] || failed=1
+    if [[ -n "${GTK_IM_MODULE:-}" ]]; then
+        printf 'Unexpected global GTK_IM_MODULE=%s; log out/in after running repair-desktop.sh.\n' "$GTK_IM_MODULE" >&2
+        failed=1
+    fi
     wpctl status
     nmcli general status
     return "$failed"

@@ -20,7 +20,7 @@ repair_main() {
     case "${1:-}" in
         --dry-run)
             printf 'Repair Catppuccin SDDM, Waybar Lua workspace clicks, Fish/Waybar fonts and themes, inherited GTK input variables, missing Hyprland GUI utilities, dconf appearance, and GRUB.\n'
-            printf 'Restore original top-bar arrangement: title/hardware left; workspaces center; tray/audio/brightness/network/clock/battery/power right.\n'
+            printf 'Arrange the top bar: title/hardware/network left; workspaces center; tray/audio/brightness/clock/battery/power right.\n'
             printf 'Install missing desktop prerequisites only; no Homebrew update, full software installation, KDE removal, display-manager restart, or automatic reboot.\n'
             return ;;
         --help|-h) printf 'Usage: bash repair-desktop.sh [--dry-run | --panel-login]\n--panel-login repairs only Waybar and the SDDM theme, without changing GRUB or the desktop session.\nRun as the same ordinary user who installed myconfig.\n'; return ;;

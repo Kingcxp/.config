@@ -154,6 +154,12 @@ tooltip {
 #tray {
   border-radius: 4px;
   background-color: #363a4f;
+  color: #cad3f5;
+}
+
+/* Symbolic applet icons (NetworkManager, Fcitx, etc.) inherit this light ink. */
+#tray image {
+  color: #cad3f5;
 }
 
 #window {

@@ -25,14 +25,18 @@ check_main() {
         /usr/local/share/themes/catppuccin-macchiato-lavender-standard/gtk-3.0/gtk.css \
         /usr/local/share/themes/catppuccin-macchiato-lavender-standard/gtk-4.0/gtk.css \
         /usr/local/share/icons/catppuccin-macchiato-lavender-cursors/index.theme \
-        /usr/local/share/Kvantum/catppuccin-macchiato-lavender/catppuccin-macchiato-lavender.kvconfig \
+        /usr/share/Kvantum/catppuccin-macchiato-lavender/catppuccin-macchiato-lavender.kvconfig \
         /usr/local/share/fcitx5/themes/catppuccin-macchiato-lavender/theme.conf \
-        /usr/local/share/grub/themes/catppuccin-macchiato-grub-theme/theme.txt \
-        /usr/local/share/grub/themes/catppuccin-macchiato-grub-theme/font.pf2 \
-        /usr/local/share/grub/themes/catppuccin-macchiato-grub-theme/background.png \
-        /etc/default/grub.d/50-myconfig-catppuccin.cfg; do
+        /boot/grub/themes/catppuccin-macchiato-grub-theme/theme.txt \
+        /boot/grub/themes/catppuccin-macchiato-grub-theme/font.pf2 \
+        /boot/grub/themes/catppuccin-macchiato-grub-theme/background.png \
+        /etc/default/grub.d/zz-myconfig-catppuccin.cfg; do
         if [[ ! -r "$output" ]]; then printf 'MISSING: %s\n' "$output" >&2; failed=1; fi
     done
+    if ! fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -q 'JetBrainsMono Nerd Font'; then
+        printf 'MISSING: real JetBrainsMono Nerd Font (fontconfig is substituting another font).\n' >&2
+        failed=1
+    fi
     (( failed == 0 )) || return 1
     if ! timeout 30s Hyprland --verify-config --config "$HOME/.config/hypr/hyprland.lua"; then
         printf 'Hyprland configuration verification failed; KDE must be retained.\n' >&2

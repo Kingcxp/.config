@@ -64,14 +64,21 @@ desktop_system_file() {
     sudo install -D -m "$mode" "$source" "$target"
 }
 
+desktop_configure_greeter() {
+    local work
+    work="$(mktemp -d)"
+    # /etc/sddm.conf has higher priority than snippets; preserve its other options.
+    sudo python3 "$DESKTOP_DIR/lib/configure-sddm.py" /etc/sddm.conf >"$work/sddm.conf" || { rm -rf -- "$work"; return 2; }
+    desktop_system_file "$work/sddm.conf" /etc/sddm.conf || { rm -rf -- "$work"; return 2; }
+    rm -rf -- "$work"
+}
+
 desktop_install_login() {
     local work
     work="$(mktemp -d)"
     desktop_system_file "$DESKTOP_DIR/session/myconfig-hyprland" /usr/local/bin/myconfig-hyprland 0755 || { rm -rf -- "$work"; return 2; }
     desktop_system_file "$DESKTOP_DIR/session/myconfig-hyprland.desktop" /usr/share/wayland-sessions/myconfig-hyprland.desktop || { rm -rf -- "$work"; return 2; }
-    # /etc/sddm.conf has higher priority than snippets; preserve its other options.
-    sudo python3 "$DESKTOP_DIR/lib/configure-sddm.py" /etc/sddm.conf >"$work/sddm.conf" || { rm -rf -- "$work"; return 2; }
-    desktop_system_file "$work/sddm.conf" /etc/sddm.conf || { rm -rf -- "$work"; return 2; }
+    desktop_configure_greeter || { rm -rf -- "$work"; return 2; }
     sudo python3 "$DESKTOP_DIR/lib/configure-sddm.py" /var/lib/sddm/state.conf --user "$(id -un)" >"$work/state.conf" || { rm -rf -- "$work"; return 2; }
     desktop_system_file "$work/state.conf" /var/lib/sddm/state.conf 0600 || { rm -rf -- "$work"; return 2; }
     sudo chown sddm:sddm /var/lib/sddm/state.conf || { rm -rf -- "$work"; return 2; }

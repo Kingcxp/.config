@@ -13,6 +13,8 @@ CATPPUCCIN_FCITX5_REV=393845cf3ed0e0000bfe57fe1b9ad75748e2547f
 CATPPUCCIN_FCITX5_SHA256=8cdb90b3618d56c36075ff88ed6724aa4baba6eb99eafe60df1664fbe63905f6
 CATPPUCCIN_GRUB_REV=0a37ab19f654e77129b409fed371891c01ffd0b9
 CATPPUCCIN_GRUB_SHA256=285a2f1942d9a7aaaa61d53fbf8eaea40c1bb1a2f5ed662b8355bf9b0499116b
+DESKTOP_NERD_FONT_VERSION=v3.4.0
+DESKTOP_NERD_FONT_SHA256=ef552a3e638f25125c6ad4c51176a6adcdce295ab1d2ffacf0db060caf8c1582
 
 theme_root_path() {
     local path="$1" root="${THEME_INSTALL_ROOT:-/}"
@@ -30,19 +32,22 @@ verify_theme_archive() {
 }
 
 theme_tree_is_current() {
-    local target version path marker
+    local target version path marker required
     target="$1"; version="$2"
+    shift 2
     path="$(theme_root_path "$target")"
     marker="$path/.myconfig-managed"
     theme_run test -f "$marker" || return 1
-    [[ "$(theme_run cat -- "$marker")" == "$version" ]]
+    [[ "$(theme_run cat -- "$marker")" == "$version" ]] || return 1
+    for required in "$@"; do theme_run test -s "$path/$required" || return 1; done
 }
 
 install_managed_theme_tree() {
     local source="$1" target="$2" version="$3" name="$4"
     local destination stage backup marker_root marker backup_mode=0700
     [[ -d "$source" ]] || return 1
-    if theme_tree_is_current "$target" "$version"; then
+    if theme_tree_is_current "$target" "$version" && \
+        diff -qr --exclude=.myconfig-managed "$source" "$(theme_root_path "$target")" >/dev/null 2>&1; then
         printf 'Catppuccin theme already installed: %s (%s)\n' "$name" "$version"
         return 0
     fi
@@ -61,6 +66,10 @@ install_managed_theme_tree() {
         theme_run rm -rf -- "$stage"
         return 1
     fi
+    # sudo cp -a otherwise retains the extracting user's ownership in system theme directories.
+    if [[ "${THEME_INSTALL_ROOT:-/}" == / ]]; then
+        if ! theme_run chown -hR root:root "$stage"; then theme_run rm -rf -- "$stage"; return 1; fi
+    fi
 
     if theme_run test -e "$destination" || theme_run test -L "$destination"; then
         if ! theme_run install -d -m "$backup_mode" "$marker_root"; then
@@ -68,7 +77,8 @@ install_managed_theme_tree() {
             return 1
         fi
         backup="$marker_root/$name-$(date +%Y%m%d-%H%M%S)-$$"
-        if ! theme_run mv -- "$destination" "$backup"; then
+        while theme_run test -e "$backup" || theme_run test -L "$backup"; do backup="$backup.previous"; done
+        if ! theme_run mv -T -- "$destination" "$backup"; then
             theme_run rm -rf -- "$stage"
             return 1
         fi
@@ -90,20 +100,23 @@ install_managed_theme_tree() {
 download_theme_archive() {
     local url="$1" expected="$2" archive="$3"
     curl --fail --location --retry 3 --connect-timeout 20 --max-time 180 "$url" -o "$archive" || return 1
-    verify_theme_archive "$archive" "$expected"
+    if ! verify_theme_archive "$archive" "$expected"; then
+        printf 'SHA-256 verification failed for %s\n' "$url" >&2
+        return 1
+    fi
 }
 
 install_catppuccin_zip_theme() {
     local work="$1" name="$2" version="$3" url="$4" sha="$5"
     local archive_name="$6" source_dir="$7" required_file="$8" target="$9"
     local destination extract archive
-    if theme_tree_is_current "$target" "$version"; then
+    if theme_tree_is_current "$target" "$version" "$required_file"; then
         printf 'Catppuccin theme already installed: %s (%s)\n' "$name" "$version"
         return 0
     fi
     extract="$work/$name"
     archive="$work/$archive_name"
-    mkdir -p "$extract"
+    mkdir -p "$extract" || return 1
     download_theme_archive "$url" "$sha" "$archive" || return 1
     unzip -q -o "$archive" -d "$extract" || return 1
     destination="$extract/$source_dir"
@@ -115,13 +128,13 @@ install_catppuccin_tar_theme() {
     local work="$1" name="$2" version="$3" url="$4" sha="$5"
     local archive_name="$6" source_dir="$7" required_file="$8" target="$9"
     local destination extract archive
-    if theme_tree_is_current "$target" "$version"; then
+    if theme_tree_is_current "$target" "$version" "$required_file"; then
         printf 'Catppuccin theme already installed: %s (%s)\n' "$name" "$version"
         return 0
     fi
     extract="$work/$name"
     archive="$work/$archive_name"
-    mkdir -p "$extract"
+    mkdir -p "$extract" || return 1
     download_theme_archive "$url" "$sha" "$archive" || return 1
     tar -xzf "$archive" --strip-components=1 -C "$extract" || return 1
     destination="$extract/$source_dir"
@@ -129,10 +142,36 @@ install_catppuccin_tar_theme() {
     install_managed_theme_tree "$destination" "$target" "$version" "$name"
 }
 
+ensure_desktop_nerd_font() {
+    local work="$1" archive extract
+    if [[ "${THEME_INSTALL_ROOT:-/}" == / ]] && \
+        fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -q 'JetBrainsMono Nerd Font'; then
+        printf 'JetBrainsMono Nerd Font is available to fontconfig.\n'
+        return 0
+    fi
+    archive="$work/JetBrainsMono.tar.xz"
+    extract="$work/nerd-font"
+    mkdir -p "$extract" || return 1
+    download_theme_archive \
+        "https://github.com/ryanoasis/nerd-fonts/releases/download/$DESKTOP_NERD_FONT_VERSION/JetBrainsMono.tar.xz" \
+        "$DESKTOP_NERD_FONT_SHA256" "$archive" || return 1
+    tar -xJf "$archive" -C "$extract" || return 1
+    [[ -s "$extract/JetBrainsMonoNerdFont-Regular.ttf" ]] || return 1
+    install_managed_theme_tree "$extract" /usr/local/share/fonts/myconfig-jetbrains-mono-nerd \
+        "$DESKTOP_NERD_FONT_VERSION" jetbrains-mono-nerd || return 1
+    if [[ "${THEME_INSTALL_ROOT:-/}" == / ]]; then
+        fc-cache -f || return 1
+        fc-match -f '%{family}\n' 'JetBrainsMono Nerd Font' | grep -q 'JetBrainsMono Nerd Font' || return 1
+    fi
+}
+
 configure_catppuccin_appearance() {
-    local work="$1" source="$2" grub_version="nix-catppuccin-$CATPPUCCIN_GRUB_REV"
+    local work="$1" source="$2" grub_version="nix-catppuccin-$CATPPUCCIN_GRUB_REV" required
     local THEME_INSTALL_ROOT="${3:-/}"
-    mkdir -p "$work"
+    mkdir -p "$work" || return 1
+    if ! ensure_desktop_nerd_font "$work"; then
+        setup_failure 'Install/verify JetBrainsMono Nerd Font; do not silently substitute a different UI font'
+    fi
 
     if ! install_catppuccin_zip_theme "$work" gtk "$CATPPUCCIN_GTK_VERSION" \
         "$CATPPUCCIN_GTK_URL" "$CATPPUCCIN_GTK_SHA256" gtk.zip \
@@ -150,7 +189,7 @@ configure_catppuccin_appearance() {
         "https://codeload.github.com/catppuccin/Kvantum/tar.gz/$CATPPUCCIN_KVANTUM_REV" \
         "$CATPPUCCIN_KVANTUM_SHA256" kvantum.tar.gz \
         themes/catppuccin-macchiato-lavender catppuccin-macchiato-lavender.kvconfig \
-        /usr/local/share/Kvantum/catppuccin-macchiato-lavender; then
+        /usr/share/Kvantum/catppuccin-macchiato-lavender; then
         setup_failure 'Install and verify the Catppuccin Macchiato/Lavender Kvantum theme'
     fi
     if ! install_catppuccin_tar_theme "$work" fcitx5 "$CATPPUCCIN_FCITX5_REV" \
@@ -164,15 +203,15 @@ configure_catppuccin_appearance() {
         "https://codeload.github.com/catppuccin/grub/tar.gz/$CATPPUCCIN_GRUB_REV" \
         "$CATPPUCCIN_GRUB_SHA256" grub.tar.gz \
         src/catppuccin-macchiato-grub-theme theme.txt \
-        /usr/local/share/grub/themes/catppuccin-macchiato-grub-theme; then
+        /boot/grub/themes/catppuccin-macchiato-grub-theme; then
         for required in font.pf2 background.png; do
-            if ! theme_run test -s "$(theme_root_path "/usr/local/share/grub/themes/catppuccin-macchiato-grub-theme/$required")"; then
+            if ! theme_run test -s "$(theme_root_path "/boot/grub/themes/catppuccin-macchiato-grub-theme/$required")"; then
                 setup_failure "Catppuccin GRUB theme is missing $required"
                 return
             fi
         done
-        if ! write_system_file "$source/system/default/grub.d/50-myconfig-catppuccin.cfg" \
-            /etc/default/grub.d/50-myconfig-catppuccin.cfg; then
+        if ! write_system_file "$source/system/default/grub.d/zz-myconfig-catppuccin.cfg" \
+            /etc/default/grub.d/zz-myconfig-catppuccin.cfg; then
             setup_failure 'Configure the Catppuccin Macchiato/Lavender GRUB theme'
         fi
     else

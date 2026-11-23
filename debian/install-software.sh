@@ -14,6 +14,8 @@ source "$SCRIPT_DIR/lib/desktop-migration.sh"
 source "$SCRIPT_DIR/lib/configure-system.sh"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/install-appearance.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/configure-grub.sh"
 MIRROR=official
 DESKTOP_MIGRATION=false
 DOCKER_PREEXISTING=false
@@ -125,16 +127,6 @@ require_uefi_layout() {
     printf 'UEFI mode detected; EFI System Partition mounted at %s.\n' "$esp"
 }
 
-grub_update_command_available() { command -v update-grub >/dev/null 2>&1; }
-
-refresh_grub_menu() {
-    if ! grub_update_command_available; then
-        setup_failure 'GRUB tools are missing after APT installation'
-    elif ! sudo update-grub; then
-        setup_failure 'Refresh the GRUB menu with update-grub'
-    fi
-}
-
 install_brew() {
     local brew_path="" candidate package kind list prefix
     if command -v brew >/dev/null; then brew_path="$(command -v brew)"; fi
@@ -216,7 +208,13 @@ main() {
     if [[ "$dry_run" == true ]]; then plan; return; fi
     [[ "$EUID" -ne 0 ]] || die 'Run as your normal user, without sudo.'
     local manifest
-    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh switch-mirror.sh MANUAL.md lib/apt-sources.py lib/desktop-migration.sh lib/configure-system.sh lib/configure-bluez.py lib/install-appearance.sh system/default/grub.d/50-myconfig-catppuccin.cfg system/environment.d/60-docker-rootless.conf system/modprobe.d/myconfig-v4l2loopback.conf system/modules-load.d/myconfig-v4l2loopback.conf system/ssh/00-myconfig.conf config/.config/docker/daemon.json; do
+    for manifest in packages.txt packages-backports.txt packages-vendor.txt brew-formulae.txt brew-casks.txt \
+        vscode-extensions.txt vscode/extensions/research.txt install-vscode.sh switch-mirror.sh MANUAL.md \
+        lib/apt-sources.py lib/desktop-migration.sh lib/configure-system.sh lib/configure-bluez.py \
+        lib/install-appearance.sh lib/user-appearance.sh lib/configure-grub.sh \
+        system/default/grub.d/zz-myconfig-catppuccin.cfg system/environment.d/60-docker-rootless.conf \
+        system/modprobe.d/myconfig-v4l2loopback.conf system/modules-load.d/myconfig-v4l2loopback.conf \
+        system/ssh/00-myconfig.conf config/.config/docker/daemon.json; do
         [[ -s "$SCRIPT_DIR/$manifest" ]] || die "Missing installer file: $manifest"
     done
     command -v apt-get >/dev/null || die 'This script requires Debian 13 apt-get.'

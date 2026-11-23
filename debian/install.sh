@@ -79,9 +79,27 @@ install_session_path() {
     # shellcheck disable=SC2016
     printf 'PATH=%s/opt/node@22/bin:%s/bin:%s/sbin:${HOME}/.local/bin:${PATH}\n' "$prefix" "$prefix" "$prefix" >"$file"
     # shellcheck disable=SC2016
-    printf 'XDG_DATA_DIRS=%s/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}\n' "$prefix" >>"$file"
+    printf 'XDG_DATA_DIRS=%s/share:/usr/local/share:/usr/share:${XDG_DATA_DIRS}\n' "$prefix" >>"$file"
     printf '%s\n' 'LANG=zh_CN.UTF-8' 'LANGUAGE=zh_CN:en_US' >>"$file"
     backup_and_link "$file" "$HOME/.config/environment.d/20-myconfig-path.conf"
+}
+
+deploy_user_configuration() {
+    local app
+    say 'Backing up and linking Debian application configuration'
+    for app in btop dunst fcitx5 fish hypr kitty micro nvim waybar wlogout wofi yazi fontconfig xdg-desktop-portal gtk-3.0 gtk-4.0 Kvantum qt5ct qt6ct systemd; do
+        link_tree "$PROFILE_DIR/.config/$app" "$HOME/.config/$app"
+    done
+    if command -v docker >/dev/null 2>&1 && [[ -f "$HOME/.config/systemd/user/docker.service" ]]; then
+        link_tree "$PROFILE_DIR/.config/environment.d" "$HOME/.config/environment.d"
+    fi
+    link_tree "$PROFILE_DIR/.local/bin" "$HOME/.local/bin"
+    link_tree "$PROFILE_DIR/.local/share" "$HOME/.local/share"
+    backup_and_link "$PROFILE_DIR/.config/Code/User/settings.json" "$HOME/.config/Code/User/settings.json"
+    backup_and_link "$PROFILE_DIR/.config/Code/argv.json" "$HOME/.config/Code/argv.json"
+    backup_and_link "$PROFILE_DIR/.tmux.conf" "$HOME/.tmux.conf"
+    backup_and_link "$PROFILE_DIR/.tmux.conf" "$HOME/.config/tmux/tmux.conf"
+    install_session_path
 }
 
 finish_desktop_install() {
@@ -96,12 +114,12 @@ finish_desktop_install() {
 }
 
 main() {
-    local configs_only=false status=0 app dry_run=false replace_kde=true
+    local configs_only=false status=0 dry_run=false replace_kde=true
     local software_args=()
     while (( $# )); do
         case "$1" in
             --mirror)
-                (( $# >= 2 )) && [[ "$2" == official || "$2" == nju ]] || die '--mirror requires official or nju'
+                if (( $# < 2 )) || [[ "$2" != official && "$2" != nju ]]; then die '--mirror requires official or nju'; fi
                 software_args+=(--mirror "$2"); shift 2 ;;
             --keep-kde) replace_kde=false; shift ;;
             --configs-only) configs_only=true; replace_kde=false; shift ;;
@@ -133,21 +151,11 @@ main() {
         bash "$SCRIPT_DIR/install-software.sh" "${software_args[@]}" || status=$?
         (( status < 2 )) || return "$status"
     fi
-    say 'Backing up and linking Debian application configuration'
-    for app in btop dunst fcitx5 fish hypr kitty micro nvim waybar wlogout wofi yazi fontconfig xdg-desktop-portal gtk-3.0 gtk-4.0 Kvantum qt5ct qt6ct systemd; do
-        link_tree "$PROFILE_DIR/.config/$app" "$HOME/.config/$app"
-    done
-    if command -v docker >/dev/null 2>&1 && [[ -f "$HOME/.config/systemd/user/docker.service" ]]; then
-        link_tree "$PROFILE_DIR/.config/environment.d" "$HOME/.config/environment.d"
+    deploy_user_configuration
+    if ! bash "$SCRIPT_DIR/lib/user-appearance.sh" "$STATE_DIR"; then
+        printf 'Failed to apply desktop font/theme settings; KDE will be retained.\n' >&2
+        status=1
     fi
-    link_tree "$PROFILE_DIR/.local/bin" "$HOME/.local/bin"
-    link_tree "$PROFILE_DIR/.local/share" "$HOME/.local/share"
-    backup_and_link "$PROFILE_DIR/.config/Code/User/settings.json" "$HOME/.config/Code/User/settings.json"
-    backup_and_link "$PROFILE_DIR/.config/Code/argv.json" "$HOME/.config/Code/argv.json"
-    # Both names resolve to the same config, so the XDG entry cannot shadow ~/.tmux.conf.
-    backup_and_link "$PROFILE_DIR/.tmux.conf" "$HOME/.tmux.conf"
-    backup_and_link "$PROFILE_DIR/.tmux.conf" "$HOME/.config/tmux/tmux.conf"
-    install_session_path
     install_tmux_plugins
     if command -v im-config >/dev/null; then im-config -n fcitx5; fi
     if command -v xdg-user-dirs-update >/dev/null; then xdg-user-dirs-update; fi

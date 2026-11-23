@@ -7,8 +7,8 @@ local browser = "firefox-esr"
 local mainMod = "SUPER"
 
 hl.monitor({
-    output = "desc:BOE 0x0981",
-    mode = "2560x1600@60",
+    output = "eDP-1",
+    mode = "preferred",
     position = "0x0",
     scale = 1.666667,
     vrr = 1,
@@ -34,7 +34,8 @@ hl.env("LIBVA_DRIVER_NAME", "iHD")
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
-hl.env("QT_QPA_PLATFORMTHEME", "qtct")
+-- Debian's Qt6ct also advertises the qt5ct compatibility key; "qtct" is not a plugin key.
+hl.env("QT_QPA_PLATFORMTHEME", "qt5ct")
 
 -- A display manager does not necessarily source the user's shell configuration.
 local home = os.getenv("HOME")
@@ -46,7 +47,7 @@ if prefixFile then
     prefixFile:close()
 end
 hl.env("PATH", brewPrefix .. "/opt/node@22/bin:" .. brewPrefix .. "/bin:" .. brewPrefix .. "/sbin:" .. home .. "/.local/bin:" .. (os.getenv("PATH") or "/usr/local/bin:/usr/bin:/bin"))
-hl.env("XDG_DATA_DIRS", brewPrefix .. "/share:" .. (os.getenv("XDG_DATA_DIRS") or "/usr/local/share:/usr/share"))
+hl.env("XDG_DATA_DIRS", brewPrefix .. "/share:/usr/local/share:/usr/share:" .. (os.getenv("XDG_DATA_DIRS") or ""))
 
 hl.config({
     general = {

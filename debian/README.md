@@ -22,13 +22,22 @@ bash ~/myconfig/debian/install.sh --mirror official
 
 默认完成全部软件安装、确认 UEFI 启动和 EFI 系统分区挂载、安装并校验 Catppuccin Macchiato/Lavender 主题、刷新 GRUB 菜单、备份和部署用户配置、检查 Hyprland 配置、设置 SDDM 登录入口与主题，最后按明确包名移除 KDE 桌面。**不是先卸载 KDE 再尝试安装新桌面**。
 软件安装存在失败、Hyprland 检查失败或 APT 计划包含意外移除包时，不会继续移除 KDE。
-安装结束后手动 `sudo reboot`，在 SDDM 选择 **Hyprland (myconfig)**；已预选新会话，不自动重启。首次运行会从官方 Catppuccin 仓库下载固定版本的主题资源，逐项 SHA-256 校验后安装到 `/usr/local/share`；重复运行会跳过相同版本，替换已有资源前会备份。
+安装结束后手动 `sudo reboot`，在 SDDM 选择 **Hyprland (myconfig)**；已预选新会话，不自动重启。首次运行会下载固定版本并校验 SHA-256 的主题资源；GTK/光标在 `/usr/local/share`，Kvantum 在 Debian 插件查找的 `/usr/share/Kvantum`，GRUB 在 `/boot/grub/themes`。重复运行检查版本及必要文件，替换前会备份。
 脚本不会分区、格式化 ESP 或猜测 GRUB 写入目标；这些由 Debian 安装器按实际磁盘处理。
 
 首次若想先保留 KDE 验收新桌面，使用 `--keep-kde`；确认后退出图形会话，重新运行默认命令完成移除。
 已克隆过时先 `git -C ~/myconfig pull --ff-only`。
 这些命令也可以逐行粘贴到 Fish。**不要用 `sudo bash install.sh`**；脚本只对系统操作调用 sudo，
 Homebrew、编辑器扩展和用户配置都由当前用户安装。克隆目录需要保留，配置会链接到其中。
+
+已安装旧版（例如 `83b49ed`）时，修复登录虚拟键盘、字体/GTK/Qt 主题、面板布局和 GRUB：
+
+```bash
+git -C ~/myconfig pull --ff-only
+bash ~/myconfig/debian/repair-desktop.sh
+```
+
+修复器只补缺少的桌面依赖、部署配置和主题、备份并同步 dconf、禁用 SDDM 虚拟键盘、重新生成并检查 GRUB；不重跑全部软件安装，不移除桌面，不重启会话。完成后保存工作并注销重登，重启时检查 GRUB。检查失败会返回非零并写入 `~/.local/state/myconfig-debian/repair-desktop.log`。
 
 ```bash
 # 只看完整清单、安装步骤和手动项，不修改系统
@@ -127,9 +136,9 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 脚本为 SDDM 选择独立的 Debian Maui 主题，避免主题依赖把已移除的 Plasma 拉回来；NixOS 使用 greetd/regreet，登录管理器不同，所以 SDDM 外观保留为明确差异。
 已有自动登录若启用则改指向新会话，不会新开启自动登录；默认 shell 设为 Fish，不设置免密码 sudo。
 
-- **桌面：** ThinkBook 内屏规则为 2560×1600、约 166.7% 缩放；Waybar 12px/24px、托盘在左侧，限制长标题与网络内容。窗口采用 dwindle，保留原快捷键与动画。
+- **桌面：** 内屏 `eDP-1` 使用首选模式和约 166.7% 缩放，不再要求面板的 BOE 描述完全相同。Waybar 恢复原配置的左侧标题/硬件、中间工作区、右侧托盘/音量/亮度/网络/时钟/电池/功耗；字体 12px、高度 24px，保留标题和网络长度限制。窗口采用 dwindle，保留原快捷键与动画。
 - **快捷键：** `Super+Q` 终端、`Super+E` Dolphin、`Super+F` Firefox、`Super+R` 启动器、`Super+G` 编辑器、`Super+P` 区域截图。取消截图不改剪贴板；`Super+M` 退出菜单只退出当前桌面会话。
-- **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`。Fcitx5 配置 GTK3/GTK4/Qt5/Qt6 和 Wayland 前端，拼音使用 `Ctrl+Space`，门户使用单独的 GTK 输入模块环境。GTK、光标、Qt/Kvantum、Fcitx5 和 GRUB 使用固定版本并校验过的 Catppuccin Macchiato/Lavender，图标使用 Papirus。Debian 登录管理器仍使用 Maui；原 NixOS 使用 greetd/regreet，因此登录界面是有意保留的系统差异。
+- **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`。Fcitx5 配置 GTK3/GTK4/Qt5/Qt6 和 Wayland 前端，拼音使用 `Ctrl+Space`，门户使用单独的 GTK 输入模块环境。GTK、光标、Qt/Kvantum、Fcitx5 和 GRUB 使用 Catppuccin Macchiato/Lavender，图标使用 Papirus。字体匹配失败时自动安装经过校验的 JetBrainsMono Nerd Font；GTK/Qt 和 dconf 同步为该字体 12 号，避免旧 KDE 设置覆盖文件。Debian Qt5ct/Qt6ct 均使用已验证的 `qt5ct` 插件入口，不全局强制 `QT_STYLE_OVERRIDE`。SDDM 保留 Maui 并显式设置 `InputMethod=` 关闭屏幕键盘。
 - **音量/亮度：** Waybar 滚轮每次 1%，方向反转，音量上限 100%、亮度下限 5%；Fn 键保持常规方向。背光、充电阈值和电源策略以机器实际暴露的 sysfs 能力为准。
 - **tmux：** Mocha 状态栏、CPU/电池插件。若已有 tmux 服务，执行 `tmux source-file ~/.tmux.conf`，或新建会话；已有服务不会被安装器杀掉。
 - **开发：** `uv init` / `uv add` / `uv run`；`direnv allow` 启用可信项目环境。Neovim 使用 Homebrew 版匹配 AstroNvim；首次打开会联网获取插件，LSP 已启用 APT/Homebrew 安装的服务，不再由 Mason 重复下载工具链。Node 22 的 PATH 同时提供给 Fish、桌面会话和用户服务。
@@ -179,6 +188,7 @@ bash ~/myconfig/debian/tests/test-mirror.sh
 bash ~/myconfig/debian/tests/test-desktop-migration.sh
 bash ~/myconfig/debian/tests/test-bootloader.sh
 bash ~/myconfig/debian/tests/test-appearance.sh
+bash ~/myconfig/debian/tests/test-user-appearance.sh
 ```
 
 这些测试覆盖切源/失败回滚、配置备份、SDDM 会话、KDE 移除保护、重复运行、安装失败记录、取消截图、UEFI/GRUB 前置检查及主题校验/备份；

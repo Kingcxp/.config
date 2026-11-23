@@ -49,7 +49,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 
 ## 精确安装清单
 
-以下为安装脚本默认请求的显式包名，不含 APT 自动解析的依赖包、Homebrew 的间接依赖或 VS Code 扩展的依赖扩展。Debian 清单共 261 项；Homebrew 与扩展安装失败会记录在 `~/.local/state/myconfig-debian/failed-packages.txt` 或扩展失败清单中。
+以下为安装脚本默认请求的显式包名，不含 APT 自动解析的依赖包、Homebrew 的间接依赖或 VS Code 扩展的依赖扩展。Debian 清单共 262 项；Homebrew 与扩展安装失败会记录在 `~/.local/state/myconfig-debian/failed-packages.txt` 或扩展失败清单中。
 
 | Debian Trixie 分组 | 显式包名 |
 | --- | --- |
@@ -60,7 +60,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | LaTeX 与文档转换（6） | `texlive-xetex`, `texlive-lang-chinese`, `texlive-latex-extra`, `latexmk`, `biber`, `pandoc` |
 | 字体与图标（7） | `fonts-jetbrains-mono`, `fonts-font-awesome`, `fonts-noto-cjk`, `fonts-noto-color-emoji`, `papirus-icon-theme`, `adwaita-icon-theme`, `bibata-cursor-theme` |
 | Shell、构建基础与常用命令（28） | `git`, `curl`, `wget`, `ca-certificates`, `build-essential`, `cmake`, `pkg-config`, `python3`, `python3-venv`, `python3-pip`, `unzip`, `zip`, `xz-utils`, `file`, `ncurses-term`, `acpi`, `bc`, `fontconfig`, `xdg-utils`, `ffmpegthumbnailer`, `poppler-utils`, `imagemagick`, `zoxide`, `eza`, `bat`, `fd-find`, `ripgrep`, `fzf` |
-| 会话集成、Qt 与硬件诊断（30） | `gnome-keyring`, `libpam-gnome-keyring`, `gcr`, `dconf-cli`, `xdg-user-dirs`, `shared-mime-info`, `udisks2`, `udiskie`, `gvfs`, `gvfs-backends`, `qtwayland5`, `qt6-wayland`, `qt5ct`, `qt6ct`, `qt5-style-kvantum`, `qt6-style-kvantum`, `qt6-gtk-platformtheme`, `qt5-gtk-platformtheme`, `alsa-utils`, `mesa-utils`, `mesa-vulkan-drivers`, `vulkan-tools`, `vainfo`, `fwupd`, `bolt`, `thermald`, `upower`, `fcitx5-config-qt`, `im-config`, `locales` |
+| 会话集成、Qt 与硬件诊断（31） | `gnome-keyring`, `libpam-gnome-keyring`, `gcr`, `dconf-cli`, `gsettings-desktop-schemas`, `xdg-user-dirs`, `shared-mime-info`, `udisks2`, `udiskie`, `gvfs`, `gvfs-backends`, `qtwayland5`, `qt6-wayland`, `qt5ct`, `qt6ct`, `qt5-style-kvantum`, `qt6-style-kvantum`, `qt6-gtk-platformtheme`, `qt5-gtk-platformtheme`, `alsa-utils`, `mesa-utils`, `mesa-vulkan-drivers`, `vulkan-tools`, `vainfo`, `fwupd`, `bolt`, `thermald`, `upower`, `fcitx5-config-qt`, `im-config`, `locales` |
 | 文件管理、Shell 与压缩（17） | `ark`, `file-roller`, `vim`, `nano`, `htop`, `fastfetch`, `tree`, `unar`, `unrar`, `7zip`, `zstd`, `flatpak`, `man-db`, `bash-completion`, `direnv`, `gh`, `git-lfs` |
 | 学术写作、绘图与影音（11） | `texlive-bibtex-extra`, `texlive-fonts-recommended`, `texlive-science`, `ffmpeg`, `inkscape`, `krita`, `blender`, `jpegoptim`, `optipng`, `ghostscript`, `djvulibre-bin` |
 | 补充字体（9） | `fonts-noto-core`, `fonts-dejavu`, `fonts-freefont-ttf`, `fonts-texgyre`, `fonts-unifont`, `fonts-liberation`, `fonts-crosextra-carlito`, `fonts-crosextra-caladea`, `fonts-urw-base35` |
@@ -101,9 +101,9 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 
 | 部分 | 配置内容 |
 | --- | --- |
-| 桌面与显示 | Debian SDDM 保留；启用 Hyprland Lua 配置、Hyprpaper/Hypridle/Hyprlock、XWayland 和 portal。ThinkBook 内屏按 2560×1600、约 166.7% 缩放；Waybar 12px/24px，托盘在左侧；dwindle 布局和原快捷键由配置提供 |
+| 桌面与显示 | 保留 SDDM/Maui 并关闭虚拟键盘；启用 Hyprland Lua、Hyprpaper/Hypridle/Hyprlock、XWayland 和 portal。内屏 `eDP-1` 首选模式、约 166.7% 缩放；Waybar 12px/24px，左标题/硬件、中工作区、右托盘/控制/电池与功耗；保留 dwindle 和原快捷键 |
 | 中文与输入 | 生成并设置 `zh_CN.UTF-8` 及各 LC 类别，时区为 `Asia/Shanghai`；Fcitx5 默认拼音，`Ctrl+Space` 切换。安装 GTK3/4、Qt5/6 输入前端；Debian 的 `fcitx5-modules` 内含 Wayland 前端。GTK portal 单独使用 `GTK_IM_MODULE=fcitx`，不把 GTK/Qt 模块变量全局注入原生 Wayland 应用 |
-| 字体与主题 | Noto CJK/Emoji、Font Awesome、JetBrains Mono 和 Nerd Font、DejaVu/FreeFont/TeX Gyre 等；从固定上游版本安装 Catppuccin Macchiato/Lavender GTK、光标、Kvantum、Fcitx5 和 GRUB 主题；图标为 Papirus |
+| 字体与主题 | Noto CJK/Emoji、Font Awesome、JetBrains Mono 和 Nerd Font、DejaVu/FreeFont/TeX Gyre 等；Nerd Font 缺失时安装固定版本并校验。GTK/Qt/dconf 同步 JetBrainsMono Nerd Font 12；安装 Catppuccin Macchiato/Lavender GTK、光标、Kvantum、Fcitx5、GRUB，图标为 Papirus。检查生成的 GRUB 配置含主题、图形输出及可见菜单 |
 | 音量与亮度 | Waybar 滚轮反向并按 1% 微调，音量上限 100%、亮度下限 5%；Fn 媒体键保留常规方向并使用 5% 步进 |
 | 网络与蓝牙 | 启用 `wpa_supplicant`、NetworkManager、BlueZ、Blueman、thermald；BlueZ 设置 `Experimental=true`，通常在下一次蓝牙服务启动时生效。ModemManager、RTKit、UPower 由包提供并按需经 D-Bus 激活 |
 | 远程连接 | 启用 Tailscale、OpenSSH、UFW。SSH 禁止密码和 root 登录，只允许当前用户的公钥认证；TCP 22 仅开放于 `tailscale0`。首次仍需运行 `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 并写入个人 `authorized_keys` |

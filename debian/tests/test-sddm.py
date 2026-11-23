@@ -18,6 +18,7 @@ class SddmTests(unittest.TestCase):
     def test_defaults_do_not_enable_autologin(self):
         config = sddm.configure(self.path)
         self.assertEqual(config["Theme"]["Current"], "debian-maui")
+        self.assertEqual(config["General"]["InputMethod"], "")
         self.assertFalse(config.has_section("Autologin"))
 
     def test_existing_theme_and_autologin_migrate_without_losing_options(self):
@@ -27,6 +28,12 @@ class SddmTests(unittest.TestCase):
         self.assertEqual(config["Theme"]["CursorTheme"], "bibata")
         self.assertEqual(config["Autologin"]["Session"], "myconfig-hyprland.desktop")
         self.assertEqual(config["Autologin"]["User"], "tester")
+        self.assertEqual(config["General"]["DisplayServer"], "x11")
+
+    def test_existing_virtual_keyboard_is_explicitly_disabled(self):
+        self.path.write_text("[General]\nInputMethod=qtvirtualkeyboard\nDisplayServer=x11\n")
+        config = sddm.configure(self.path)
+        self.assertEqual(config["General"]["InputMethod"], "")
         self.assertEqual(config["General"]["DisplayServer"], "x11")
 
     def test_state_preselects_new_session(self):

@@ -22,6 +22,14 @@ mkdir -p "$TMP_DIR/source"
 printf 'theme payload\n' >"$TMP_DIR/source/theme.txt"
 target=/usr/local/share/themes/test-catppuccin-theme
 install_managed_theme_tree "$TMP_DIR/source" "$target" v1 test-theme
+theme_tree_is_current "$target" v1 theme.txt
+rm -- "$THEME_INSTALL_ROOT$target/theme.txt"
+if theme_tree_is_current "$target" v1 theme.txt; then
+    printf 'FAIL: a version marker concealed missing theme files\n' >&2
+    exit 1
+fi
+install_managed_theme_tree "$TMP_DIR/source" "$target" v1 test-theme
+theme_tree_is_current "$target" v1 theme.txt
 [[ "$(<"$THEME_INSTALL_ROOT$target/.myconfig-managed")" == v1 ]]
 [[ "$(<"$THEME_INSTALL_ROOT$target/theme.txt")" == 'theme payload' ]]
 install_managed_theme_tree "$TMP_DIR/source" "$target" v1 test-theme
@@ -30,5 +38,5 @@ printf 'updated theme payload\n' >"$TMP_DIR/source/theme.txt"
 install_managed_theme_tree "$TMP_DIR/source" "$target" v2 test-theme
 [[ "$(<"$THEME_INSTALL_ROOT$target/.myconfig-managed")" == v2 ]]
 [[ "$(<"$THEME_INSTALL_ROOT$target/theme.txt")" == 'updated theme payload' ]]
-[[ "$(find "$THEME_INSTALL_ROOT/var/backups/myconfig-debian/themes" -mindepth 1 -maxdepth 1 -type d | wc -l)" == 1 ]]
-printf 'PASS: Catppuccin asset checksum, idempotence, and managed-theme backup\n'
+[[ "$(find "$THEME_INSTALL_ROOT/var/backups/myconfig-debian/themes" -mindepth 1 -maxdepth 1 -type d | wc -l)" == 2 ]]
+printf 'PASS: Catppuccin asset checksum, missing-file repair, idempotence, and managed-theme backup\n'

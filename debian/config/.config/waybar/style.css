@@ -1,7 +1,8 @@
 * {
-  font-family: "JetBrainsMono Nerd Font", "Noto Sans CJK SC", "Font Awesome 6 Free", "FontAwesome", sans-serif;
+  font-family: "JetBrainsMono Nerd Font", "Noto Sans CJK SC", "Font Awesome 6 Free", "FontAwesome", "Noto Color Emoji", sans-serif;
   font-weight: 500;
   font-size: 12px;
+  min-height: 0;
   text-shadow: none;
 
   transition-property: background;
@@ -58,6 +59,7 @@ tooltip {
 }
 
 #workspaces button {
+  min-height: 0;
   border-radius: 4px;
   border: none;
   padding: 0 2px;

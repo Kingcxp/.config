@@ -7,14 +7,16 @@
   "margin-right": 0,
   "margin-bottom": 0,
   "height": 24,
-  "modules-left": ["tray", "hyprland/window", "cpu", "temperature", "memory"],
+  "modules-left": ["hyprland/window", "cpu", "temperature", "memory"],
   "modules-center": ["hyprland/workspaces"],
   "modules-right": [
+    "tray",
     "pulseaudio",
     "backlight",
     "network",
     "clock",
-    "battery"
+    "battery",
+    "battery#power"
   ],
   "hyprland/workspaces": {
     "format": "{name}",
@@ -134,5 +136,12 @@
     "on-click": "bash ~/.local/bin/battery-control.sh strategy",
     "on-click-right": "bash ~/.local/bin/battery-control.sh charge",
     "on-click-middle": "bash ~/.local/bin/battery-control.sh optimize"
+  },
+  "battery#power": {
+    "format": "󰢝 {power:0.2f}w",
+    "format-charging": "<span color='#a6da95'>󰂄 {power:0.2f}w</span>",
+    "format-plugged": "<span color='#a6da95'>󰂄 {power:0.2f}w</span>",
+    "interval": 5,
+    "tooltip-format": "{capacity}% · {power:0.2f}w"
   }
 }

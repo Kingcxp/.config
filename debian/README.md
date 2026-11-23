@@ -138,7 +138,7 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 脚本为 SDDM 选择独立的 Debian Maui 主题，避免主题依赖把已移除的 Plasma 拉回来；NixOS 使用 greetd/regreet，登录管理器不同，所以 SDDM 外观保留为明确差异。
 已有自动登录若启用则改指向新会话，不会新开启自动登录；默认 shell 设为 Fish，不设置免密码 sudo。
 
-- **桌面：** 内屏 `eDP-1` 使用首选模式和约 166.7% 缩放，不再要求面板的 BOE 描述完全相同。Waybar 恢复原配置的左侧标题/硬件、中间工作区、右侧托盘/音量/亮度/网络/时钟/电池/功耗；字体 16px、高度 28px；字符间距 0.5px，模块左右内边距 6px、模块间隔 6px，工作区按钮左右内边距 4px。CSS 只指定 JetBrainsMono Nerd Font，专用启动器显式加载配置/样式，并用仅对 Waybar 生效的 Fontconfig 规则避免遗留中文字体别名替换数字。校验同时检查所有图标、ASCII 字符和中文语言环境下 Pango 实际选中的数字字体及字宽；字体缺失的中文字符仍正常回退。保留标题/网络长度限制、dwindle 和原快捷键与动画。
+- **桌面：** 内屏 `eDP-1` 使用首选模式和约 166.7% 缩放，不再要求面板的 BOE 描述完全相同。Waybar 恢复原配置的左侧标题/硬件、中间工作区、右侧托盘/音量/亮度/网络/时钟/电池/功耗；字体 15px、高度 28px；字符间距 0.5px，模块左右内边距 6px、模块间隔 6px，工作区按钮左右内边距 4px、桌面按钮间隔 6px。CSS 只指定 JetBrainsMono Nerd Font，专用启动器显式加载配置/样式，并用仅对 Waybar 生效的 Fontconfig 规则避免遗留中文字体别名替换数字。校验同时检查所有图标、ASCII 字符和中文语言环境下 Pango 实际选中的数字字体及字宽；字体缺失的中文字符仍正常回退。保留标题/网络长度限制、dwindle 和原快捷键与动画。
 - **快捷键：** `Super+Q` 终端、`Super+E` Dolphin、`Super+F` Firefox、`Super+R` 启动器、`Super+G` 编辑器、`Super+P` 区域截图。取消截图不改剪贴板；`Super+M` 退出菜单只退出当前桌面会话。
 - **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`，`Ctrl+Space` 切换拼音。Hyprland 会话清除继承的 `GTK_IM_MODULE`，GTK3/4 原生 Wayland 使用 text-input-v3，GTK 的 X11 模块由各自配置文件启用；GTK portal 保留专用环境。Qt5 使用 `QT_IM_MODULE=fcitx`，Qt6 以 `QT_IM_MODULES=wayland;fcitx;ibus` 优先选择原生协议并保留回退，依据 [Fcitx 官方说明](https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland) 与 Qt 的实现。托盘、GTK、光标、Qt/Kvantum、Fcitx5 和 GRUB 使用 Catppuccin Macchiato/Lavender，图标为 Papirus。Waybar 图标已迁移到 Nerd Fonts 3 码点，检查实际字体中的全部图标，缺失时安装经过校验的字体。GTK/Qt 和 dconf 同步为 JetBrainsMono Nerd Font 12，避免旧 KDE 设置覆盖。Qt5ct/Qt6ct 均使用 `qt5ct` 插件入口；SDDM/Maui 关闭屏幕键盘。
 - **音量/亮度：** Waybar 滚轮每次 1%，方向反转，音量上限 100%、亮度下限 5%；Fn 键保持常规方向。背光、充电阈值和电源策略以机器实际暴露的 sysfs 能力为准。

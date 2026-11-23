@@ -25,6 +25,20 @@ if env -u FONTCONFIG_FILE python3 "$ROOT/lib/check-waybar-fonts.py" "$work/unsco
 fi
 grep -q 'fontconfig substituted a different font' "$work/unscoped.log"
 python3 "$ROOT/lib/check-waybar-fonts.py" "$HOME/.config/waybar/config.jsonc"
+python3 - "$HOME/.config/waybar/config.jsonc" "$HOME/.config/waybar/style.css" <<'PY'
+import json
+import re
+import sys
+
+config = json.load(open(sys.argv[1], encoding="utf-8"))
+style = open(sys.argv[2], encoding="utf-8").read()
+assert config["height"] == 28, config["height"]
+assert config["spacing"] == 6, config["spacing"]
+assert re.search(r"font-size:\s*15px\s*;", style)
+assert re.search(r"#workspaces button\s*\{[^}]*margin-left:\s*6px", style)
+assert re.search(r"#workspaces\s*\{[^}]*padding:\s*0 4px", style)
+print("PASS: 15px font, 28px bar, and visibly separated workspace numbers")
+PY
 printf 'PASS: scoped Waybar font rules defeat old CJK overrides; real Pango uses narrow JetBrainsMono digits\n'
 
 # The startup path must request the managed CSS explicitly, regardless of an old

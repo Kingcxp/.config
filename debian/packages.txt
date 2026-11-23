@@ -19,6 +19,8 @@ qml6-module-qtqml-workerscript
 libqt6svg6
 qt6-svg-plugins
 dbus-user-session
+libglib2.0-bin
+dconf-gsettings-backend
 waybar
 wofi
 wlogout

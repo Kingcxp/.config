@@ -21,7 +21,8 @@ dunst &
 hyprpaper &
 hypridle &
 fcitx5 --replace -d
-nm-applet --indicator &
+env -u GTK_USE_PORTAL GDK_BACKEND=wayland GSETTINGS_BACKEND=dconf \
+    GSETTINGS_SCHEMA_DIR=/usr/share/glib-2.0/schemas nm-applet --indicator &
 blueman-applet &
 udiskie --tray &
 /usr/libexec/polkit-mate-authentication-agent-1 &

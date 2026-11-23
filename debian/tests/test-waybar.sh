@@ -68,9 +68,15 @@ cat >"$work/bin/waybar" <<'STUB'
 #!/bin/sh
 set -eu
 test "$FONTCONFIG_FILE" = "$HOME/.config/waybar/fontconfig.conf"
+test "$GDK_BACKEND" = wayland
+test "$GSETTINGS_BACKEND" = dconf
+test "$GSETTINGS_SCHEMA_DIR" = /usr/share/glib-2.0/schemas
+test -z "${GTK_USE_PORTAL+x}"
 test "$1" = --config && test "$2" = "$HOME/.config/waybar/config.jsonc"
 test "$3" = --style && test "$4" = "$HOME/.config/waybar/style.css"
 printf 'PASS: Waybar launcher pins both CSS and its font configuration\n'
 STUB
 chmod +x "$work/bin/waybar"
-HYPRLAND_INSTANCE_SIGNATURE='' FONTCONFIG_FILE=/nonexistent PATH="$work/bin:$PATH" bash "$ROOT/config/.local/bin/waybar-start.sh"
+HYPRLAND_INSTANCE_SIGNATURE='' FONTCONFIG_FILE=/nonexistent GDK_BACKEND=x11 \
+    GSETTINGS_BACKEND=memory GTK_USE_PORTAL=1 PATH="$work/bin:$PATH" \
+    bash "$ROOT/config/.local/bin/waybar-start.sh"

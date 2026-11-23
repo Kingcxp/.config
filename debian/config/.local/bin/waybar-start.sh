@@ -3,6 +3,12 @@ set -Eeuo pipefail
 config_dir="$HOME/.config/waybar"
 compatibility="$HOME/.local/bin/waybar-hyprland.py"
 export FONTCONFIG_FILE="$config_dir/fontconfig.conf"
+# Keep the system GTK settings/backend consistent with Debian's Wayland desktop.
+# These overrides apply only to Waybar, including when launched from a shell
+# that inherited GTK portal or Homebrew settings variables.
+export GDK_BACKEND=wayland GSETTINGS_BACKEND=dconf
+export GSETTINGS_SCHEMA_DIR=/usr/share/glib-2.0/schemas
+unset GTK_USE_PORTAL
 for file in config.jsonc style.css fontconfig.conf; do
     [[ -r "$config_dir/$file" ]] || { printf 'Missing Waybar file: %s/%s\n' "$config_dir" "$file" >&2; exit 1; }
 done

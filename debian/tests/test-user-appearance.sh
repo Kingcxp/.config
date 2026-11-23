@@ -10,9 +10,16 @@ env -u DBUS_SESSION_BUS_ADDRESS XDG_CONFIG_HOME="$TEST_WORK/config" \
     dbus-run-session -- bash -s -- "$ROOT" "$TEST_WORK" <<'TEST'
 set -Eeuo pipefail
 root="$1"; work="$2"
+mkdir -p "$work/brew-bin"
+cat >"$work/brew-bin/gsettings" <<'SHADOW'
+#!/bin/sh
+# Reproduce a different GLib CLI which reports successful writes to memory.
+exec env GSETTINGS_BACKEND=memory /usr/bin/gsettings "$@"
+SHADOW
+chmod +x "$work/brew-bin/gsettings"
 gsettings set org.gnome.desktop.interface font-name 'Sans 9'
 gsettings set org.gnome.desktop.interface text-scaling-factor 1.5
-bash "$root/lib/user-appearance.sh" "$work/state" icons
+PATH="$work/brew-bin:$PATH" GSETTINGS_BACKEND=memory bash "$root/lib/user-appearance.sh" "$work/state" icons
 [[ "$(gsettings get org.gnome.desktop.interface icon-theme)" == "'Myconfig-Papirus-Dark'" ]]
 [[ "$(gsettings get org.gnome.desktop.interface font-name)" == "'Sans 9'" ]]
 [[ "$(gsettings get org.gnome.desktop.interface text-scaling-factor)" == 1.5 ]]
@@ -24,5 +31,5 @@ grep -q "font-name='Sans 9'" "$work/state/appearance-backups/"*/gnome-interface.
 before="$(find "$work/state/appearance-backups" -type d | wc -l)"
 bash "$root/lib/user-appearance.sh" "$work/state"
 [[ "$(find "$work/state/appearance-backups" -type d | wc -l)" == "$before" ]]
-printf 'PASS: actual dconf font/scale/theme replacement, backup, and repeat application\n'
+printf 'PASS: persistent Debian dconf despite a shadow GLib CLI/memory backend; font/scale/theme replacement, backup, and repeat application\n'
 TEST

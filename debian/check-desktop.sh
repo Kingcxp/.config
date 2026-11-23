@@ -19,6 +19,8 @@ check_main() {
     for output in "$HOME/.config/hypr/hyprland.lua" "$HOME/.config/waybar/config.jsonc" \
         "$HOME/.config/waybar/style.css" "$HOME/.config/waybar/fontconfig.conf" "$HOME/.local/bin/waybar-start.sh" \
         "$HOME/.local/bin/waybar-hyprland.py" \
+        "$HOME/.local/share/icons/Myconfig-Papirus-Dark/index.theme" \
+        "$HOME/.local/share/icons/Myconfig-Papirus-Dark/scalable/status/input-keyboard-symbolic.svg" \
         "$HOME/.config/fcitx5/profile" "$HOME/.config/fcitx5/conf/classicui.conf" \
         "$HOME/.config/Kvantum/kvantum.kvconfig" "$HOME/.config/qt5ct/qt5ct.conf" "$HOME/.config/qt6ct/qt6ct.conf" \
         "$HOME/.config/systemd/user/xdg-desktop-portal-gtk.service.d/10-fcitx.conf" \

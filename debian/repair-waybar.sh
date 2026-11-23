@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Focused font/style repair; does not touch GRUB, themes, packages, or other apps.
+# Focused Waybar font/style/tray repair; does not touch GRUB or restart other apps.
 # shellcheck disable=SC1091
 set -Eeuo pipefail
 SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,6 +16,10 @@ link_tree "$PROFILE_DIR/.config/waybar" "$HOME/.config/waybar"
 backup_and_link "$PROFILE_DIR/.local/bin/waybar-start.sh" "$HOME/.local/bin/waybar-start.sh"
 backup_and_link "$PROFILE_DIR/.local/bin/waybar-hyprland.py" "$HOME/.local/bin/waybar-hyprland.py"
 backup_and_link "$PROFILE_DIR/.local/bin/desktop-session-start.sh" "$HOME/.local/bin/desktop-session-start.sh"
+install_tray_icon_theme
+# The real SNI tray loads image pixels, so CSS color alone cannot fix its icons.
+# Update only the icon setting; leave the user's other desktop preferences alone.
+bash "$SCRIPT_DIR/lib/user-appearance.sh" "$STATE_DIR" icons
 fc-cache -f
 if ! python3 "$SCRIPT_DIR/lib/check-waybar-fonts.py" "$HOME/.config/waybar/config.jsonc" --quiet; then
     sudo -v
@@ -26,5 +30,5 @@ python3 "$SCRIPT_DIR/lib/check-waybar-fonts.py" "$HOME/.config/waybar/config.jso
 if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
     bash "$HOME/.local/bin/waybar-start.sh" --restart
 else
-    printf 'Waybar configuration updated. Log in to Hyprland to load it.\n'
+    printf 'Waybar configuration and light tray icons updated. Log in to Hyprland to load them.\n'
 fi

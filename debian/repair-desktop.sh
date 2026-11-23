@@ -61,7 +61,7 @@ repair_main() {
         printf 'The updated logout/wake commands load on the next session; the display manager was not restarted.\n'
         return
     fi
-    for package in curl ca-certificates unzip xz-utils python3 fish fontconfig fonts-noto-cjk fonts-font-awesome \
+    for package in curl ca-certificates unzip xz-utils python3 fish fontconfig fonts-noto-cjk fonts-font-awesome papirus-icon-theme \
         dconf-cli gsettings-desktop-schemas libglib2.0-bin dbus-user-session qt5ct qt6ct \
         qt5-style-kvantum qt6-style-kvantum grub-common grub2-common \
         qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \

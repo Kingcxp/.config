@@ -2,7 +2,7 @@
 # Run as the desktop user, with a session bus (also works from a TTY via dbus-run-session).
 
 apply_user_appearance() {
-    local state_dir="$1" backup schema=org.gnome.desktop.interface key value current changed=false
+    local state_dir="$1" scope="${2:-all}" backup schema=org.gnome.desktop.interface key value current changed=false
     local -a changes=()
     if ! command -v gsettings >/dev/null || ! command -v dconf >/dev/null; then
         printf 'gsettings/dconf are required to replace old KDE/GTK appearance settings.\n' >&2
@@ -10,11 +10,12 @@ apply_user_appearance() {
     fi
     gsettings list-schemas | grep -Fxq "$schema" || return 1
     while IFS='|' read -r key value; do
+        if [[ "$scope" == icons && "$key" != icon-theme ]]; then continue; fi
         current="$(gsettings get "$schema" "$key")" || return 1
         if [[ "$current" != "$value" ]]; then changes+=("$key|$value"); fi
     done <<'SETTINGS'
 gtk-theme|'catppuccin-macchiato-lavender-standard'
-icon-theme|'Papirus-Dark'
+icon-theme|'Myconfig-Papirus-Dark'
 font-name|'JetBrainsMono Nerd Font 12'
 monospace-font-name|'JetBrainsMono Nerd Font 13'
 cursor-theme|'catppuccin-macchiato-lavender-cursors'
@@ -31,16 +32,19 @@ SETTINGS
             gsettings set "$schema" "$key" "$value" || return 1
             changed=true
         done
-        printf 'Applied desktop font/theme settings; previous dconf settings: %s\n' "$backup"
+        printf 'Applied desktop appearance settings; previous dconf settings: %s\n' "$backup"
     fi
-    [[ "$changed" == true ]] || printf 'Desktop font/theme settings already match myconfig.\n'
+    [[ "$changed" == true ]] || printf 'Requested desktop appearance settings already match myconfig.\n'
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
     set -Eeuo pipefail
-    (( $# == 1 )) || { printf 'Usage: user-appearance.sh STATE_DIR\n' >&2; exit 2; }
-    if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
-        exec dbus-run-session -- bash "$0" "$1"
+    if (( $# < 1 || $# > 2 )) || [[ "${2:-all}" != all && "${2:-all}" != icons ]]; then
+        printf 'Usage: user-appearance.sh STATE_DIR [all|icons]\n' >&2
+        exit 2
     fi
-    apply_user_appearance "$1"
+    if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
+        exec dbus-run-session -- bash "$0" "$@"
+    fi
+    apply_user_appearance "$@"
 fi

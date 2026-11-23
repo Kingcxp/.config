@@ -84,6 +84,12 @@ install_session_path() {
     backup_and_link "$file" "$HOME/.config/environment.d/20-myconfig-path.conf"
 }
 
+install_tray_icon_theme() {
+    local theme_dir="$STATE_DIR/tray-icons/Myconfig-Papirus-Dark"
+    python3 "$SCRIPT_DIR/lib/build-tray-theme.py" /usr/share/icons/Papirus-Dark/22x22/panel "$theme_dir" || return
+    link_tree "$theme_dir" "$HOME/.local/share/icons/Myconfig-Papirus-Dark"
+}
+
 deploy_user_configuration() {
     local app
     say 'Backing up and linking Debian application configuration'
@@ -95,6 +101,7 @@ deploy_user_configuration() {
     fi
     link_tree "$PROFILE_DIR/.local/bin" "$HOME/.local/bin"
     link_tree "$PROFILE_DIR/.local/share" "$HOME/.local/share"
+    install_tray_icon_theme
     backup_and_link "$PROFILE_DIR/.config/Code/User/settings.json" "$HOME/.config/Code/User/settings.json"
     backup_and_link "$PROFILE_DIR/.config/Code/argv.json" "$HOME/.config/Code/argv.json"
     backup_and_link "$PROFILE_DIR/.tmux.conf" "$HOME/.tmux.conf"

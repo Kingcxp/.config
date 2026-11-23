@@ -12,6 +12,10 @@ set -Eeuo pipefail
 root="$1"; work="$2"
 gsettings set org.gnome.desktop.interface font-name 'Sans 9'
 gsettings set org.gnome.desktop.interface text-scaling-factor 1.5
+bash "$root/lib/user-appearance.sh" "$work/state" icons
+[[ "$(gsettings get org.gnome.desktop.interface icon-theme)" == "'Myconfig-Papirus-Dark'" ]]
+[[ "$(gsettings get org.gnome.desktop.interface font-name)" == "'Sans 9'" ]]
+[[ "$(gsettings get org.gnome.desktop.interface text-scaling-factor)" == 1.5 ]]
 bash "$root/lib/user-appearance.sh" "$work/state"
 [[ "$(gsettings get org.gnome.desktop.interface font-name)" == "'JetBrainsMono Nerd Font 12'" ]]
 [[ "$(gsettings get org.gnome.desktop.interface text-scaling-factor)" == 1.0 ]]

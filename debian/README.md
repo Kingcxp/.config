@@ -39,7 +39,9 @@ bash ~/myconfig/debian/repair-desktop.sh
 
 修复器只补缺少的桌面依赖（包括 Backports 的 `hyprland-guiutils`）、部署配置和主题、检查 Waybar 实际字体的全部图标、备份并同步 dconf、切换 Catppuccin SDDM 并禁用虚拟键盘、重新生成并检查 GRUB；不重跑全部软件安装，不移除桌面，不重启会话。完成后保存工作并注销重登，新终端加载 Fish 主题；重启时检查登录界面与 GRUB。检查失败会返回非零并写入 `~/.local/state/myconfig-debian/repair-desktop.log`。
 
-仅修复 Waybar 时，在当前 Hyprland 终端运行 `bash ~/myconfig/debian/repair-waybar.sh`。它备份并部署 Waybar 配置和 Lua IPC 兼容启动器、核验字体（缺失或不完整时补装经过校验的 Nerd Font），随后只重启当前用户的 Waybar，无需注销，也不会更新 GRUB 或运行 APT/Homebrew。日志在 `~/.local/state/myconfig-debian/repair-waybar.log` 和 `waybar.log`。
+仅修复 Waybar 时，在当前 Hyprland 终端运行 `bash ~/myconfig/debian/repair-waybar.sh`。它备份并部署 Waybar 配置和 Lua IPC 兼容启动器、核验字体（缺失或不完整时补装经过校验的 Nerd Font），并从已安装的 `papirus-icon-theme` 生成浅色托盘主题、备份并更新 dconf 图标主题，随后只重启当前用户的 Waybar。无需注销，也不会更新 GRUB 或运行 APT/Homebrew。日志在 `~/.local/state/myconfig-debian/repair-waybar.log` 和 `waybar.log`。
+
+蓝牙、输入法等托盘图标使用 `Myconfig-Papirus-Dark`：沿用 Papirus-Dark 的桌面图标，为托盘提供可缩放的 Macchiato 浅色资源，并保留禁用、连接和警告状态。Fcitx 的键盘及 Blueman 的 symbolic 图标也使用实际浅色像素；Waybar 0.12 将图标渲染成图片，仅设置 CSS `color` 无法使其变色。应用直接提供的自有彩色位图仍保留应用原色。
 
 一起修复面板点击和登录界面，运行 `bash ~/myconfig/debian/repair-desktop.sh --panel-login` 即可；无需先单独运行 Waybar 修复。此选项只补缺少的 SDDM Qt6/QML/SVG 依赖、安装 SHA-256 核验过的 Catppuccin Macchiato/Lavender 登录主题，并部署 Waybar 与退出/唤醒命令。Waybar 立即重启，登录主题在保存工作后重启电脑时生效；不重启 SDDM、不操作 GRUB、不重跑全部软件安装。
 

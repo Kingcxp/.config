@@ -165,7 +165,7 @@ tooltip {
   color: #cad3f5;
 }
 
-/* Symbolic applet icons (NetworkManager, Fcitx, etc.) inherit this light ink. */
+/* SNI image pixels use Myconfig-Papirus-Dark; CSS color only covers labels. */
 #tray image {
   color: #cad3f5;
 }

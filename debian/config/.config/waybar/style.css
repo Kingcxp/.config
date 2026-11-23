@@ -143,6 +143,14 @@ tooltip {
   color: #a6da95;
 }
 
+#battery.plugged {
+  color: #cad3f5;
+}
+
+#battery.full {
+  color: #a6da95;
+}
+
 #battery.power {
   color: #f5a97f;
 }

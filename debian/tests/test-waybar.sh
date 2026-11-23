@@ -34,6 +34,17 @@ config = json.load(open(sys.argv[1], encoding="utf-8"))
 style = open(sys.argv[2], encoding="utf-8").read()
 assert config["height"] == 28, config["height"]
 assert config["spacing"] == 6, config["spacing"]
+battery = config["battery"]
+power = config["battery#power"]
+assert battery["interval"] == 5, battery["interval"]
+assert battery["format-charging"].startswith("󰂄 "), battery["format-charging"]
+assert battery["format-plugged"].startswith(" "), battery["format-plugged"]
+assert battery["format-not-charging"].startswith(" "), battery["format-not-charging"]
+assert battery["format-full"].startswith(" "), battery["format-full"]
+assert "󰂄 " in power["format-charging"], power["format-charging"]
+assert " " in power["format-plugged"], power["format-plugged"]
+assert " " in power["format-not-charging"], power["format-not-charging"]
+assert " " in power["format-full"], power["format-full"]
 assert re.search(r"font-size:\s*15px\s*;", style)
 assert re.search(r"#workspaces button\s*\{[^}]*margin-left:\s*6px", style)
 assert re.search(r"#workspaces\s*\{[^}]*padding:\s*0 4px", style)
@@ -41,7 +52,9 @@ tray = re.search(r"#tray\s*\{([^}]*)\}", style, re.S)
 tray_icons = re.search(r"#tray image\s*\{([^}]*)\}", style, re.S)
 assert tray and re.search(r"color:\s*#cad3f5\s*;", tray[1]), "tray foreground must contrast the dark background"
 assert tray_icons and re.search(r"color:\s*#cad3f5\s*;", tray_icons[1]), "symbolic tray icons must use the light foreground"
-print("PASS: 15px font, unchanged 28px bar, and clear tray/workspace contrast")
+assert re.search(r"#battery\.plugged\s*\{[^}]*color:\s*#cad3f5", style, re.S)
+assert re.search(r"#battery\.full\s*\{[^}]*color:\s*#a6da95", style, re.S)
+print("PASS: battery state icons, 5-second refresh, 15px font, unchanged 28px bar, and clear tray/workspace contrast")
 PY
 printf 'PASS: scoped Waybar font rules defeat old CJK overrides; real Pango uses narrow JetBrainsMono digits\n'
 

@@ -118,14 +118,17 @@
     "min-brightness": 5
   },
   "battery": {
+    "interval": 5,
     "states": {
       "good": 70,
       "warning": 30,
       "critical": 20
     },
     "format": "{icon}  {capacity}%",
-    "format-charging": " {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
     "format-plugged": " {capacity}%",
+    "format-not-charging": " {capacity}%",
+    "format-full": " {capacity}%",
     "format-icons": ["", "", "", "", ""],
     "tooltip-format": "{capacity}% · {time}",
     "tooltip-format-full": "Full · {capacity}%",
@@ -140,7 +143,9 @@
   "battery#power": {
     "format": "󰢝 {power:0.2f}w",
     "format-charging": "<span color='#a6da95'>󰂄 {power:0.2f}w</span>",
-    "format-plugged": "<span color='#a6da95'>󰂄 {power:0.2f}w</span>",
+    "format-plugged": "<span color='#cad3f5'> {power:0.2f}w</span>",
+    "format-not-charging": "<span color='#cad3f5'> {power:0.2f}w</span>",
+    "format-full": "<span color='#a6da95'> {power:0.2f}w</span>",
     "interval": 5,
     "tooltip-format": "{capacity}% · {power:0.2f}w"
   }

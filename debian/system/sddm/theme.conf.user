@@ -1,0 +1,8 @@
+[General]
+Font="JetBrainsMono Nerd Font"
+FontSize=12
+ClockEnabled="true"
+CustomBackground="false"
+LoginBackground="true"
+UserIcon="false"
+PasswordShowLastLetter=0

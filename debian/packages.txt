@@ -7,7 +7,17 @@ efibootmgr
 
 # Session, portals, display, and controls
 sddm
+# SDDM's bundled theme fallback and the Qt6 modules used by Catppuccin.
 sddm-theme-debian-maui
+qml6-module-qtquick
+qml6-module-qtquick-controls
+qml6-module-qtquick-layouts
+qml6-module-qtquick-window
+qml6-module-qtquick-templates
+qml6-module-qtqml-models
+qml6-module-qtqml-workerscript
+libqt6svg6
+qt6-svg-plugins
 dbus-user-session
 waybar
 wofi

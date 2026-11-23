@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Offline tests; every privileged/package action is mocked.
-# shellcheck disable=SC1091,SC2034,SC2329,SC2030,SC2031
+# Mock overrides are called through sourced installer functions.
+# shellcheck disable=SC1091,SC2034,SC2317,SC2329,SC2030,SC2031
 set -Eeuo pipefail
 TEST_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(CDPATH='' cd -- "$TEST_DIR/.." && pwd)"
@@ -17,6 +18,14 @@ status=0
 desktop_check_plan "$TEST_WORK/plan" plasma-desktop plasma-workspace >/dev/null 2>&1 || status="$?"
 [[ "$status" == 2 ]]
 printf 'PASS: removal guard accepts explicit desktop packages and rejects network removal\n'
+
+(
+    sudo() { [[ "$1" == test ]] || printf unexpected >"$TEST_WORK/greeter-unsafe"; return 1; }
+    status=0
+    desktop_configure_greeter >/dev/null 2>&1 || status="$?"
+    [[ "$status" == 2 && ! -e "$TEST_WORK/greeter-unsafe" ]]
+    printf 'PASS: a missing login theme never replaces the existing greeter configuration\n'
+)
 
 (
     pgrep() { return 0; }
@@ -108,3 +117,25 @@ printf 'PASS: mirror selection, keep-KDE and user-config-only installation plans
     [[ "$status" == 2 && ! -s "$TEST_WORK/finalize" ]]
     printf 'PASS: finalization orders login before removal and retains KDE on any install/login failure\n'
 )
+
+if (( EUID != 0 )); then
+    (
+        export HOME="$TEST_WORK/repair-home" XDG_STATE_HOME="$TEST_WORK/repair-state"
+        export TEST_REPAIR_WORK="$TEST_WORK"
+        mkdir -p "$HOME"
+        source "$ROOT/repair-desktop.sh"
+        sudo() { printf '%s\n' "$*" >>"$TEST_REPAIR_WORK/repair-privileged"; }
+        desktop_installed() { [[ "$1" != qt6-svg-plugins ]]; }
+        configure_catppuccin_sddm() { printf theme >"$TEST_REPAIR_WORK/repair-theme"; }
+        desktop_configure_greeter() { printf greeter >"$TEST_REPAIR_WORK/repair-greeter"; }
+        configure_catppuccin_appearance() { return 91; }
+        refresh_grub_menu() { return 92; }
+        deploy_user_configuration() { return 93; }
+        bash() { [[ "$1" == "$SCRIPT_DIR/repair-waybar.sh" ]] && printf panel >"$TEST_REPAIR_WORK/repair-panel"; }
+        repair_main --panel-login
+        [[ -e "$TEST_WORK/repair-theme" && -e "$TEST_WORK/repair-greeter" && -e "$TEST_WORK/repair-panel" ]]
+        grep -q 'apt-get install --no-remove -y qt6-svg-plugins' "$TEST_WORK/repair-privileged"
+        [[ -L "$HOME/.config/wlogout/layout" && -L "$HOME/.config/hypr/hypridle.conf" ]]
+        printf 'PASS: focused panel/login repair installs missing Qt6 SVG without touching GRUB or redeploying the desktop\n'
+    )
+fi

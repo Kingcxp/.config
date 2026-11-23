@@ -17,15 +17,18 @@ class SddmTests(unittest.TestCase):
 
     def test_defaults_do_not_enable_autologin(self):
         config = sddm.configure(self.path)
-        self.assertEqual(config["Theme"]["Current"], "debian-maui")
+        self.assertEqual(config["Theme"]["Current"], "catppuccin-macchiato-lavender")
         self.assertEqual(config["General"]["InputMethod"], "")
         self.assertFalse(config.has_section("Autologin"))
+        self.assertEqual(config["Theme"]["CursorTheme"], "catppuccin-macchiato-lavender-cursors")
+        self.assertEqual(config["X11"]["EnableHiDPI"], "true")
+        self.assertEqual(config["Wayland"]["EnableHiDPI"], "true")
 
     def test_existing_theme_and_autologin_migrate_without_losing_options(self):
         self.path.write_text("[Theme]\nCurrent=breeze\nCursorTheme=bibata\n[Autologin]\nUser=tester\nSession=plasma.desktop\nRelogin=false\n[General]\nDisplayServer=x11\n")
         config = sddm.configure(self.path)
-        self.assertEqual(config["Theme"]["Current"], "debian-maui")
-        self.assertEqual(config["Theme"]["CursorTheme"], "bibata")
+        self.assertEqual(config["Theme"]["Current"], "catppuccin-macchiato-lavender")
+        self.assertEqual(config["Theme"]["CursorTheme"], "catppuccin-macchiato-lavender-cursors")
         self.assertEqual(config["Autologin"]["Session"], "myconfig-hyprland.desktop")
         self.assertEqual(config["Autologin"]["User"], "tester")
         self.assertEqual(config["General"]["DisplayServer"], "x11")

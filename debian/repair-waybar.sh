@@ -14,6 +14,7 @@ mkdir -p "$STATE_DIR"
 exec > >(tee -a "$STATE_DIR/repair-waybar.log") 2>&1
 link_tree "$PROFILE_DIR/.config/waybar" "$HOME/.config/waybar"
 backup_and_link "$PROFILE_DIR/.local/bin/waybar-start.sh" "$HOME/.local/bin/waybar-start.sh"
+backup_and_link "$PROFILE_DIR/.local/bin/waybar-hyprland.py" "$HOME/.local/bin/waybar-hyprland.py"
 backup_and_link "$PROFILE_DIR/.local/bin/desktop-session-start.sh" "$HOME/.local/bin/desktop-session-start.sh"
 fc-cache -f
 if ! python3 "$SCRIPT_DIR/lib/check-waybar-fonts.py" "$HOME/.config/waybar/config.jsonc" --quiet; then

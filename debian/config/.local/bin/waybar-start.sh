@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 config_dir="$HOME/.config/waybar"
+compatibility="$HOME/.local/bin/waybar-hyprland.py"
 export FONTCONFIG_FILE="$config_dir/fontconfig.conf"
 for file in config.jsonc style.css fontconfig.conf; do
     [[ -r "$config_dir/$file" ]] || { printf 'Missing Waybar file: %s/%s\n' "$config_dir" "$file" >&2; exit 1; }
 done
+[[ -r "$compatibility" ]] || { printf 'Missing Waybar IPC helper: %s\n' "$compatibility" >&2; exit 1; }
 case "${1:-}" in
-    '') exec waybar --config "$config_dir/config.jsonc" --style "$config_dir/style.css" ;;
+    '') exec python3 "$compatibility" --config "$config_dir/config.jsonc" --style "$config_dir/style.css" ;;
     --restart) ;;
     *) printf 'Usage: waybar-start.sh [--restart]\n' >&2; exit 2 ;;
 esac
@@ -24,7 +26,7 @@ if pgrep -u "$(id -u)" -x waybar >/dev/null; then
     printf 'The old Waybar did not exit; a second instance was not started.\n' >&2
     exit 1
 fi
-nohup waybar --config "$config_dir/config.jsonc" --style "$config_dir/style.css" \
+nohup python3 "$compatibility" --config "$config_dir/config.jsonc" --style "$config_dir/style.css" \
     >"$state_dir/waybar.log" 2>&1 </dev/null &
 bar_pid=$!
 for _ in {1..50}; do

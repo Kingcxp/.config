@@ -66,6 +66,10 @@ desktop_system_file() {
 
 desktop_configure_greeter() {
     local work
+    if ! sudo test -s /usr/share/sddm/themes/catppuccin-macchiato-lavender/Main.qml; then
+        printf 'Catppuccin SDDM theme is missing; the existing greeter configuration was not changed.\n' >&2
+        return 2
+    fi
     work="$(mktemp -d)"
     # /etc/sddm.conf has higher priority than snippets; preserve its other options.
     sudo python3 "$DESKTOP_DIR/lib/configure-sddm.py" /etc/sddm.conf >"$work/sddm.conf" || { rm -rf -- "$work"; return 2; }

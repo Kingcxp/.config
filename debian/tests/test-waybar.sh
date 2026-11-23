@@ -7,7 +7,8 @@ ROOT="$(CDPATH='' cd -- "$TEST_DIR/.." && pwd)"
 work="$(mktemp -d)"
 trap 'rm -rf -- "$work"' EXIT
 export HOME="$work/home" XDG_CONFIG_HOME="$work/home/.config" XDG_STATE_HOME="$work/state"
-mkdir -p "$HOME/.config/fontconfig/conf.d" "$HOME/.config/waybar" "$work/bin" "$work/unscoped"
+mkdir -p "$HOME/.config/fontconfig/conf.d" "$HOME/.config/waybar" "$HOME/.local/bin" "$work/bin" "$work/unscoped"
+cp "$ROOT/config/.local/bin/waybar-hyprland.py" "$HOME/.local/bin/"
 cp -a "$ROOT/config/.config/waybar/." "$HOME/.config/waybar/"
 cp "$ROOT/config/.config/waybar/config.jsonc" "$work/unscoped/"
 cat >"$HOME/.config/fontconfig/conf.d/99-legacy.conf" <<'FONTCONFIG'
@@ -71,4 +72,4 @@ test "$3" = --style && test "$4" = "$HOME/.config/waybar/style.css"
 printf 'PASS: Waybar launcher pins both CSS and its font configuration\n'
 STUB
 chmod +x "$work/bin/waybar"
-FONTCONFIG_FILE=/nonexistent PATH="$work/bin:$PATH" bash "$ROOT/config/.local/bin/waybar-start.sh"
+HYPRLAND_INSTANCE_SIGNATURE='' FONTCONFIG_FILE=/nonexistent PATH="$work/bin:$PATH" bash "$ROOT/config/.local/bin/waybar-start.sh"

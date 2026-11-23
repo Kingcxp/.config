@@ -16,15 +16,17 @@ FAILURES=()
 trap 'if [[ -n "$WORK_DIR" ]]; then rm -rf -- "$WORK_DIR"; fi' EXIT
 
 repair_main() {
+    local panel_login=false
     case "${1:-}" in
         --dry-run)
-            printf 'Repair SDDM InputMethod, Fish/Waybar fonts and themes, inherited GTK input variables, missing Hyprland GUI utilities, dconf appearance, and GRUB.\n'
+            printf 'Repair Catppuccin SDDM, Waybar Lua workspace clicks, Fish/Waybar fonts and themes, inherited GTK input variables, missing Hyprland GUI utilities, dconf appearance, and GRUB.\n'
             printf 'Restore original top-bar arrangement: title/hardware left; workspaces center; tray/audio/brightness/network/clock/battery/power right.\n'
             printf 'Install missing desktop prerequisites only; no Homebrew update, full software installation, KDE removal, display-manager restart, or automatic reboot.\n'
             return ;;
-        --help|-h) printf 'Usage: bash repair-desktop.sh [--dry-run]\nRun as the same ordinary user who installed myconfig. Save work and log out/in after completion.\n'; return ;;
+        --help|-h) printf 'Usage: bash repair-desktop.sh [--dry-run | --panel-login]\n--panel-login repairs only Waybar and the SDDM theme, without changing GRUB or the desktop session.\nRun as the same ordinary user who installed myconfig.\n'; return ;;
+        --panel-login) panel_login=true ;;
         '') ;;
-        *) die 'Usage: bash repair-desktop.sh [--dry-run]' ;;
+        *) die 'Usage: bash repair-desktop.sh [--dry-run | --panel-login]' ;;
     esac
     (( $# <= 1 )) || die 'Too many arguments'
     [[ "$EUID" -ne 0 ]] || die 'Run as your normal user, without sudo.'
@@ -39,9 +41,32 @@ repair_main() {
     exec > >(tee -a "$STATE_DIR/repair-desktop.log") 2>&1
     local package need_guiutils=false
     local -a missing=()
+    if [[ "$panel_login" == true ]]; then
+        for package in sddm curl ca-certificates unzip xz-utils python3 fontconfig \
+            qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
+            qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtqml-models \
+            qml6-module-qtqml-workerscript libqt6svg6 qt6-svg-plugins; do
+            if ! desktop_installed "$package"; then missing+=("$package"); fi
+        done
+        if (( ${#missing[@]} )); then
+            sudo apt-get update -o APT::Update::Error-Mode=any
+            sudo apt-get install --no-remove -y "${missing[@]}"
+        fi
+        configure_catppuccin_sddm "$WORK_DIR" "$SCRIPT_DIR" || die 'Install the verified Catppuccin SDDM theme'
+        desktop_configure_greeter || die 'Apply the SDDM theme and disable the virtual keyboard'
+        backup_and_link "$PROFILE_DIR/.config/wlogout/layout" "$HOME/.config/wlogout/layout"
+        backup_and_link "$PROFILE_DIR/.config/hypr/hypridle.conf" "$HOME/.config/hypr/hypridle.conf"
+        bash "$SCRIPT_DIR/repair-waybar.sh"
+        printf '\nWaybar repaired now; save your work and reboot when ready to load the new SDDM theme.\n'
+        printf 'The updated logout/wake commands load on the next session; the display manager was not restarted.\n'
+        return
+    fi
     for package in curl ca-certificates unzip xz-utils python3 fish fontconfig fonts-noto-cjk fonts-font-awesome \
         dconf-cli gsettings-desktop-schemas libglib2.0-bin dbus-user-session qt5ct qt6ct \
-        qt5-style-kvantum qt6-style-kvantum grub-common grub2-common; do
+        qt5-style-kvantum qt6-style-kvantum grub-common grub2-common \
+        qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-layouts \
+        qml6-module-qtquick-window qml6-module-qtquick-templates qml6-module-qtqml-models \
+        qml6-module-qtqml-workerscript libqt6svg6 qt6-svg-plugins; do
         if ! desktop_installed "$package"; then missing+=("$package"); fi
     done
     if ! desktop_installed hyprland-guiutils; then need_guiutils=true; fi
@@ -60,7 +85,7 @@ repair_main() {
         printf '\nCurrent UEFI boot entries (read-only; saved for diagnosing a different active bootloader):\n'
         sudo efibootmgr -v || true
     fi
-    desktop_configure_greeter || setup_failure 'Disable the SDDM virtual keyboard'
+    desktop_configure_greeter || setup_failure 'Apply the Catppuccin SDDM theme and disable the virtual keyboard'
     desktop_system_file "$SCRIPT_DIR/session/myconfig-hyprland" /usr/local/bin/myconfig-hyprland 0755 \
         || setup_failure 'Update the Hyprland session wrapper to clear inherited GTK_IM_MODULE'
     deploy_user_configuration

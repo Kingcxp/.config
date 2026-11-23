@@ -18,11 +18,13 @@ check_main() {
     done
     for output in "$HOME/.config/hypr/hyprland.lua" "$HOME/.config/waybar/config.jsonc" \
         "$HOME/.config/waybar/style.css" "$HOME/.config/waybar/fontconfig.conf" "$HOME/.local/bin/waybar-start.sh" \
+        "$HOME/.local/bin/waybar-hyprland.py" \
         "$HOME/.config/fcitx5/profile" "$HOME/.config/fcitx5/conf/classicui.conf" \
         "$HOME/.config/Kvantum/kvantum.kvconfig" "$HOME/.config/qt5ct/qt5ct.conf" "$HOME/.config/qt6ct/qt6ct.conf" \
         "$HOME/.config/systemd/user/xdg-desktop-portal-gtk.service.d/10-fcitx.conf" \
         /usr/libexec/polkit-mate-authentication-agent-1 /etc/pam.d/hyprlock \
-        /usr/bin/sddm /usr/share/sddm/themes/debian-maui/Main.qml /usr/local/bin/myconfig-hyprland \
+        /usr/bin/sddm /usr/share/sddm/themes/catppuccin-macchiato-lavender/Main.qml \
+        /usr/share/sddm/themes/catppuccin-macchiato-lavender/theme.conf.user /usr/local/bin/myconfig-hyprland \
         /usr/share/wayland-sessions/myconfig-hyprland.desktop \
         /usr/local/share/themes/catppuccin-macchiato-lavender-standard/gtk-3.0/gtk.css \
         /usr/local/share/themes/catppuccin-macchiato-lavender-standard/gtk-4.0/gtk.css \

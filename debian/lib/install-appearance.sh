@@ -13,6 +13,8 @@ CATPPUCCIN_FCITX5_REV=393845cf3ed0e0000bfe57fe1b9ad75748e2547f
 CATPPUCCIN_FCITX5_SHA256=8cdb90b3618d56c36075ff88ed6724aa4baba6eb99eafe60df1664fbe63905f6
 CATPPUCCIN_GRUB_REV=0a37ab19f654e77129b409fed371891c01ffd0b9
 CATPPUCCIN_GRUB_SHA256=285a2f1942d9a7aaaa61d53fbf8eaea40c1bb1a2f5ed662b8355bf9b0499116b
+CATPPUCCIN_SDDM_VERSION=v1.1.2
+CATPPUCCIN_SDDM_SHA256=6a257298a1625c7cb3b36738573a34890852a0ad5e4bc115bf93c47b3a2d6bf3
 DESKTOP_NERD_FONT_VERSION=v3.4.0
 DESKTOP_NERD_FONT_SHA256=ef552a3e638f25125c6ad4c51176a6adcdce295ab1d2ffacf0db060caf8c1582
 
@@ -165,12 +167,40 @@ ensure_desktop_nerd_font() {
     fi
 }
 
+configure_catppuccin_sddm() {
+    local work="$1" source="$2" target=/usr/share/sddm/themes/catppuccin-macchiato-lavender
+    local THEME_INSTALL_ROOT="${3:-/}"
+    local version="$CATPPUCCIN_SDDM_VERSION-myconfig-1" extract="$work/sddm" required
+    local -a files=(Main.qml theme.conf theme.conf.user metadata.desktop
+        Components/LoginPanel.qml Components/UserField.qml Components/PasswordField.qml Components/SessionPanel.qml
+        Components/Clock.qml Components/PowerButton.qml Components/RebootButton.qml Components/SleepButton.qml
+        icons/settings.svg icons/power.svg icons/reboot.svg icons/sleep.svg assets/ring.svg assets/maskDark.svg assets/defaultIcon.png)
+    mkdir -p "$work" || return 1
+    if ! theme_tree_is_current "$target" "$version" "${files[@]}"; then
+        download_theme_archive \
+            "https://github.com/catppuccin/sddm/releases/download/$CATPPUCCIN_SDDM_VERSION/catppuccin-macchiato-lavender-sddm.zip" \
+            "$CATPPUCCIN_SDDM_SHA256" "$work/sddm.zip" || return 1
+        mkdir -p "$extract" || return 1
+        unzip -q -o "$work/sddm.zip" -d "$extract" || return 1
+        python3 "$source/lib/configure-sddm-theme.py" "$extract/catppuccin-macchiato-lavender" || return 1
+        cp "$source/system/sddm/theme.conf.user" "$extract/catppuccin-macchiato-lavender/theme.conf.user" || return 1
+        install_managed_theme_tree "$extract/catppuccin-macchiato-lavender" "$target" "$version" sddm || return 1
+    fi
+    theme_run install -m 0644 "$source/system/sddm/theme.conf.user" "$(theme_root_path "$target/theme.conf.user")" || return 1
+    for required in "${files[@]}"; do
+        theme_run test -s "$(theme_root_path "$target/$required")" || return 1
+    done
+}
+
 configure_catppuccin_appearance() {
     local work="$1" source="$2" grub_version="nix-catppuccin-$CATPPUCCIN_GRUB_REV" required
     local THEME_INSTALL_ROOT="${3:-/}"
     mkdir -p "$work" || return 1
     if ! ensure_desktop_nerd_font "$work" "$source"; then
         setup_failure 'Install/verify JetBrainsMono Nerd Font; do not silently substitute a different UI font'
+    fi
+    if ! configure_catppuccin_sddm "$work" "$source" "$THEME_INSTALL_ROOT"; then
+        setup_failure 'Install and verify the Catppuccin Macchiato/Lavender SDDM theme'
     fi
 
     if ! install_catppuccin_zip_theme "$work" gtk "$CATPPUCCIN_GTK_VERSION" \

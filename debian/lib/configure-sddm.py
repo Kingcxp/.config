@@ -19,12 +19,19 @@ def configure(path, user=None):
     else:
         if not config.has_section("Theme"):
             config.add_section("Theme")
-        config.set("Theme", "Current", "debian-maui")
+        config.set("Theme", "Current", "catppuccin-macchiato-lavender")
+        config.set("Theme", "Font", "JetBrainsMono Nerd Font,12,-1,5,50,0,0,0,0,0")
+        config.set("Theme", "CursorTheme", "catppuccin-macchiato-lavender-cursors")
+        config.set("Theme", "CursorSize", "32")
         if not config.has_section("General"):
             config.add_section("General")
-        # SDDM defaults to qtvirtualkeyboard. Maui exposes it as a large input panel.
+        # SDDM defaults to qtvirtualkeyboard; keep it disabled in every theme.
         # An explicitly empty InputMethod disables it, including when Qt's module is installed.
         config.set("General", "InputMethod", "")
+        for section in ("X11", "Wayland"):
+            if not config.has_section(section):
+                config.add_section(section)
+            config.set(section, "EnableHiDPI", "true")
         # Preserve whether autologin was enabled, but retire its removed Plasma session.
         if config.has_section("Autologin") and config.get("Autologin", "User", fallback="").strip():
             config.set("Autologin", "Session", "myconfig-hyprland.desktop")

@@ -54,6 +54,7 @@ tray = re.search(r"#tray\s*\{([^}]*)\}", style, re.S)
 tray_icons = re.search(r"#tray image\s*\{([^}]*)\}", style, re.S)
 assert tray and re.search(r"color:\s*#cad3f5\s*;", tray[1]), "tray foreground must contrast the dark background"
 assert tray_icons and re.search(r"color:\s*#cad3f5\s*;", tray_icons[1]), "tray label foreground must contrast the dark background"
+assert re.search(r"#network\s*\{[^}]*color:\s*#cad3f5", style, re.S)
 assert re.search(r"#battery\.plugged\s*\{[^}]*color:\s*#cad3f5", style, re.S)
 assert re.search(r"#battery\.full\s*\{[^}]*color:\s*#a6da95", style, re.S)
 print("PASS: click-to-focus workspace routing, battery state icons, 5-second refresh, 15px font, unchanged 28px bar, and tray/workspace CSS contrast (image pixels tested separately)")

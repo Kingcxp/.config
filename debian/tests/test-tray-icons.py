@@ -29,7 +29,9 @@ with tempfile.TemporaryDirectory() as work:
                      'blueman-tray-symbolic', 'blueman-tray-active',
                      'blueman-tray-active-symbolic', 'blueman-tray-disabled',
                      'blueman-tray-disabled-symbolic', 'fcitx-pinyin-panel',
-                     'nm-signal-75', 'nm-device-wired'):
+                     'fcitx-pinyin', 'nm-signal-75', 'nm-device-wired',
+                     'network-wireless-signal-weak-symbolic',
+                     'network-wireless-signal-excellent-symbolic'):
             info = theme.lookup_icon(name, size, Gtk.IconLookupFlags.FORCE_SIZE)
             assert info and str(directory) in info.get_filename(), (name, size)
             pixbuf = info.load_icon()

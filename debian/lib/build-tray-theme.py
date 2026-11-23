@@ -32,6 +32,16 @@ def build(source, destination):
     prefixes = ('blueman', 'bluetooth', 'fcitx', 'input-keyboard', 'nm-', 'network-', 'udiskie')
     icons = {path.stem: path for path in source.glob('*.svg')
              if path.is_file() and path.stem.startswith(prefixes)}
+    # nm-applet/Fcitx versions may request symbolic names or the IM name without
+    # the -panel suffix. Include the real network status artwork with its signal,
+    # secure/disabled/error states, rather than replacing it with one static icon.
+    for directory in ('status', 'devices', 'apps'):
+        for path in (source.parent / 'symbolic' / directory).glob('*.svg'):
+            if path.stem.startswith(('network-', 'fcitx')) and path.is_file():
+                icons[path.stem] = path
+    for name, path in list(icons.items()):
+        if name.startswith('fcitx-') and name.endswith('-panel'):
+            icons.setdefault(name.removesuffix('-panel'), path)
     icons.update({name: source / f'{original}.svg' for name, original in aliases.items()})
     artwork = {}
     for name, path in icons.items():

@@ -7,11 +7,12 @@ from ctypes.util import find_library
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 
 
-def check_pango_digits(quiet):
+def check_pango_digits(quiet, size_px):
     # Use Pango itself, as Waybar does, rather than inferring the face from CSS.
     def library(name):
         path = find_library(name)
@@ -49,7 +50,7 @@ def check_pango_digits(quiet):
     context = pango.pango_font_map_create_context(cairo.pango_cairo_font_map_get_default())
     description = pango.pango_font_description_new()
     pango.pango_font_description_set_family(description, b"JetBrainsMono Nerd Font")
-    pango.pango_font_description_set_absolute_size(description, 12 * 1024)
+    pango.pango_font_description_set_absolute_size(description, size_px * 1024)
     language = pango.pango_language_from_string(b"zh-cn")
     pango.pango_context_set_language(context, language)
     try:
@@ -76,10 +77,10 @@ def check_pango_digits(quiet):
                     width, height = ct.c_int(), ct.c_int()
                     pango.pango_layout_get_size(layout, ct.byref(width), ct.byref(height))
                     widths.append(width.value / 1024)
-                if abs(widths[0] - widths[1]) > 1 or not 0 < widths[0] < 10 * 12 * 0.8:
+                if abs(widths[0] - widths[1]) > 1 or not 0 < widths[0] < 10 * size_px * 0.8:
                     raise ValueError(f"Unexpected full-width/proportional ASCII layout: {widths}")
                 if not quiet:
-                    print(f"PASS Pango zh-CN weight {weight}: ASCII digits use JetBrainsMono Nerd Font; 10 digits = {widths[0]:g}px at 12px")
+                    print(f"PASS Pango zh-CN weight {weight}: ASCII digits use JetBrainsMono Nerd Font; 10 digits = {widths[0]:g}px at {size_px:g}px")
             finally:
                 gobject.g_object_unref(layout)
     finally:
@@ -135,7 +136,11 @@ def check(config, quiet=False):
             )
         if not quiet:
             print(f"PASS Waybar {weight}: {match[1]} ({len(icons)} icon codepoints)")
-    check_pango_digits(quiet)
+    style = Path(config).with_name("style.css").read_text(encoding="utf-8")
+    size = re.search(r"font-size:\s*([0-9]+(?:\.[0-9]+)?)px\s*;", style)
+    if not size or float(size[1]) <= 0:
+        raise ValueError("Waybar CSS has no valid font-size in px")
+    check_pango_digits(quiet, float(size[1]))
 
 
 def main():

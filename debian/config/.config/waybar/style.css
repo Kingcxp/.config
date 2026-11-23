@@ -1,7 +1,7 @@
 * {
   font-family: "JetBrainsMono Nerd Font";
   font-weight: 500;
-  font-size: 12px;
+  font-size: 16px;
   font-style: normal;
   font-stretch: normal;
   font-variant: normal;
@@ -55,8 +55,6 @@ tooltip {
   padding: 0 2px;
   background: rgba(30, 32, 48, 0.6);
   transition: none;
-
-  font-size: 12px;
 }
 
 #workspaces :first-child {

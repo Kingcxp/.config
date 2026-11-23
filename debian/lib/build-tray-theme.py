@@ -43,12 +43,20 @@ def build(source, destination):
         if name.startswith('fcitx-') and name.endswith('-panel'):
             icons.setdefault(name.removesuffix('-panel'), path)
     icons.update({name: source / f'{original}.svg' for name, original in aliases.items()})
+    # udiskie prefers this panel-only name. Without it, Papirus falls back to a
+    # generic shaded disk at small sizes. Keep desktop/device menu icons intact.
+    usb_icon = source.parent / 'symbolic/devices/drive-removable-media-usb-pendrive-symbolic.svg'
+    if not usb_icon.is_file():
+        raise RuntimeError(f'Missing Papirus USB tray artwork: {usb_icon}')
+    icons['drive-removable-media-usb-panel'] = usb_icon
     artwork = {}
     for name, path in icons.items():
         svg = path.read_text(encoding='utf-8')
         # The panel artwork has explicit light ink. Preserve warning colors and
         # disabled-state opacity, and add a viewBox for scalable theme lookup.
         svg = re.sub('#dfdfdf', '#cad3f5', svg, flags=re.I)
+        if name == 'drive-removable-media-usb-panel':
+            svg = re.sub('#444444', '#cad3f5', svg, flags=re.I)
         if 'viewBox=' not in svg:
             svg = svg.replace('<svg ', '<svg viewBox="0 0 22 22" ', 1)
         ET.fromstring(svg)

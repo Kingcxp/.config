@@ -31,7 +31,8 @@ with tempfile.TemporaryDirectory() as work:
                      'blueman-tray-disabled-symbolic', 'fcitx-pinyin-panel',
                      'fcitx-pinyin', 'nm-signal-75', 'nm-device-wired',
                      'network-wireless-signal-weak-symbolic',
-                     'network-wireless-signal-excellent-symbolic'):
+                     'network-wireless-signal-excellent-symbolic',
+                     'drive-removable-media-usb-panel'):
             info = theme.lookup_icon(name, size, Gtk.IconLookupFlags.FORCE_SIZE)
             assert info and str(directory) in info.get_filename(), (name, size)
             pixbuf = info.load_icon()
@@ -58,4 +59,12 @@ with tempfile.TemporaryDirectory() as work:
     # Desktop icons still inherit from the full system theme.
     inherited = theme.lookup_icon('folder', 48, Gtk.IconLookupFlags.FORCE_SIZE)
     assert inherited and '/Papirus-Dark/' in inherited.get_filename(), inherited
-print('PASS: light keyboard/Bluetooth/Fcitx/network SNI image pixels at 1x/2x/3x, disabled opacity, and desktop icon fallback')
+    # The application's actual default lookup must select the panel-only USB
+    # artwork. Desktop file manager device icons retain their original style.
+    Gtk.IconTheme.get_default().prepend_search_path(str(directory))
+    Gtk.Settings.get_default().set_property('gtk-icon-theme-name', 'Myconfig-Papirus-Dark')
+    from udiskie.tray import Icons
+    assert Icons().get_icon_name('media') == 'drive-removable-media-usb-panel'
+    device = theme.lookup_icon('drive-removable-media', 22, Gtk.IconLookupFlags.FORCE_SIZE)
+    assert device and '/Papirus-Dark/' in device.get_filename(), device
+print('PASS: light keyboard/Bluetooth/Fcitx/network/USB pixels at 1x/2x/3x, actual udiskie icon selection, disabled opacity, and desktop icon fallback')

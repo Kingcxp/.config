@@ -19,11 +19,52 @@ cleanup() {
     if [[ -n "$work_dir" ]]; then rm -rf -- "$work_dir"; fi
 }
 trap cleanup EXIT
+usb_icon_only=false
+case "${1:-}" in
+    --usb-icon) usb_icon_only=true ;;
+    '') ;;
+    --help|-h) printf 'Usage: bash repair-waybar.sh [--usb-icon]\n--usb-icon refreshes only the USB tray artwork, Waybar and udiskie.\n'; exit 0 ;;
+    *) die 'Usage: bash repair-waybar.sh [--usb-icon]' ;;
+esac
+(( $# <= 1 )) || die 'Too many arguments'
 [[ "$EUID" -ne 0 ]] || die 'Run as your normal user, without sudo.'
 [[ "$(uname -s)" == Linux ]] || die 'Run on the installed Debian system.'
 [[ "${XDG_CONFIG_HOME:-$HOME/.config}" == "$HOME/.config" ]] || die 'This profile requires ~/.config.'
 mkdir -p "$STATE_DIR"
 exec > >(tee -a "$STATE_DIR/repair-waybar.log") 2>&1
+refresh_usb_tray() {
+    current_step='refresh the USB tray applet'
+    local -a usb_pids=()
+    mapfile -t usb_pids < <(pgrep -u "$(id -u)" -x udiskie || true)
+    if (( ${#usb_pids[@]} )); then kill -- "${usb_pids[@]}"; fi
+    for _ in {1..50}; do
+        if ! pgrep -u "$(id -u)" -x udiskie >/dev/null; then break; fi
+        sleep 0.1
+    done
+    if pgrep -u "$(id -u)" -x udiskie >/dev/null; then die 'udiskie did not exit; no second instance was started.'; fi
+    nohup env -u GTK_USE_PORTAL GDK_BACKEND=wayland GSETTINGS_BACKEND=dconf \
+        GSETTINGS_SCHEMA_DIR=/usr/share/glib-2.0/schemas \
+        udiskie --tray >"$STATE_DIR/udiskie-tray.log" 2>&1 </dev/null &
+    local usb_pid=$!
+    sleep 1
+    if ! kill -0 "$usb_pid" 2>/dev/null; then
+        cat "$STATE_DIR/udiskie-tray.log" >&2
+        die 'The USB tray applet could not start.'
+    fi
+}
+if [[ "$usb_icon_only" == true ]]; then
+    current_step='generate the USB tray artwork'
+    install_tray_icon_theme
+    if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+        current_step='reload the Waybar icon resources'
+        bash "$HOME/.local/bin/waybar-start.sh" --restart
+        refresh_usb_tray
+        printf 'USB tray icon refreshed.\n'
+    else
+        printf 'USB tray icon updated; it will load on the next desktop login.\n'
+    fi
+    exit 0
+fi
 current_step='check Debian desktop dependencies'
 missing_packages=()
 for package in libglib2.0-bin dconf-cli dconf-gsettings-backend gsettings-desktop-schemas; do
@@ -103,6 +144,7 @@ if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
         GSETTINGS_SCHEMA_DIR=/usr/share/glib-2.0/schemas \
         nm-applet --indicator >"$STATE_DIR/nm-applet-tray.log" 2>&1 </dev/null &
     sleep 1
+    refresh_usb_tray
     current_step='inspect live icon sources'
     if ! /usr/bin/python3 "$SCRIPT_DIR/lib/check-panel-icon-sources.py"; then
         printf 'WARNING: configuration was deployed and apps restarted, but live icon diagnostics were unavailable. See %s/repair-waybar.log\n' "$STATE_DIR" >&2

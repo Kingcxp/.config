@@ -43,6 +43,8 @@ bash ~/myconfig/debian/repair-desktop.sh
 
 蓝牙、输入法等托盘图标使用 `Myconfig-Papirus-Dark`：沿用 Papirus-Dark 的桌面图标，为托盘提供可缩放的 Macchiato 浅色资源，并保留禁用、连接和警告状态。Fcitx 的键盘及 Blueman 的 symbolic 图标也使用实际浅色像素；Waybar 0.12 将图标渲染成图片，仅设置 CSS `color` 无法使其变色。应用直接提供的自有彩色位图仍保留应用原色。
 
+U 盘托盘使用独立的浅色 USB 存储造型，避免回退成通用磁盘图标。只更新这一项时运行 `bash ~/myconfig/debian/repair-waybar.sh --usb-icon`，它刷新图标资源并重启 Waybar、udiskie；不重新配置输入法、网络或字体，也不卸载/弹出已挂载的 U 盘。
+
 一起修复面板点击和登录界面，运行 `bash ~/myconfig/debian/repair-desktop.sh --panel-login` 即可；无需先单独运行 Waybar 修复。此选项只补缺少的 SDDM Qt6/QML/SVG 依赖、安装 SHA-256 核验过的 Catppuccin Macchiato/Lavender 登录主题，并部署 Waybar 与退出/唤醒命令。Waybar 立即重启，登录主题在保存工作后重启电脑时生效；不重启 SDDM、不操作 GRUB、不重跑全部软件安装。
 
 Debian 的 Waybar 0.12 使用旧的 Hyprland `dispatch workspace` 命令，不能直接控制 Lua 会话。启动器检测实际 `configProvider`，仅为自己的 Waybar 子进程建立私有 socket，将工作区切换翻译为 `hl.dsp.focus`；查询、工作区状态事件和新版原生 Lua 命令原样传递。原有窗口排列、15px 字体、28px 面板高度均保留。

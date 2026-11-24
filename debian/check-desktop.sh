@@ -58,7 +58,7 @@ check_main() {
     [[ -n "$(fcitx5-remote -n 2>/dev/null)" ]] || failed=1
     [[ "${XMODIFIERS:-}" == '@im=fcitx' ]] || failed=1
     if [[ -n "${GTK_IM_MODULE:-}" ]]; then
-        printf 'Unexpected global GTK_IM_MODULE=%s; log out/in after running repair-desktop.sh.\n' "$GTK_IM_MODULE" >&2
+        printf 'Unexpected global GTK_IM_MODULE=%s; log out and back in to clear the inherited value.\n' "$GTK_IM_MODULE" >&2
         failed=1
     fi
     wpctl status

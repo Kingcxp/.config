@@ -39,4 +39,4 @@ install_managed_theme_tree "$TMP_DIR/source" "$target" v2 test-theme
 [[ "$(<"$THEME_INSTALL_ROOT$target/.myconfig-managed")" == v2 ]]
 [[ "$(<"$THEME_INSTALL_ROOT$target/theme.txt")" == 'updated theme payload' ]]
 [[ "$(find "$THEME_INSTALL_ROOT/var/backups/myconfig-debian/themes" -mindepth 1 -maxdepth 1 -type d | wc -l)" == 2 ]]
-printf 'PASS: Catppuccin asset checksum, missing-file repair, idempotence, and managed-theme backup\n'
+printf 'PASS: Catppuccin asset checksum, missing-file recovery, idempotence, and managed-theme backup\n'

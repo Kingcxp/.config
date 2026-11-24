@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Used by both full installation and the focused desktop repair.
+# Used by both initial installation and the unified desktop refresh.
 
 # Debian puts update-grub in /usr/sbin, which is often absent from a regular
 # user's PATH. Check the installed executable, not the invoking shell's PATH.

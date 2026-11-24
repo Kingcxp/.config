@@ -94,7 +94,16 @@ bash "$ROOT/install.sh" --keep-kde --dry-run >"$TEST_WORK/keep-plan"
 if grep -q 'simulate explicit KDE removal' "$TEST_WORK/keep-plan"; then exit 1; fi
 bash "$ROOT/install.sh" --configs-only --dry-run >"$TEST_WORK/config-plan"
 if grep -q 'APT:' "$TEST_WORK/config-plan"; then exit 1; fi
-printf 'PASS: mirror selection, keep-KDE and user-config-only installation plans\n'
+before="$(find "$HOME" -print | wc -l)"
+bash "$ROOT/install.sh" --refresh --dry-run >"$TEST_WORK/refresh-plan"
+[[ "$before" == "$(find "$HOME" -print | wc -l)" ]]
+grep -q 'install missing desktop prerequisites' "$TEST_WORK/refresh-plan"
+grep -q 'refresh Waybar, Fcitx, network and USB tray apps in an active Hyprland session' "$TEST_WORK/refresh-plan"
+grep -q 'No full software-manifest install or KDE removal' "$TEST_WORK/refresh-plan"
+status=0
+bash "$ROOT/install.sh" --refresh --mirror nju --dry-run >/dev/null 2>&1 || status="$?"
+[[ "$status" == 2 ]]
+printf 'PASS: mirror selection, keep-KDE, user-config-only and unified desktop-refresh plans\n'
 
 (
     source "$ROOT/install.sh"
@@ -117,25 +126,3 @@ printf 'PASS: mirror selection, keep-KDE and user-config-only installation plans
     [[ "$status" == 2 && ! -s "$TEST_WORK/finalize" ]]
     printf 'PASS: finalization orders login before removal and retains KDE on any install/login failure\n'
 )
-
-if (( EUID != 0 )); then
-    (
-        export HOME="$TEST_WORK/repair-home" XDG_STATE_HOME="$TEST_WORK/repair-state"
-        export TEST_REPAIR_WORK="$TEST_WORK"
-        mkdir -p "$HOME"
-        source "$ROOT/repair-desktop.sh"
-        sudo() { printf '%s\n' "$*" >>"$TEST_REPAIR_WORK/repair-privileged"; }
-        desktop_installed() { [[ "$1" != qt6-svg-plugins ]]; }
-        configure_catppuccin_sddm() { printf theme >"$TEST_REPAIR_WORK/repair-theme"; }
-        desktop_configure_greeter() { printf greeter >"$TEST_REPAIR_WORK/repair-greeter"; }
-        configure_catppuccin_appearance() { return 91; }
-        refresh_grub_menu() { return 92; }
-        deploy_user_configuration() { return 93; }
-        bash() { [[ "$1" == "$SCRIPT_DIR/repair-waybar.sh" ]] && printf panel >"$TEST_REPAIR_WORK/repair-panel"; }
-        repair_main --panel-login
-        [[ -e "$TEST_WORK/repair-theme" && -e "$TEST_WORK/repair-greeter" && -e "$TEST_WORK/repair-panel" ]]
-        grep -q 'apt-get install --no-remove -y qt6-svg-plugins' "$TEST_WORK/repair-privileged"
-        [[ -L "$HOME/.config/wlogout/layout" && -L "$HOME/.config/hypr/hypridle.conf" ]]
-        printf 'PASS: focused panel/login repair installs missing Qt6 SVG without touching GRUB or redeploying the desktop\n'
-    )
-fi

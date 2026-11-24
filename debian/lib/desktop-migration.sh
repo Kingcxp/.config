@@ -57,8 +57,14 @@ desktop_power_transition() {
 
 desktop_system_file() {
     local source="$1" target="$2" mode="${3:-0644}"
-    local backup
+    local backup actual_mode
     backup="/var/backups/myconfig-debian/desktop/$(date +%Y%m%d)-$$"
+    if ! sudo test -L "$target" && sudo cmp -s -- "$source" "$target" 2>/dev/null; then
+        actual_mode="$(sudo stat -c '%a' -- "$target" 2>/dev/null || true)"
+        if [[ "$actual_mode" == "${mode#0}" ]]; then return 0; fi
+        sudo chmod "$mode" "$target"
+        return $?
+    fi
     sudo install -d -m 0700 "$backup" || return 2
     if [[ -e "$target" ]]; then sudo cp --parents -- "$target" "$backup/" || return 2; fi
     sudo install -D -m "$mode" "$source" "$target"

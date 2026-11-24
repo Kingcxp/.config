@@ -30,24 +30,22 @@ bash ~/myconfig/debian/install.sh --mirror official
 这些命令也可以逐行粘贴到 Fish。**不要用 `sudo bash install.sh`**；脚本只对系统操作调用 sudo，
 Homebrew、编辑器扩展和用户配置都由当前用户安装。克隆目录需要保留，配置会链接到其中。
 
-已安装旧版（例如 `83b49ed`）时，修复登录虚拟键盘、字体/GTK/Qt 主题、面板布局和 GRUB：
+已安装本配置后，更新仓库并通过同一个入口同步桌面配置：
 
 ```bash
 git -C ~/myconfig pull --ff-only
-bash ~/myconfig/debian/repair-desktop.sh
+bash ~/myconfig/debian/install.sh --refresh
 ```
 
-修复器只补缺少的桌面依赖（包括 Backports 的 `hyprland-guiutils`）、部署配置和主题、检查 Waybar 实际字体的全部图标、备份并同步 dconf、切换 Catppuccin SDDM 并禁用虚拟键盘、重新生成并检查 GRUB；不重跑全部软件安装，不移除桌面，不重启会话。完成后保存工作并注销重登，新终端加载 Fish 主题；重启时检查登录界面与 GRUB。检查失败会返回非零并写入 `~/.local/state/myconfig-debian/repair-desktop.log`。
+此命令会补齐缺少的桌面依赖（包括 Backports 的 `hyprland-guiutils`）、重新应用 Catppuccin、SDDM、GRUB 和用户配置、检查 Hyprland/Waybar 字体，并在当前 Hyprland 会话刷新 Waybar、Fcitx、网络及 USB 托盘。它不会重装完整软件清单、卸载 KDE 或强制退出桌面；若从 TTY 或 KDE 运行，面板进程会在下次 Hyprland 登录时读取新设置。托盘配置立即更新；登录主题、GRUB 和需要新会话环境的设置在重启或重新登录后生效。日志保存在 `~/.local/state/myconfig-debian/install-refresh.log`，失败时会显示具体步骤。
 
-仅修复 Waybar 时，在当前 Hyprland 终端运行 `bash ~/myconfig/debian/repair-waybar.sh`。它补齐缺少的 Debian GLib/dconf 工具，备份并部署 GTK settings.ini、Waybar 配置和 Lua IPC 兼容启动器、核验字体（缺失或不完整时补装经过校验的 Nerd Font），并从已安装的 `papirus-icon-theme` 生成浅色托盘主题。主题通过 Debian 的 `/usr/bin/gsettings` 与 dconf 后端持久写入，并回读确认，避免调用 Homebrew 的同名工具。随后部署 Fcitx 浅色文字图标配置，重启当前用户的 Waybar、Fcitx 和网络托盘程序；Waybar 和网络托盘使用明确的 Wayland/系统设置后端，请先结束正在输入的拼音组合。无需注销，不更新 GRUB 或 Homebrew。最后的图标诊断也使用 Wayland，并输出实际图标路径；主题名称不同或诊断信息不足时保留警告，不再将其误报为安装失败。真正的部署/启动失败会明确打印失败步骤和退出码。日志在 `~/.local/state/myconfig-debian/repair-waybar.log`、`waybar.log`、`fcitx5-tray.log` 和 `nm-applet-tray.log`。
+需要先预览时运行 `bash ~/myconfig/debian/install.sh --refresh --dry-run`。首次安装、同步已有桌面和查看软件清单统一使用 `install.sh`；独立的 `install-software.sh` 仍可单独调用，但日常不必使用它。
 
 蓝牙、输入法等托盘图标使用 `Myconfig-Papirus-Dark`：沿用 Papirus-Dark 的桌面图标，为托盘提供可缩放的 Macchiato 浅色资源，并保留禁用、连接和警告状态。Fcitx 的键盘及 Blueman 的 symbolic 图标也使用实际浅色像素；Waybar 0.12 将图标渲染成图片，仅设置 CSS `color` 无法使其变色。应用直接提供的自有彩色位图仍保留应用原色。
 
-U 盘托盘使用独立的浅色 USB 存储造型，避免回退成通用磁盘图标。只更新这一项时运行 `bash ~/myconfig/debian/repair-waybar.sh --usb-icon`，它刷新图标资源并重启 Waybar、udiskie；不重新配置输入法、网络或字体，也不卸载/弹出已挂载的 U 盘。
+U 盘托盘保留 Papirus 原生 USB 面板造型并转为浅色，与其余状态图标保持一致；文件管理器中的设备图标继续使用原版 Papirus。桌面同步入口会一并更新图标资源并重启 Waybar、udiskie，不会卸载或弹出已挂载的 U 盘。
 
-一起修复面板点击和登录界面，运行 `bash ~/myconfig/debian/repair-desktop.sh --panel-login` 即可；无需先单独运行 Waybar 修复。此选项只补缺少的 SDDM Qt6/QML/SVG 依赖、安装 SHA-256 核验过的 Catppuccin Macchiato/Lavender 登录主题，并部署 Waybar 与退出/唤醒命令。Waybar 立即重启，登录主题在保存工作后重启电脑时生效；不重启 SDDM、不操作 GRUB、不重跑全部软件安装。
-
-Debian 的 Waybar 0.12 使用旧的 Hyprland `dispatch workspace` 命令，不能直接控制 Lua 会话。启动器检测实际 `configProvider`，仅为自己的 Waybar 子进程建立私有 socket，将工作区切换翻译为 `hl.dsp.focus`；查询、工作区状态事件和新版原生 Lua 命令原样传递。原有窗口排列、15px 字体、28px 面板高度均保留。
+Debian 的 Waybar 0.12 使用旧的 Hyprland `dispatch workspace` 命令，不能直接控制 Lua 会话。启动器检测实际 `configProvider`，仅为自己的 Waybar 子进程建立私有 socket，将工作区切换翻译为 `hl.dsp.focus`；查询、工作区状态事件和新版原生 Lua 命令原样传递。原有窗口排列、15px 字体、28px 面板高度均保留。点击 CPU、温度或内存时，btop 在独立 Kitty 窗口以 10.5px 字体启动；按你实测的 13px 下 70 列估算，可扩展到约 87 列、约 47 行，超过 80×24 的需求，普通终端仍使用 13px。
 
 ```bash
 # 只看完整清单、安装步骤和手动项，不修改系统

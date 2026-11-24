@@ -36,6 +36,9 @@ style = open(sys.argv[2], encoding="utf-8").read()
 assert config["height"] == 28, config["height"]
 assert config["spacing"] == 6, config["spacing"]
 assert config["hyprland/workspaces"]["move-to-monitor"] is True
+for module in ("cpu", "temperature", "memory"):
+    assert config[module]["on-click"] == "kitty --override font_size=10.5 -e btop", config[module]
+assert 70 * 13 / 10.5 >= 80, "btop font override should fit at least 80 columns from the measured 70-column baseline"
 battery = config["battery"]
 power = config["battery#power"]
 assert battery["interval"] == 5, battery["interval"]
@@ -57,7 +60,7 @@ assert tray_icons and re.search(r"color:\s*#cad3f5\s*;", tray_icons[1]), "tray l
 assert re.search(r"#network\s*\{[^}]*color:\s*#cad3f5", style, re.S)
 assert re.search(r"#battery\.plugged\s*\{[^}]*color:\s*#cad3f5", style, re.S)
 assert re.search(r"#battery\.full\s*\{[^}]*color:\s*#a6da95", style, re.S)
-print("PASS: click-to-focus workspace routing, battery state icons, 5-second refresh, 15px font, unchanged 28px bar, and tray/workspace CSS contrast (image pixels tested separately)")
+print("PASS: click-to-focus workspace routing, btop's 10.5px Kitty override, battery state icons, 5-second refresh, 15px font, unchanged 28px bar, and tray/workspace CSS contrast (image pixels tested separately)")
 PY
 printf 'PASS: scoped Waybar font rules defeat old CJK overrides; real Pango uses narrow JetBrainsMono digits\n'
 

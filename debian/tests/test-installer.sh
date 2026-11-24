@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Offline regression tests. No sudo, APT, Homebrew, or user config is executed.
 # Imports, shared state, mocked commands, and literal generated scripts are intentional.
-# shellcheck disable=SC1091,SC2034,SC2329,SC2016,SC2030,SC2031
+# shellcheck disable=SC1091,SC2034,SC2317,SC2329,SC2016,SC2030,SC2031
 set -Eeuo pipefail
 TEST_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(CDPATH='' cd -- "$TEST_DIR/.." && pwd)"

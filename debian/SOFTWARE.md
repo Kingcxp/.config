@@ -112,7 +112,7 @@ Debian Trixie / Backports 包名于 2026-11-22 对照 Debian 官方索引核验�
 | 虚拟化与用户组 | 启用 libvirt；按机器上存在的组将用户加入 NetworkManager/netdev、video/render、libvirt/kvm、gamemode 组，重新登录后生效 |
 | 摄像头 | 安装 OBS/v4l2loopback，配置虚拟设备 `/dev/video10`（名称 `OBS Cam`）并尝试 DKMS 编译/加载；guvcview 选择内置或 USB 摄像头，cameractrls 调节硬件支持的参数 |
 | 电源与维护 | 安装 TLP/tlp-pd、fwupd、thermald、upower；在没有 `power-profiles-daemon` 时启用 TLP 服务；启用 fwupd 刷新和 fstrim timer。安装器不配置休眠分区或 resume |
-| Fish 与开发会话 | 默认 shell 为 Fish；随配置安装并加载 Macchiato 语法/补全主题，oh-my-posh 同步调色板。Neovim 使用系统/Homebrew 的语言服务而禁用 Mason 自动下载；用户和 systemd 会话获得 Node 22/Homebrew PATH |
+| Fish 与开发会话 | 默认 shell 为 Fish；随配置安装并加载 Macchiato 语法/补全主题，oh-my-posh 同步调色板。Neovim 优先使用系统/Homebrew 的语言服务，保留 `:Mason` / `:LspInstall` 手动安装并关闭自动下载；用户、systemd 与 Neovim 自身获得 Node 22/Homebrew PATH |
 
 ## 仍需手动完成
 

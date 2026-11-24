@@ -18,6 +18,8 @@ source "$SCRIPT_DIR/lib/install-appearance.sh"
 source "$SCRIPT_DIR/lib/configure-grub.sh"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/configure-existing-desktop.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/configure-editor.sh"
 
 say() { printf '\n==> %s\n' "$*"; }
 die() { printf 'Error: %s\n' "$*" >&2; exit 2; }
@@ -133,11 +135,12 @@ finish_desktop_install() {
 }
 
 main() {
-    local configs_only=false status=0 dry_run=false replace_kde=true refresh=false
+    local configs_only=false status=0 dry_run=false replace_kde=true refresh=false editor_only=false
     local software_args=()
     while (( $# )); do
         case "$1" in
             --refresh) refresh=true; shift ;;
+            --editor) editor_only=true; shift ;;
             --mirror)
                 if (( $# < 2 )) || [[ "$2" != official && "$2" != nju ]]; then die '--mirror requires official or nju'; fi
                 software_args+=(--mirror "$2"); shift 2 ;;
@@ -146,16 +149,27 @@ main() {
             --dry-run) dry_run=true; shift ;;
             --manual) bash "$SCRIPT_DIR/install-software.sh" --manual; return ;;
             --help|-h)
-                printf 'Usage: bash install.sh [--mirror official|nju] [--keep-kde] [--dry-run | --configs-only]\n       bash install.sh --refresh [--dry-run]\nDefault: install software, deploy/check Hyprland, configure SDDM, then remove KDE.\nLog out of KDE first and run from a TTY (Ctrl+Alt+F3). --keep-kde skips removal.\n--configs-only deploys user config/tmux plugins, with no APT or system/login changes.\n--refresh reapplies the complete desktop/user configuration and installs only missing desktop prerequisites; it does not reinstall the full software manifest or remove KDE.\n--refresh --dry-run previews the changes without modifying the system.\n'
+                printf 'Usage: bash install.sh [--mirror official|nju] [--keep-kde] [--dry-run | --configs-only]\n       bash install.sh --refresh [--dry-run]\n       bash install.sh --editor [--dry-run]\nDefault: install software, deploy/check Hyprland, configure SDDM, then remove KDE.\nLog out of KDE first and run from a TTY (Ctrl+Alt+F3). --keep-kde skips removal.\n--configs-only deploys user config/tmux plugins, with no APT or system/login changes.\n--refresh reapplies the complete desktop/user configuration and installs missing desktop/JSON-LSP prerequisites; it does not reinstall the full software manifest or remove KDE.\n--editor installs missing JSON/HTML/CSS language servers using existing Homebrew and deploys only Neovim configuration.\nAdd --dry-run to preview changes without modifying the system.\n'
                 return ;;
             *) die "Unknown option: $1" ;;
         esac
     done
+    if [[ "$editor_only" == true ]]; then
+        [[ "$refresh" == false && "$configs_only" == false && "$replace_kde" == true && ${#software_args[@]} == 0 ]] \
+            || die '--editor cannot be combined with --refresh, --mirror, --keep-kde, or --configs-only.'
+        if [[ "$dry_run" == true ]]; then
+            printf 'Editor plan: restore Homebrew/Node PATH, install missing vscode-langservers-extracted commands, and back up/link Neovim configuration. Mason installs are manual. No desktop, APT, GRUB, or KDE changes.\n'
+            return 0
+        fi
+        [[ -d "$PROFILE_DIR/.config" ]] || die "Missing profile: $PROFILE_DIR"
+        configure_editor_only
+        return $?
+    fi
     if [[ "$refresh" == true ]]; then
         [[ "$configs_only" == false && "$replace_kde" == true && ${#software_args[@]} == 0 ]] \
             || die '--refresh cannot be combined with --mirror, --keep-kde, or --configs-only.'
         if [[ "$dry_run" == true ]]; then
-            printf 'Desktop refresh plan: install missing desktop prerequisites; apply Catppuccin/SDDM/GRUB settings; deploy all user configuration; validate Hyprland and Waybar fonts; refresh Waybar, Fcitx, network and USB tray apps in an active Hyprland session. No full software-manifest install or KDE removal.\n'
+            printf 'Desktop refresh plan: install missing desktop prerequisites and JSON/HTML/CSS server commands; apply Catppuccin/SDDM/GRUB settings; deploy all user configuration; validate Hyprland and Waybar fonts; refresh Waybar, Fcitx, network and USB tray apps in an active Hyprland session. No full software-manifest install or KDE removal.\n'
             return 0
         fi
         [[ -d "$PROFILE_DIR/.config" ]] || die "Missing profile: $PROFILE_DIR"

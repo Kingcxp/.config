@@ -16,6 +16,8 @@ source "$SCRIPT_DIR/lib/configure-system.sh"
 source "$SCRIPT_DIR/lib/install-appearance.sh"
 # shellcheck disable=SC1091
 source "$SCRIPT_DIR/lib/configure-grub.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/configure-editor.sh"
 MIRROR=official
 DESKTOP_MIGRATION=false
 DOCKER_PREEXISTING=false
@@ -164,6 +166,7 @@ install_brew() {
     done
     prefix="$("$brew_path" --prefix)"
     export PATH="$prefix/opt/node@22/bin:$PATH"
+    if ! editor_check_language_servers; then FAILURES+=("Editor JSON/HTML/CSS language-server commands (vscode-langservers-extracted / Node PATH)"); fi
     fc-cache -f || FAILURES+=("Font cache refresh")
 }
 

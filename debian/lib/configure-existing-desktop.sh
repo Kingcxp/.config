@@ -170,6 +170,9 @@ configure_existing_desktop() {
     REFRESH_STEP='deploy the complete user configuration'
     deploy_user_configuration
     install_tmux_plugins
+    REFRESH_STEP='check JSON/HTML/CSS language servers'
+    editor_ensure_language_servers || setup_failure 'Install/locate the vscode-langservers-extracted editor tools'
+    REFRESH_STEP='apply the user appearance'
     bash "$SCRIPT_DIR/lib/user-appearance.sh" "$STATE_DIR" || setup_failure 'Apply GTK and desktop appearance'
     if command -v xdg-user-dirs-update >/dev/null; then xdg-user-dirs-update; fi
     fc-cache -f || setup_failure 'Refresh the user font cache'

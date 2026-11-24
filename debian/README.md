@@ -37,7 +37,7 @@ git -C ~/myconfig pull --ff-only
 bash ~/myconfig/debian/install.sh --refresh
 ```
 
-此命令会补齐缺少的桌面依赖（包括 Backports 的 `hyprland-guiutils`）、重新应用 Catppuccin、SDDM、GRUB 和用户配置、检查 Hyprland/Waybar 字体，并在当前 Hyprland 会话刷新 Waybar、Fcitx、网络及 USB 托盘。它不会重装完整软件清单、卸载 KDE 或强制退出桌面；若从 TTY 或 KDE 运行，面板进程会在下次 Hyprland 登录时读取新设置。托盘配置立即更新；登录主题、GRUB 和需要新会话环境的设置在重启或重新登录后生效。日志保存在 `~/.local/state/myconfig-debian/install-refresh.log`，失败时会显示具体步骤。
+此命令会补齐缺少的桌面依赖（包括 Backports 的 `hyprland-guiutils`）和 JSON/HTML/CSS 语言服务器、重新应用 Catppuccin、SDDM、GRUB 和用户配置、检查 Hyprland/Waybar 字体，并在当前 Hyprland 会话刷新 Waybar、Fcitx、网络及 USB 托盘。它不会重装完整软件清单、卸载 KDE 或强制退出桌面；若从 TTY 或 KDE 运行，面板进程会在下次 Hyprland 登录时读取新设置。托盘配置立即更新；登录主题、GRUB 和需要新会话环境的设置在重启或重新登录后生效。日志保存在 `~/.local/state/myconfig-debian/install-refresh.log`，失败时会显示具体步骤。
 
 需要先预览时运行 `bash ~/myconfig/debian/install.sh --refresh --dry-run`。首次安装、同步已有桌面和查看软件清单统一使用 `install.sh`；独立的 `install-software.sh` 仍可单独调用，但日常不必使用它。
 
@@ -62,6 +62,9 @@ bash ~/myconfig/debian/install-software.sh
 
 # 已装好依赖，只部署配置与 tmux 插件；仍可能从 GitHub 下载插件
 bash ~/myconfig/debian/install.sh --configs-only
+
+# 只同步 Neovim，并补齐 JSON/HTML/CSS 语言服务器（需要已安装 Homebrew）
+bash ~/myconfig/debian/install.sh --editor
 
 # 随时在终端查看自行安装的软件和首次启用步骤
 bash ~/myconfig/debian/install-software.sh --manual
@@ -150,7 +153,7 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 - **音量/亮度：** Waybar 滚轮每次 1%，方向反转，音量上限 100%、亮度下限 5%；Fn 键保持常规方向。背光、充电阈值和电源策略以机器实际暴露的 sysfs 能力为准。
 - **tmux：** Mocha 状态栏、CPU/电池插件。若已有 tmux 服务，执行 `tmux source-file ~/.tmux.conf`，或新建会话；已有服务不会被安装器杀掉。
 - **Fish：** 使用随仓库提供的 [Catppuccin Macchiato 静态主题](https://github.com/catppuccin/fish)，兼容 Debian 13 的 Fish 4.0；每个交互会话应用主题，覆盖旧 universal 颜色但不改写它们。oh-my-posh 保留原 clean-detailed 布局并同步 Macchiato 调色板；重新打开终端生效，不需要联网安装主题。
-- **开发：** `uv init` / `uv add` / `uv run`；`direnv allow` 启用可信项目环境。Neovim 使用 Homebrew 版匹配 AstroNvim；首次打开会联网获取插件，LSP 已启用 APT/Homebrew 安装的服务，不再由 Mason 重复下载工具链。Node 22 的 PATH 同时提供给 Fish、桌面会话和用户服务。
+- **开发：** `uv init` / `uv add` / `uv run`；`direnv allow` 启用可信项目环境。Neovim 使用 Homebrew 版匹配 AstroNvim；首次打开会联网获取插件。LSP 优先使用 APT/Homebrew 的服务，Mason 保留手动安装入口 `:Mason`、`:LspInstall jsonls`，不自动重复下载工具链。JSON/HTML/CSS 的包名为 `vscode-langservers-extracted`，其中 JSON 命令为 `vscode-json-language-server`；安装器会检查实际命令与 Node 是否在 PATH 中。Node 22 的 PATH 同时提供给 Fish、桌面会话和用户服务，Neovim 自身也读取安装器记录的 Homebrew 路径，支持从旧会话或 Neovide 启动。
 - **排版：** `latexmk -xelatex main.tex` 或 `latexmk -pdf main.tex`；`pandoc input.md -o output.docx`。`typst compile main.typ` 编译 Typst。绘图可用 draw.io、Inkscape、Krita、Blender。
 - **远程与 Agent：** `sudo tailscale up --netfilter-mode=nodivert --ssh=false` 加入网络；运行 `codex` 登录 Codex CLI，应用菜单的 **Codex App (Web)** 在 Edge app 模式打开 Codex 网页，`copilot` 单独登录。Linux cask 提供 CLI，不是原生桌面 App。SSH 仅允许 Tailnet 公钥访问。RustDesk 画面捕获和远端输入需分别验收，Homebrew 客户端不附带原 root 服务。
 - **容器与虚拟机：** 安装器启用 rootless Docker、Compose/Buildx、libvirt/KVM 服务和用户组；重新登录后使用 `docker info`、`docker compose version` 与 virt-manager 验证。
@@ -192,6 +195,7 @@ NJU 在维护机当前网络下超时，切换成功与否以目标机器的实�
 python3 -B ~/myconfig/debian/tests/test-apt-sources.py
 python3 -B ~/myconfig/debian/tests/test-sddm.py
 bash ~/myconfig/debian/tests/test-installer.sh
+bash ~/myconfig/debian/tests/test-editor.sh
 bash ~/myconfig/debian/tests/test-vscode.sh
 bash ~/myconfig/debian/tests/test-mirror.sh
 bash ~/myconfig/debian/tests/test-desktop-migration.sh

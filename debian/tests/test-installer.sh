@@ -72,6 +72,9 @@ esac
 EOF
     chmod +x "$TEST_WORK/brew-bin/brew"
     fc-cache() { return 0; }
+    # This test focuses on package iteration; actual executable checks are
+    # exercised separately by test-editor.sh.
+    editor_check_language_servers() { return 0; }
     export TEST_WORK
     PATH="$TEST_WORK/brew-bin:$PATH"
     install_brew

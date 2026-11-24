@@ -149,7 +149,7 @@ main() {
             --dry-run) dry_run=true; shift ;;
             --manual) bash "$SCRIPT_DIR/install-software.sh" --manual; return ;;
             --help|-h)
-                printf 'Usage: bash install.sh [--mirror official|nju] [--keep-kde] [--dry-run | --configs-only]\n       bash install.sh --refresh [--dry-run]\n       bash install.sh --editor [--dry-run]\nDefault: install software, deploy/check Hyprland, configure SDDM, then remove KDE.\nLog out of KDE first and run from a TTY (Ctrl+Alt+F3). --keep-kde skips removal.\n--configs-only deploys user config/tmux plugins, with no APT or system/login changes.\n--refresh reapplies the complete desktop/user configuration and installs missing desktop/JSON-LSP prerequisites; it does not reinstall the full software manifest or remove KDE.\n--editor installs missing JSON/HTML/CSS language servers using existing Homebrew and deploys only Neovim configuration.\nAdd --dry-run to preview changes without modifying the system.\n'
+                printf 'Usage: bash install.sh [--mirror official|nju] [--keep-kde] [--dry-run | --configs-only]\n       bash install.sh --refresh [--dry-run]\n       bash install.sh --editor [--dry-run]\nDefault: install software, deploy/check Hyprland, configure SDDM, then remove KDE.\nLog out of KDE first and run from a TTY (Ctrl+Alt+F3). --keep-kde skips removal.\n--configs-only deploys user config/tmux plugins, with no APT or system/login changes.\n--refresh reapplies the complete desktop/user configuration and installs missing desktop/JSON-LSP prerequisites; it does not reinstall the full software manifest or remove KDE.\n--editor installs missing JSON/HTML/CSS language servers using existing Homebrew and deploys Neovim, Kitty and Chinese font preferences.\nAdd --dry-run to preview changes without modifying the system.\n'
                 return ;;
             *) die "Unknown option: $1" ;;
         esac
@@ -158,7 +158,7 @@ main() {
         [[ "$refresh" == false && "$configs_only" == false && "$replace_kde" == true && ${#software_args[@]} == 0 ]] \
             || die '--editor cannot be combined with --refresh, --mirror, --keep-kde, or --configs-only.'
         if [[ "$dry_run" == true ]]; then
-            printf 'Editor plan: restore Homebrew/Node PATH, install missing vscode-langservers-extracted commands, and back up/link Neovim configuration. Mason installs are manual. No desktop, APT, GRUB, or KDE changes.\n'
+            printf 'Editor plan: restore Homebrew/Node PATH, install missing vscode-langservers-extracted commands, and back up/link Neovim, Kitty and Chinese font configuration. Mason installs are manual. No APT, GRUB, KDE or desktop-session changes.\n'
             return 0
         fi
         [[ -d "$PROFILE_DIR/.config" ]] || die "Missing profile: $PROFILE_DIR"
@@ -204,6 +204,10 @@ main() {
     install_tmux_plugins
     if command -v xdg-user-dirs-update >/dev/null; then xdg-user-dirs-update; fi
     if command -v fc-cache >/dev/null; then fc-cache -f; fi
+    if ! python3 "$SCRIPT_DIR/lib/check-cjk-fonts.py"; then
+        printf 'Chinese UI font selection failed; KDE will be retained.\n' >&2
+        status=1
+    fi
     finish_desktop_install "$configs_only" "$replace_kde" "$status"
     if [[ "$configs_only" == true ]]; then
         printf '\nUser configuration deployed; system packages and login setup were not changed.\n'

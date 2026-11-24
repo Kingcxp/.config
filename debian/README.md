@@ -63,7 +63,7 @@ bash ~/myconfig/debian/install-software.sh
 # 已装好依赖，只部署配置与 tmux 插件；仍可能从 GitHub 下载插件
 bash ~/myconfig/debian/install.sh --configs-only
 
-# 只同步 Neovim，并补齐 JSON/HTML/CSS 语言服务器（需要已安装 Homebrew）
+# 同步 Neovim、Kitty/中文字体，并补齐 JSON/HTML/CSS 服务（需要已安装 Homebrew）
 bash ~/myconfig/debian/install.sh --editor
 
 # 随时在终端查看自行安装的软件和首次启用步骤
@@ -147,7 +147,8 @@ Homebrew 缺失时，下载并执行[官方安装器](https://github.com/Homebre
 脚本为 SDDM 安装官方 Catppuccin Macchiato/Lavender Qt6 主题，与桌面配色一致；Maui 包仅保留为备用主题，不选为登录外观。主题和 QML/SVG 依赖独立于 Plasma，移除 KDE 后仍可使用。
 已有自动登录若启用则改指向新会话，不会新开启自动登录；默认 shell 设为 Fish，不设置免密码 sudo。
 
-- **桌面：** 内屏 `eDP-1` 使用首选模式和约 166.7% 缩放，不再要求面板的 BOE 描述完全相同。Waybar 为左侧标题/硬件/网络、中间工作区、右侧托盘/音量/亮度/时钟/电池/功耗；字体 15px、高度 28px；字符间距 0.5px，模块左右内边距 6px、模块间隔 6px，工作区按钮左右内边距 4px、桌面按钮间隔 6px。CSS 只指定 JetBrainsMono Nerd Font，专用启动器显式加载配置/样式，并用仅对 Waybar 生效的 Fontconfig 规则避免遗留中文字体别名替换数字。校验同时检查所有图标、ASCII 字符和中文语言环境下 Pango 实际选中的数字字体及字宽；字体缺失的中文字符仍正常回退。保留标题/网络长度限制、dwindle 和原快捷键与动画。
+- **桌面：** 内屏 `eDP-1` 使用首选模式和约 166.7% 缩放，不再要求面板的 BOE 描述完全相同。Waybar 为左侧标题/硬件/网络、中间工作区、右侧托盘/音量/亮度/时钟/电池/功耗；字体 15px、高度 28px；字符间距 0.5px，模块左右内边距 6px、模块间隔 6px，工作区按钮左右内边距 4px、桌面按钮间隔 6px。CSS 只指定 JetBrainsMono Nerd Font，专用启动器显式加载配置/样式，并用仅对 Waybar 生效的 Fontconfig 规则保护数字字体，明确以 Noto Sans CJK SC 回退汉字。校验同时检查所有图标、ASCII 字符，以及 Pango 实际选中的中文/数字字体与字宽。保留标题/网络长度限制、dwindle 和原快捷键与动画。
+- **中文字体：** 默认汉字使用 Noto Sans CJK SC，无衬线黑体的观感更接近微软雅黑；英文、数字和图标保留 JetBrainsMono Nerd Font。Kitty 对汉字和中文标点单独映射字体，终端里的 Neovim、tmux 等直接沿用；Waybar 与 GTK/Qt 使用 Fontconfig 的中文回退规则。不会改变已有字号、面板高度或终端留白。文档里明确指定宋体、楷体、仿宋时仍使用文档替代字体；安装与同步命令都会检查实际字体匹配，关闭并重新打开终端/应用后生效。
 - **快捷键：** `Super+Q` 终端、`Super+E` Dolphin、`Super+F` Firefox、`Super+R` 启动器、`Super+G` 编辑器、`Super+P` 区域截图。取消截图不改剪贴板；`Super+M` 退出菜单只退出当前桌面会话。
 - **输入与主题：** 生成 `zh_CN.UTF-8` locale 并设置 `Asia/Shanghai`，`Ctrl+Space` 切换拼音。Hyprland 会话清除继承的 `GTK_IM_MODULE`，GTK3/4 原生 Wayland 使用 text-input-v3，GTK 的 X11 模块由各自配置文件启用；GTK portal 保留专用环境。Qt5 使用 `QT_IM_MODULE=fcitx`，Qt6 以 `QT_IM_MODULES=wayland;fcitx;ibus` 优先选择原生协议并保留回退，依据 [Fcitx 官方说明](https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland) 与 Qt 的实现。托盘、GTK、光标、Qt/Kvantum、Fcitx5 和 GRUB 使用 Catppuccin Macchiato/Lavender，图标为 Papirus。Waybar 图标已迁移到 Nerd Fonts 3 码点，检查实际字体中的全部图标，缺失时安装经过校验的字体。GTK/Qt 和 dconf 同步为 JetBrainsMono Nerd Font 12，避免旧 KDE 设置覆盖。Qt5ct/Qt6ct 均使用 `qt5ct` 插件入口；SDDM 使用官方 Catppuccin Macchiato/Lavender 登录主题（深色纯色背景、居中登录框、中文提示、浅色文字），补齐 Qt6 QML/SVG 插件并关闭屏幕键盘。
 - **音量/亮度：** Waybar 滚轮每次 1%，方向反转，音量上限 100%、亮度下限 5%；Fn 键保持常规方向。背光、充电阈值和电源策略以机器实际暴露的 sysfs 能力为准。
@@ -196,6 +197,7 @@ python3 -B ~/myconfig/debian/tests/test-apt-sources.py
 python3 -B ~/myconfig/debian/tests/test-sddm.py
 bash ~/myconfig/debian/tests/test-installer.sh
 bash ~/myconfig/debian/tests/test-editor.sh
+bash ~/myconfig/debian/tests/test-cjk-fonts.sh
 bash ~/myconfig/debian/tests/test-vscode.sh
 bash ~/myconfig/debian/tests/test-mirror.sh
 bash ~/myconfig/debian/tests/test-desktop-migration.sh

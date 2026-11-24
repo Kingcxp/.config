@@ -176,6 +176,7 @@ configure_existing_desktop() {
     bash "$SCRIPT_DIR/lib/user-appearance.sh" "$STATE_DIR" || setup_failure 'Apply GTK and desktop appearance'
     if command -v xdg-user-dirs-update >/dev/null; then xdg-user-dirs-update; fi
     fc-cache -f || setup_failure 'Refresh the user font cache'
+    python3 "$SCRIPT_DIR/lib/check-cjk-fonts.py" || setup_failure 'Verify Chinese sans fallback and Latin/digit fonts'
     fc-match 'JetBrainsMono Nerd Font'
     fc-match 'Noto Sans CJK SC'
     configure_waybar_and_tray

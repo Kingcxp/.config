@@ -70,7 +70,12 @@ configure_editor_only() {
     editor_ensure_language_servers
     command -v nvim >/dev/null || die 'Neovim is unavailable; use the full installer to install it.'
     link_tree "$PROFILE_DIR/.config/nvim" "$HOME/.config/nvim"
-    printf '\nNeovim configuration deployed; restart Neovim and let Lazy install the enabled Mason plugins.\n'
+    link_tree "$PROFILE_DIR/.config/fontconfig" "$HOME/.config/fontconfig"
+    link_tree "$PROFILE_DIR/.config/kitty" "$HOME/.config/kitty"
+    fc-cache -f
+    python3 "$SCRIPT_DIR/lib/check-cjk-fonts.py"
+    printf '\nNeovim and terminal fonts configured; close/reopen Kitty and Neovim to load the Chinese font preferences.\n'
+    printf 'Let Lazy install the enabled Mason plugins.\n'
     printf 'In Neovim: :LspInfo, :Mason, :LspInstall jsonls (manual alternative).\n'
     if [[ -n "$BACKUP_ROOT" ]]; then printf 'Config backups: %s\n' "$BACKUP_ROOT"; fi
 }

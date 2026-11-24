@@ -55,7 +55,7 @@ printf 'PASS: a successful package command without the required executable is no
 before="$(find "$HOME" -print | wc -l)"
 bash "$ROOT/install.sh" --editor --dry-run >"$work/plan"
 [[ "$before" == "$(find "$HOME" -print | wc -l)" ]]
-grep -q 'No desktop, APT, GRUB, or KDE changes' "$work/plan"
+grep -q 'No APT, GRUB, KDE or desktop-session changes' "$work/plan"
 for argument in --refresh --configs-only --keep-kde; do
     status=0
     bash "$ROOT/install.sh" --editor "$argument" --dry-run >/dev/null 2>&1 || status="$?"

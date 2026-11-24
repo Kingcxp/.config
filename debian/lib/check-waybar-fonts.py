@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check Waybar's real fonts, icon coverage and Pango's rendered ASCII digits."""
+"""Check Waybar's real fonts, icons, ASCII digits and Chinese sans fallback."""
 
 import argparse
 import ctypes as ct
@@ -66,6 +66,16 @@ def check_pango_digits(quiet, size_px):
                     gobject.g_object_unref(font)
                     if family != "JetBrainsMono Nerd Font":
                         raise ValueError(f"Pango zh-CN selected {family} for {char!r}")
+                for char in "中文汉字字体开发科研终端":
+                    font = pango.pango_fontset_get_font(fontset, ord(char))
+                    selected = pango.pango_font_describe(font)
+                    family = pango.pango_font_description_get_family(selected).decode()
+                    pango.pango_font_description_free(selected)
+                    gobject.g_object_unref(font)
+                    if family != "Noto Sans CJK SC":
+                        raise ValueError(f"Pango zh-CN selected {family} for Chinese {char!r}; expected Noto Sans CJK SC")
+                if not quiet:
+                    print(f"PASS Pango zh-CN weight {weight}: Chinese glyphs use Noto Sans CJK SC")
             finally:
                 gobject.g_object_unref(fontset)
             layout = pango.pango_layout_new(context)
